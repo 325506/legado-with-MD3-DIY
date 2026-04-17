@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -30,15 +31,21 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.res.ResourcesCompat
 import androidx.documentfile.provider.DocumentFile
 import io.legado.app.R
+import io.legado.app.constant.PreferKey
+import io.legado.app.ui.config.themeConfig.ThemeConfig
 import io.legado.app.ui.theme.adaptiveContentPadding
 import io.legado.app.ui.widget.components.AppScaffold
 import io.legado.app.ui.widget.components.button.TopBarNavigationButton
 import io.legado.app.ui.widget.components.topbar.GlassMediumFlexibleTopAppBar
 import io.legado.app.ui.widget.components.topbar.GlassTopAppBarDefaults
 import io.legado.app.utils.FileDoc
+import io.legado.app.utils.getPrefString
 import io.legado.app.utils.listFileDocs
+import io.legado.app.utils.putPrefString
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,8 +63,12 @@ fun FontSelectScreen(
         fontItems = loadFontFiles(context, selectedFolderUri)
     }
 
-    // 初始加载
+    // 从偏好设置中加载保存的字体文件夹路径
     remember {
+        val savedFontPath = context.getPrefString(PreferKey.fontFolder)
+        if (!savedFontPath.isNullOrEmpty()) {
+            selectedFolderUri = Uri.parse(savedFontPath)
+        }
         loadFonts()
     }
 
@@ -67,6 +78,8 @@ fun FontSelectScreen(
     ) { uri ->
         if (uri != null) {
             selectedFolderUri = uri
+            // 保存选择的文件夹路径到偏好设置
+            context.putPrefString(PreferKey.fontFolder, uri.toString())
             loadFonts()
         }
     }
@@ -114,7 +127,10 @@ fun FontSelectScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(fontItems) {
-                    FontItem(it)
+                    FontItem(it) {
+                        // 选择字体的逻辑
+                        ThemeConfig.appFontPath = it.uri.toString()
+                    }
                 }
             }
         }
@@ -122,22 +138,43 @@ fun FontSelectScreen(
 }
 
 @Composable
-fun FontItem(fontDoc: FileDoc) {
+fun FontItem(fontDoc: FileDoc, onFontSelected: (FileDoc) -> Unit) {
+    val context = LocalContext.current
+    
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().height(120.dp),
         onClick = {
-            // 选择字体的逻辑
+            onFontSelected(fontDoc)
         }
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = fontDoc.name,
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
+        // 使用AndroidView显示使用对应字体的文本
+        AndroidView(
+            factory = { ctx ->
+                android.widget.TextView(ctx).apply {
+                    text = fontDoc.name
+                    textSize = 16f
+                    // 设置垂直和水平居中
+                    gravity = android.view.Gravity.CENTER
+                    // 设置最大行数为2，超过省略
+                    maxLines = 2
+                    ellipsize = android.text.TextUtils.TruncateAt.END
+                    // 加载并设置字体
+                    runCatching {
+                        val typeface: Typeface? = if (fontDoc.uri.scheme == "content") {
+                            ctx.contentResolver.openFileDescriptor(fontDoc.uri, "r")?.use {
+                                Typeface.Builder(it.fileDescriptor).build()
+                            }
+                        } else {
+                            Typeface.createFromFile(fontDoc.uri.path!!)
+                        }
+                        this.typeface = typeface
+                    }.onFailure {
+                        // 字体加载失败，使用默认字体
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 

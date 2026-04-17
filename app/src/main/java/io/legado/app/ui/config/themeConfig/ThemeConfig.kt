@@ -56,6 +56,10 @@ object ThemeConfig {
         postEvent(EventBus.RECREATE, "")
     }
 
+    var appFontPath by prefDelegate<String?>(PreferKey.appFontPath, null) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
     var cPrimary by prefDelegate(PreferKey.cPrimary, 0) {
         postEvent(EventBus.RECREATE, "")
     }

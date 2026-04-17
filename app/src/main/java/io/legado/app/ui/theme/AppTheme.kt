@@ -10,9 +10,18 @@ import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.Font
+import android.graphics.Typeface
+import android.net.Uri
 import io.legado.app.ui.config.themeConfig.ThemeConfig
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.theme.ThemeController
@@ -32,10 +41,41 @@ fun AppTheme(
     val composeEngine = ThemeConfig.composeEngine
     val useMiuixMonet = ThemeConfig.useMiuixMonet
     val customPrimary = ThemeConfig.cPrimary
+    val appFontPath = ThemeConfig.appFontPath
     val colorSchemeMode = ThemeResolver.resolveColorSchemeMode(themeModeValue)
     val miuixColorSchemeMode = remember(themeModeValue, useMiuixMonet) {
         ThemeResolver.resolveMiuixColorSchemeMode(themeModeValue, useMiuixMonet)
     }
+    
+    // 使用响应式状态确保字体路径变化时能触发重组
+    var currentFontPath by remember { mutableStateOf(ThemeConfig.appFontPath) }
+    LaunchedEffect(Unit) {
+        currentFontPath = ThemeConfig.appFontPath
+    }
+
+    // 加载自定义字体
+    val customFontFamily = remember(currentFontPath, context) {
+        if (!currentFontPath.isNullOrEmpty()) {
+            try {
+                val uri = Uri.parse(currentFontPath)
+                val typeface: Typeface? = if (uri.scheme == "content") {
+                    context.contentResolver.openFileDescriptor(uri, "r")?.use {
+                        Typeface.Builder(it.fileDescriptor).build()
+                    }
+                } else {
+                    Typeface.createFromFile(uri.path)
+                }
+                typeface?.let {
+                    FontFamily(it)
+                }
+            } catch (e: Exception) {
+                null
+            }
+        } else {
+            null
+        }
+    }
+    
     val paletteStyle =
         remember(paletteStyleValue) { ThemeResolver.resolvePaletteStyle(paletteStyleValue) }
 
@@ -129,8 +169,39 @@ fun AppTheme(
 
             MiuixTheme(controller = controller) {
                 val miuixStyles = MiuixTheme.textStyles
-                val legadoTypography = remember(miuixStyles) {
-                    miuixStylesToM3Typography(miuixStyles).toLegadoTypography()
+                val legadoTypography = remember(miuixStyles, customFontFamily) {
+                    val typography = miuixStylesToM3Typography(miuixStyles)
+                    val legadoTypography = typography.toLegadoTypography()
+                    if (customFontFamily != null) {
+                        legadoTypography.copy(
+                            headlineLarge = legadoTypography.headlineLarge.copy(fontFamily = customFontFamily),
+                            headlineLargeEmphasized = legadoTypography.headlineLargeEmphasized.copy(fontFamily = customFontFamily),
+                            headlineMedium = legadoTypography.headlineMedium.copy(fontFamily = customFontFamily),
+                            headlineMediumEmphasized = legadoTypography.headlineMediumEmphasized.copy(fontFamily = customFontFamily),
+                            headlineSmall = legadoTypography.headlineSmall.copy(fontFamily = customFontFamily),
+                            headlineSmallEmphasized = legadoTypography.headlineSmallEmphasized.copy(fontFamily = customFontFamily),
+                            titleLarge = legadoTypography.titleLarge.copy(fontFamily = customFontFamily),
+                            titleLargeEmphasized = legadoTypography.titleLargeEmphasized.copy(fontFamily = customFontFamily),
+                            titleMedium = legadoTypography.titleMedium.copy(fontFamily = customFontFamily),
+                            titleMediumEmphasized = legadoTypography.titleMediumEmphasized.copy(fontFamily = customFontFamily),
+                            titleSmall = legadoTypography.titleSmall.copy(fontFamily = customFontFamily),
+                            titleSmallEmphasized = legadoTypography.titleSmallEmphasized.copy(fontFamily = customFontFamily),
+                            bodyLarge = legadoTypography.bodyLarge.copy(fontFamily = customFontFamily),
+                            bodyLargeEmphasized = legadoTypography.bodyLargeEmphasized.copy(fontFamily = customFontFamily),
+                            bodyMedium = legadoTypography.bodyMedium.copy(fontFamily = customFontFamily),
+                            bodyMediumEmphasized = legadoTypography.bodyMediumEmphasized.copy(fontFamily = customFontFamily),
+                            bodySmall = legadoTypography.bodySmall.copy(fontFamily = customFontFamily),
+                            bodySmallEmphasized = legadoTypography.bodySmallEmphasized.copy(fontFamily = customFontFamily),
+                            labelLarge = legadoTypography.labelLarge.copy(fontFamily = customFontFamily),
+                            labelLargeEmphasized = legadoTypography.labelLargeEmphasized.copy(fontFamily = customFontFamily),
+                            labelMedium = legadoTypography.labelMedium.copy(fontFamily = customFontFamily),
+                            labelMediumEmphasized = legadoTypography.labelMediumEmphasized.copy(fontFamily = customFontFamily),
+                            labelSmall = legadoTypography.labelSmall.copy(fontFamily = customFontFamily),
+                            labelSmallEmphasized = legadoTypography.labelSmallEmphasized.copy(fontFamily = customFontFamily)
+                        )
+                    } else {
+                        legadoTypography
+                    }
                 }
 
                 val miuixColorScheme = MiuixTheme.colorScheme
@@ -207,15 +278,64 @@ fun AppTheme(
                 }
             }
         } else {
-            val materialTypography = remember { Typography() }
+            val materialTypography = remember(customFontFamily) {
+                if (customFontFamily != null) {
+                    Typography(
+                        headlineLarge = Typography().headlineLarge.copy(fontFamily = customFontFamily),
+                        headlineMedium = Typography().headlineMedium.copy(fontFamily = customFontFamily),
+                        headlineSmall = Typography().headlineSmall.copy(fontFamily = customFontFamily),
+                        titleLarge = Typography().titleLarge.copy(fontFamily = customFontFamily),
+                        titleMedium = Typography().titleMedium.copy(fontFamily = customFontFamily),
+                        titleSmall = Typography().titleSmall.copy(fontFamily = customFontFamily),
+                        bodyLarge = Typography().bodyLarge.copy(fontFamily = customFontFamily),
+                        bodyMedium = Typography().bodyMedium.copy(fontFamily = customFontFamily),
+                        bodySmall = Typography().bodySmall.copy(fontFamily = customFontFamily),
+                        labelLarge = Typography().labelLarge.copy(fontFamily = customFontFamily),
+                        labelMedium = Typography().labelMedium.copy(fontFamily = customFontFamily),
+                        labelSmall = Typography().labelSmall.copy(fontFamily = customFontFamily)
+                    )
+                } else {
+                    Typography()
+                }
+            }
             MaterialExpressiveTheme(
                 colorScheme = colorScheme,
                 typography = materialTypography,
                 motionScheme = MotionScheme.expressive(),
                 shapes = Shapes()
             ) {
-                val legadoTypography = remember(materialTypography) {
-                    materialTypography.toLegadoTypography()
+                val legadoTypography = remember(materialTypography, customFontFamily) {
+                    val baseLegadoTypography = materialTypography.toLegadoTypography()
+                    if (customFontFamily != null) {
+                        baseLegadoTypography.copy(
+                            headlineLarge = baseLegadoTypography.headlineLarge.copy(fontFamily = customFontFamily),
+                            headlineLargeEmphasized = baseLegadoTypography.headlineLargeEmphasized.copy(fontFamily = customFontFamily),
+                            headlineMedium = baseLegadoTypography.headlineMedium.copy(fontFamily = customFontFamily),
+                            headlineMediumEmphasized = baseLegadoTypography.headlineMediumEmphasized.copy(fontFamily = customFontFamily),
+                            headlineSmall = baseLegadoTypography.headlineSmall.copy(fontFamily = customFontFamily),
+                            headlineSmallEmphasized = baseLegadoTypography.headlineSmallEmphasized.copy(fontFamily = customFontFamily),
+                            titleLarge = baseLegadoTypography.titleLarge.copy(fontFamily = customFontFamily),
+                            titleLargeEmphasized = baseLegadoTypography.titleLargeEmphasized.copy(fontFamily = customFontFamily),
+                            titleMedium = baseLegadoTypography.titleMedium.copy(fontFamily = customFontFamily),
+                            titleMediumEmphasized = baseLegadoTypography.titleMediumEmphasized.copy(fontFamily = customFontFamily),
+                            titleSmall = baseLegadoTypography.titleSmall.copy(fontFamily = customFontFamily),
+                            titleSmallEmphasized = baseLegadoTypography.titleSmallEmphasized.copy(fontFamily = customFontFamily),
+                            bodyLarge = baseLegadoTypography.bodyLarge.copy(fontFamily = customFontFamily),
+                            bodyLargeEmphasized = baseLegadoTypography.bodyLargeEmphasized.copy(fontFamily = customFontFamily),
+                            bodyMedium = baseLegadoTypography.bodyMedium.copy(fontFamily = customFontFamily),
+                            bodyMediumEmphasized = baseLegadoTypography.bodyMediumEmphasized.copy(fontFamily = customFontFamily),
+                            bodySmall = baseLegadoTypography.bodySmall.copy(fontFamily = customFontFamily),
+                            bodySmallEmphasized = baseLegadoTypography.bodySmallEmphasized.copy(fontFamily = customFontFamily),
+                            labelLarge = baseLegadoTypography.labelLarge.copy(fontFamily = customFontFamily),
+                            labelLargeEmphasized = baseLegadoTypography.labelLargeEmphasized.copy(fontFamily = customFontFamily),
+                            labelMedium = baseLegadoTypography.labelMedium.copy(fontFamily = customFontFamily),
+                            labelMediumEmphasized = baseLegadoTypography.labelMediumEmphasized.copy(fontFamily = customFontFamily),
+                            labelSmall = baseLegadoTypography.labelSmall.copy(fontFamily = customFontFamily),
+                            labelSmallEmphasized = baseLegadoTypography.labelSmallEmphasized.copy(fontFamily = customFontFamily)
+                        )
+                    } else {
+                        baseLegadoTypography
+                    }
                 }
                 val semanticColors = remember(colorScheme) { colorScheme.toLegadoColorScheme() }
 
