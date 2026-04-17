@@ -64,6 +64,70 @@ object ThemeConfig {
         postEvent(EventBus.RECREATE, "")
     }
 
+    var cTopBarColor by prefDelegate(PreferKey.cTopBarColor, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
+    var cNavBarColor by prefDelegate(PreferKey.cNavBarColor, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
+    var cFontColor by prefDelegate(PreferKey.cFontColor, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
+    var cBgColor by prefDelegate(PreferKey.cBgColor, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
+    var enableDeepPersonalization by prefDelegate(PreferKey.enableDeepPersonalization, false) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
+    // Material Design 3 color roles
+    var cMD3Primary by prefDelegate(PreferKey.cMD3Primary, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+    var cMD3OnPrimary by prefDelegate(PreferKey.cMD3OnPrimary, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+    var cMD3PrimaryContainer by prefDelegate(PreferKey.cMD3PrimaryContainer, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+    var cMD3OnPrimaryContainer by prefDelegate(PreferKey.cMD3OnPrimaryContainer, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+    var cMD3Secondary by prefDelegate(PreferKey.cMD3Secondary, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+    var cMD3OnSecondary by prefDelegate(PreferKey.cMD3OnSecondary, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+    var cMD3SecondaryContainer by prefDelegate(PreferKey.cMD3SecondaryContainer, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+    var cMD3Tertiary by prefDelegate(PreferKey.cMD3Tertiary, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+    var cMD3Error by prefDelegate(PreferKey.cMD3Error, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+    var cMD3Surface by prefDelegate(PreferKey.cMD3Surface, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+    var cMD3OnSurface by prefDelegate(PreferKey.cMD3OnSurface, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+    var cMD3Background by prefDelegate(PreferKey.cMD3Background, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+    var cMD3Outline by prefDelegate(PreferKey.cMD3Outline, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+    var cMD3SurfaceContainerLow by prefDelegate(PreferKey.cMD3SurfaceContainerLow, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
     var customContrast by prefDelegate(PreferKey.customContrast, "Default") {
         postEvent(EventBus.RECREATE, "")
     }

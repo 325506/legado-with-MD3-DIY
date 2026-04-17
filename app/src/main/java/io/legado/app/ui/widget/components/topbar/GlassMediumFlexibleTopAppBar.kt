@@ -46,15 +46,31 @@ fun GlassMediumFlexibleTopAppBar(
     val isMiuix = ThemeResolver.isMiuixEngine(composeEngine)
 
     val containerColor = if (!isMiuix) {
-        GlassTopAppBarDefaults.containerColor()
+        if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cTopBarColor != 0) {
+            Color(ThemeConfig.cTopBarColor)
+        } else {
+            GlassTopAppBarDefaults.containerColor()
+        }
     } else {
-        GlassTopAppBarDefaults.getMiuixAppBarColor()
+        if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cTopBarColor != 0) {
+            Color(ThemeConfig.cTopBarColor)
+        } else {
+            GlassTopAppBarDefaults.getMiuixAppBarColor()
+        }
     }
 
     val scrolledColor = if (!isMiuix) {
-        GlassTopAppBarDefaults.scrolledContainerColor()
+        if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cTopBarColor != 0) {
+            Color(ThemeConfig.cTopBarColor)
+        } else {
+            GlassTopAppBarDefaults.scrolledContainerColor()
+        }
     } else {
-        GlassTopAppBarDefaults.getMiuixAppBarColor()
+        if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cTopBarColor != 0) {
+            Color(ThemeConfig.cTopBarColor)
+        } else {
+            GlassTopAppBarDefaults.getMiuixAppBarColor()
+        }
     }
 
     val animatedColor = if (!isMiuix) {

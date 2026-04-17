@@ -79,15 +79,73 @@ fun AppTheme(
     val paletteStyle =
         remember(paletteStyleValue) { ThemeResolver.resolvePaletteStyle(paletteStyleValue) }
 
-    val colorScheme =
-        remember(
-            context,
-            appThemeMode,
-            darkTheme,
-            isPureBlack,
-            paletteStyleValue,
-            materialVersion
-        ) {
+    val colorScheme = remember(
+        context,
+        appThemeMode,
+        darkTheme,
+        isPureBlack,
+        paletteStyleValue,
+        materialVersion
+    ) {
+        if (ThemeConfig.enableDeepPersonalization && 
+            (ThemeConfig.cMD3Primary != 0 || 
+             ThemeConfig.cMD3Secondary != 0 || 
+             ThemeConfig.cMD3Surface != 0 || 
+             ThemeConfig.cMD3Background != 0 ||
+             ThemeConfig.cMD3SurfaceContainerLow != 0)) {
+            // 使用自定义颜色角色
+            val primary = if (ThemeConfig.cMD3Primary != 0) Color(ThemeConfig.cMD3Primary) else Color(0xFF6750A4)
+            val onPrimary = if (ThemeConfig.cMD3OnPrimary != 0) Color(ThemeConfig.cMD3OnPrimary) else Color(0xFFFFFFFF)
+            val primaryContainer = if (ThemeConfig.cMD3PrimaryContainer != 0) Color(ThemeConfig.cMD3PrimaryContainer) else Color(0xFFEADDFF)
+            val onPrimaryContainer = if (ThemeConfig.cMD3OnPrimaryContainer != 0) Color(ThemeConfig.cMD3OnPrimaryContainer) else Color(0xFF21005D)
+            val secondary = if (ThemeConfig.cMD3Secondary != 0) Color(ThemeConfig.cMD3Secondary) else Color(0xFF625B71)
+            val onSecondary = if (ThemeConfig.cMD3OnSecondary != 0) Color(ThemeConfig.cMD3OnSecondary) else Color(0xFFFFFFFF)
+            val secondaryContainer = if (ThemeConfig.cMD3SecondaryContainer != 0) Color(ThemeConfig.cMD3SecondaryContainer) else Color(0xFFE8DEF8)
+            val tertiary = if (ThemeConfig.cMD3Tertiary != 0) Color(ThemeConfig.cMD3Tertiary) else Color(0xFF7D5260)
+            val error = if (ThemeConfig.cMD3Error != 0) Color(ThemeConfig.cMD3Error) else Color(0xFFB3261E)
+            val surface = if (ThemeConfig.cMD3Surface != 0) Color(ThemeConfig.cMD3Surface) else Color(0xFFFFFBFE)
+            val onSurface = if (ThemeConfig.cMD3OnSurface != 0) Color(ThemeConfig.cMD3OnSurface) else Color(0xFF1C1B1F)
+            val background = if (ThemeConfig.cMD3Background != 0) Color(ThemeConfig.cMD3Background) else Color(0xFFFFFBFE)
+            val outline = if (ThemeConfig.cMD3Outline != 0) Color(ThemeConfig.cMD3Outline) else Color(0xFF79747E)
+            val surfaceContainerLow = if (ThemeConfig.cMD3SurfaceContainerLow != 0) Color(ThemeConfig.cMD3SurfaceContainerLow) else Color(0xFFF3EDF7)
+            
+            if (darkTheme) {
+                androidx.compose.material3.darkColorScheme(
+                    primary = primary,
+                    onPrimary = onPrimary,
+                    primaryContainer = primaryContainer,
+                    onPrimaryContainer = onPrimaryContainer,
+                    secondary = secondary,
+                    onSecondary = onSecondary,
+                    secondaryContainer = secondaryContainer,
+                    tertiary = tertiary,
+                    error = error,
+                    surface = surface,
+                    onSurface = onSurface,
+                    background = background,
+                    outline = outline,
+                    surfaceContainerLow = surfaceContainerLow
+                )
+            } else {
+                androidx.compose.material3.lightColorScheme(
+                    primary = primary,
+                    onPrimary = onPrimary,
+                    primaryContainer = primaryContainer,
+                    onPrimaryContainer = onPrimaryContainer,
+                    secondary = secondary,
+                    onSecondary = onSecondary,
+                    secondaryContainer = secondaryContainer,
+                    tertiary = tertiary,
+                    error = error,
+                    surface = surface,
+                    onSurface = onSurface,
+                    background = background,
+                    outline = outline,
+                    surfaceContainerLow = surfaceContainerLow
+                )
+            }
+        } else {
+            // 使用默认颜色方案
             ThemeEngine.getColorScheme(
                 context = context,
                 mode = appThemeMode,
@@ -97,6 +155,7 @@ fun AppTheme(
                 materialVersion = materialVersion
             )
         }
+    }
 
     val customSeedColor = remember(customPrimary, colorScheme.primary) {
         if (customPrimary != 0) Color(customPrimary) else colorScheme.primary
@@ -119,6 +178,16 @@ fun AppTheme(
         colorSchemeMode,
         composeEngine
     ) {
+        val customBgColor = if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cBgColor != 0) {
+            Color(ThemeConfig.cBgColor)
+        } else {
+            colorScheme.background
+        }
+        val customFontColor = if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cFontColor != 0) {
+            Color(ThemeConfig.cFontColor)
+        } else {
+            colorScheme.onBackground
+        }
         LegadoThemeMode(
             colorScheme = colorScheme,
             isDark = darkTheme,
@@ -207,6 +276,16 @@ fun AppTheme(
                 val miuixColorScheme = MiuixTheme.colorScheme
 
                 val mappedColorScheme = remember(miuixColorScheme) {
+                    val customBgColor = if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cBgColor != 0) {
+                        Color(ThemeConfig.cBgColor)
+                    } else {
+                        miuixColorScheme.background
+                    }
+                    val customFontColor = if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cFontColor != 0) {
+                        Color(ThemeConfig.cFontColor)
+                    } else {
+                        miuixColorScheme.onBackground
+                    }
                     LegadoColorScheme(
                         primary = miuixColorScheme.primary,
                         onPrimary = miuixColorScheme.onPrimary,
@@ -224,8 +303,8 @@ fun AppTheme(
                         tertiaryContainer = miuixColorScheme.primaryContainer,
                         onTertiaryContainer = miuixColorScheme.primaryVariant,
 
-                        background = miuixColorScheme.background,
-                        onBackground = miuixColorScheme.onBackground,
+                        background = customBgColor,
+                        onBackground = customFontColor,
 
                         surface = miuixColorScheme.surface,
                         onSurface = miuixColorScheme.onSurface,
@@ -337,7 +416,22 @@ fun AppTheme(
                         baseLegadoTypography
                     }
                 }
-                val semanticColors = remember(colorScheme) { colorScheme.toLegadoColorScheme() }
+                val semanticColors = remember(colorScheme) {
+                    val customBgColor = if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cBgColor != 0) {
+                        Color(ThemeConfig.cBgColor)
+                    } else {
+                        colorScheme.background
+                    }
+                    val customFontColor = if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cFontColor != 0) {
+                        Color(ThemeConfig.cFontColor)
+                    } else {
+                        colorScheme.onBackground
+                    }
+                    colorScheme.toLegadoColorScheme().copy(
+                        background = customBgColor,
+                        onBackground = customFontColor
+                    )
+                }
 
                 CompositionLocalProvider(
                     LocalLegadoTypography provides legadoTypography,

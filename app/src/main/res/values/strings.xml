@@ -94,6 +94,11 @@
     <string name="personalization_setting_s">字体等深度个性化设置</string>
     <string name="font_setting">字体设置</string>
     <string name="font_setting_s">选择应用字体</string>
+    <string name="color_setting">颜色设置</string>
+    <string name="top_bar_color">应用栏颜色</string>
+    <string name="nav_bar_color">导航栏颜色</string>
+    <string name="font_color">字体颜色</string>
+    <string name="background_color">背景颜色</string>
     <string name="other_setting">Other settings</string>
     <string name="other_setting_s">Language • Other Settings</string>
     <string name="about">About</string>
@@ -744,7 +749,6 @@
     <!--color-->
     <string name="primary">Primary</string>
     <string name="accent">Accent</string>
-    <string name="background_color">Background color</string>
     <string name="navbar_color">NavBar color</string>
     <string name="day">Day</string>
     <string name="day_color_primary">Day,Primary</string>
