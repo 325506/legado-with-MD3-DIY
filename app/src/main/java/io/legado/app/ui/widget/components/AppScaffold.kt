@@ -14,8 +14,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeSource
 import io.legado.app.ui.config.themeConfig.ThemeConfig
 import io.legado.app.ui.theme.LegadoTheme
 import io.legado.app.ui.theme.LocalHazeState
@@ -82,6 +87,7 @@ fun AppScaffold(
                             .fillMaxSize()
                             .responsiveHazeSource(hazeState)
                     ) {
+                        BackgroundImageContent(isDark = isDark, hazeState = hazeState)
                         content(paddingValues)
                     }
                 }
@@ -106,10 +112,47 @@ fun AppScaffold(
                             .fillMaxSize()
                             .responsiveHazeSource(hazeState)
                     ) {
+                        BackgroundImageContent(isDark = isDark, hazeState = hazeState)
                         content(paddingValues)
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun BackgroundImageContent(
+    isDark: Boolean,
+    hazeState: HazeState
+) {
+    val hasImageBg = ThemeConfig.hasImageBg(isDark)
+    val bgImagePath = if (isDark) ThemeConfig.bgImageDark else ThemeConfig.bgImageLight
+    val blur = if (isDark) {
+        ThemeConfig.bgImageNBlurring
+    } else {
+        ThemeConfig.bgImageBlurring
+    }
+
+    if (hasImageBg && !bgImagePath.isNullOrBlank()) {
+        if (ThemeConfig.enableBlur) {
+            AsyncImage(
+                model = bgImagePath,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .hazeSource(hazeState),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            AsyncImage(
+                model = bgImagePath,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .blur(blur.dp),
+                contentScale = ContentScale.Crop
+            )
         }
     }
 }

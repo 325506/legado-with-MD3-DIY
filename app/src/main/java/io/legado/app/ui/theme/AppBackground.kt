@@ -8,6 +8,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import dev.chrisbanes.haze.hazeSource
 import io.legado.app.ui.config.themeConfig.ThemeConfig
 
 @Composable
@@ -15,6 +16,7 @@ fun AppBackground(
     darkTheme: Boolean,
     content: @Composable () -> Unit
 ) {
+    val hazeState = LocalHazeState.current
     val hasImageBg = ThemeConfig.hasImageBg(darkTheme)
     val bgImagePath = if (darkTheme) ThemeConfig.bgImageDark else ThemeConfig.bgImageLight
     val blur = if (darkTheme) {
@@ -24,17 +26,17 @@ fun AppBackground(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-
-        if (hasImageBg && !bgImagePath.isNullOrBlank()) {
-            AsyncImage(
-                model = bgImagePath,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .blur(blur.dp),
-                //TODO:低版本安卓使用coil-transformations
-                contentScale = ContentScale.Crop
-            )
+        if (hazeState == null && hasImageBg && !bgImagePath.isNullOrBlank()) {
+            if (ThemeConfig.enableBlur) {
+                AsyncImage(
+                    model = bgImagePath,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .blur(blur.dp),
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
 
         content()

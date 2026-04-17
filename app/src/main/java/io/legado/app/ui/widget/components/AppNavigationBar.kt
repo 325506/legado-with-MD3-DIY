@@ -30,7 +30,7 @@ fun AppNavigationBar(
     if (isMiuix) {
         val baseColor = GlassDefaults.glassColor(
             noBlurColor = MiuixTheme.colorScheme.surface,
-            blurAlpha = GlassDefaults.DefaultBlurAlpha
+            blurAlpha = GlassDefaults.TransparentAlpha
         )
         val finalColor = baseColor.copy(alpha = (baseColor.alpha * opacity).coerceIn(0f, 1f))
 
@@ -43,7 +43,7 @@ fun AppNavigationBar(
     } else {
         val baseColor = GlassDefaults.glassColor(
             noBlurColor = BottomAppBarDefaults.containerColor,
-            blurAlpha = GlassDefaults.DefaultBlurAlpha
+            blurAlpha = GlassDefaults.TransparentAlpha
         )
         val finalColor = baseColor.copy(alpha = (baseColor.alpha * opacity).coerceIn(0f, 1f))
 
