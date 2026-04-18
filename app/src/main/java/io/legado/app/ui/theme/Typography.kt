@@ -33,19 +33,35 @@ fun miuixStylesToM3Typography(miuixStyles: TextStyles): Typography {
         labelLarge = miuixStyles.footnote1.copy(fontSize = 14.sp), // 14.sp
         labelMedium = miuixStyles.footnote1, // 13.sp
         labelSmall = miuixStyles.footnote2,  // 11.sp
+    )
+}
 
-        bodyLargeEmphasized = miuixStyles.paragraph.copy(fontWeight = FontWeight.Medium),
-        bodyMediumEmphasized = miuixStyles.body1.copy(fontWeight = FontWeight.Medium),
-        bodySmallEmphasized = miuixStyles.body2.copy(
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium
-        ),
-
-        labelLargeEmphasized = miuixStyles.button.copy(
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium
-        ),
-        labelMediumEmphasized = miuixStyles.footnote1.copy(fontWeight = FontWeight.Medium),
-        labelSmallEmphasized = miuixStyles.footnote2.copy(fontWeight = FontWeight.Medium)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+fun Typography.toLegadoTypography(): LegadoTypography {
+    return LegadoTypography(
+        headlineLarge = headlineLarge,
+        headlineLargeEmphasized = headlineLarge.copy(fontWeight = FontWeight.Medium),
+        headlineMedium = headlineMedium,
+        headlineMediumEmphasized = headlineMedium.copy(fontWeight = FontWeight.Medium),
+        headlineSmall = headlineSmall,
+        headlineSmallEmphasized = headlineSmall.copy(fontWeight = FontWeight.Medium),
+        titleLarge = titleLarge,
+        titleLargeEmphasized = titleLarge.copy(fontWeight = FontWeight.Medium),
+        titleMedium = titleMedium,
+        titleMediumEmphasized = titleMedium.copy(fontWeight = FontWeight.Medium),
+        titleSmall = titleSmall,
+        titleSmallEmphasized = titleSmall.copy(fontWeight = FontWeight.Medium),
+        bodyLarge = bodyLarge,
+        bodyLargeEmphasized = bodyLarge.copy(fontWeight = FontWeight.Medium),
+        bodyMedium = bodyMedium,
+        bodyMediumEmphasized = bodyMedium.copy(fontWeight = FontWeight.Medium),
+        bodySmall = bodySmall,
+        bodySmallEmphasized = bodySmall.copy(fontWeight = FontWeight.Medium),
+        labelLarge = labelLarge,
+        labelLargeEmphasized = labelLarge.copy(fontWeight = FontWeight.Medium),
+        labelMedium = labelMedium,
+        labelMediumEmphasized = labelMedium.copy(fontWeight = FontWeight.Medium),
+        labelSmall = labelSmall,
+        labelSmallEmphasized = labelSmall.copy(fontWeight = FontWeight.Medium)
     )
 }

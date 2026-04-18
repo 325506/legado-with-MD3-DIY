@@ -1445,4 +1445,16 @@
     <string name="enable_select_vibrator">选择文本时震动</string>
     <string name="re_sync_webdav">重新同步远程书籍</string>
     <string name="underline_padding">离字间距</string>
+    
+    <!-- Missing strings -->
+    <string name="cover_info_orientation">Cover orientation</string>
+    <string name="follow_read_background">Follow background</string>
+    <string name="heading_spacing">Heading spacing</string>
+    <string name="layout_setting">Layout settings</string>
+    <string name="rule_segment">Rule</string>
+    <string name="split_title">Split title</string>
+    <string name="split_title_mode">Split mode</string>
+    <string name="subtitle_margin">Subtitle margin</string>
+    <string name="subtitle_scale">Subtitle scale</string>
+    <string name="tool_bar_style">Tool bar style</string>
 </resources>

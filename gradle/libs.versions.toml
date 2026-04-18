@@ -1,5 +1,6 @@
 [versions]
 
+robolectric = "4.12.1"
 accompanistWebview = "0.36.0"
 adaptive = "1.3.0-alpha10"
 adaptiveLayout = "1.3.0-alpha10"
@@ -89,6 +90,7 @@ backdrop = "1.0.6"
 capsule = "2.1.3"
 [libraries]
 
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 accompanist-webview = { module = "com.google.accompanist:accompanist-webview", version.ref = "accompanistWebview" }
 activity-activity = { module = "androidx.activity:activity", version.ref = "activity" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }

@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.legado.app.R
+import io.legado.app.ui.theme.LegadoTheme
 import io.legado.app.ui.theme.LegadoTheme.composeEngine
 import io.legado.app.ui.theme.ThemeResolver
 import io.legado.app.ui.widget.components.button.ConfirmDismissButtonsRow
@@ -56,7 +57,10 @@ fun SliderSettingItem(
 
     if (ThemeResolver.isMiuixEngine(composeEngine)) {
 
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
             BasicComponent(
                 title = title,
                 summary = description,
@@ -143,7 +147,6 @@ fun SliderSettingItem(
     } else {
         SettingItem(
             title = title,
-            color = color ?: MaterialTheme.colorScheme.surfaceContainerLow,
             option = description,
             expanded = expanded,
             onExpandChange = { expanded = it },

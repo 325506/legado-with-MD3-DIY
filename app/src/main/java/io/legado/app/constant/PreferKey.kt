@@ -209,6 +209,7 @@ object PreferKey {
     const val cMD3Secondary = "colorMD3Secondary"
     const val cMD3OnSecondary = "colorMD3OnSecondary"
     const val cMD3SecondaryContainer = "colorMD3SecondaryContainer"
+    const val cMD3OnSecondaryContainer = "colorMD3OnSecondaryContainer"
     const val cMD3Tertiary = "colorMD3Tertiary"
     const val cMD3Error = "colorMD3Error"
     const val cMD3Surface = "colorMD3Surface"

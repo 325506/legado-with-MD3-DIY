@@ -106,6 +106,9 @@ object ThemeConfig {
     var cMD3SecondaryContainer by prefDelegate(PreferKey.cMD3SecondaryContainer, 0) {
         postEvent(EventBus.RECREATE, "")
     }
+    var cMD3OnSecondaryContainer by prefDelegate(PreferKey.cMD3OnSecondaryContainer, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
     var cMD3Tertiary by prefDelegate(PreferKey.cMD3Tertiary, 0) {
         postEvent(EventBus.RECREATE, "")
     }

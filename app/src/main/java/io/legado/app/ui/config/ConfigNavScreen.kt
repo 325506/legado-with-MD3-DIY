@@ -56,10 +56,6 @@ fun ConfigNavScreen(
                         onClick = onNavigateToTheme
                     )
                     ClickableSettingItem(
-                        title = stringResource(R.string.personalization_setting),
-                        onClick = onNavigateToPersonalization
-                    )
-                    ClickableSettingItem(
                         title = stringResource(R.string.other_setting),
                         onClick = onNavigateToOther
                     )
@@ -74,6 +70,10 @@ fun ConfigNavScreen(
                     ClickableSettingItem(
                         title = stringResource(R.string.backup_restore),
                         onClick = onNavigateToBackup
+                    )
+                    ClickableSettingItem(
+                        title = stringResource(R.string.personalization_setting),
+                        onClick = onNavigateToPersonalization
                     )
                 }
             }
