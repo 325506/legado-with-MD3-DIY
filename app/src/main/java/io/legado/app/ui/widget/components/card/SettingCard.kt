@@ -1,6 +1,7 @@
 package io.legado.app.ui.widget.components.card
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Card
@@ -11,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
 import io.legado.app.ui.config.themeConfig.ThemeConfig
 import io.legado.app.ui.theme.LegadoTheme
 import io.legado.app.ui.theme.ThemeResolver
@@ -32,9 +34,24 @@ fun SettingCard(
     val composeEngine = LegadoTheme.composeEngine
     val containerAlpha = ThemeConfig.containerOpacity / 100f
 
+    // 当 SplicedColumnGroup 已经添加了边框时，SettingCard 不再添加边框
+    // 避免边框重叠
+    val borderModifier = if (!ThemeConfig.enableDeepPersonalization && ThemeConfig.enableContainerBorder && ThemeConfig.containerBorderColor != 0 && ThemeConfig.containerBorderWidth > 0) {
+        val borderColor = androidx.compose.ui.graphics.Color(ThemeConfig.containerBorderColor)
+        val borderWidth = ThemeConfig.containerBorderWidth.dp
+        
+        Modifier.border(
+            width = borderWidth,
+            color = borderColor,
+            shape = shape
+        )
+    } else {
+        Modifier
+    }
+
     if (ThemeResolver.isMiuixEngine(composeEngine)) {
         BasicComponent(
-            modifier = modifier,
+            modifier = modifier.then(borderModifier),
             onClick = onClick,
             content = content
         )
@@ -54,20 +71,18 @@ fun SettingCard(
         if (onClick != null) {
             Card(
                 onClick = onClick,
-                modifier = modifier,
+                modifier = modifier.then(borderModifier),
                 shape = shape,
                 colors = finalColors,
                 elevation = elevation,
-                border = border,
                 content = content
             )
         } else {
             Card(
-                modifier = modifier,
+                modifier = modifier.then(borderModifier),
                 shape = shape,
                 colors = finalColors,
                 elevation = elevation,
-                border = border,
                 content = content
             )
         }

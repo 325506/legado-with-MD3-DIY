@@ -28,6 +28,8 @@ import io.legado.app.ui.theme.adaptiveContentPadding
 import io.legado.app.ui.widget.components.AppScaffold
 import io.legado.app.ui.widget.components.SplicedColumnGroup
 import io.legado.app.ui.widget.components.button.TopBarNavigationButton
+import io.legado.app.ui.widget.components.settingItem.SliderSettingItem
+import io.legado.app.ui.widget.components.settingItem.DropdownListSettingItem
 import io.legado.app.ui.widget.components.dialog.ColorPickerSheet
 import io.legado.app.ui.widget.components.settingItem.ClickableSettingItem
 import io.legado.app.ui.widget.components.settingItem.SwitchSettingItem
@@ -65,6 +67,19 @@ fun PersonalizationConfigScreen(
     val md3Background = ThemeConfig.cMD3Background
     val md3Outline = ThemeConfig.cMD3Outline
     val md3SurfaceContainerLow = ThemeConfig.cMD3SurfaceContainerLow
+    val md3SurfaceVariant = ThemeConfig.cMD3SurfaceVariant
+    
+    // 边框设置
+    val enableContainerBorder = ThemeConfig.enableContainerBorder
+    val containerBorderWidth = ThemeConfig.containerBorderWidth
+    val containerBorderStyle = ThemeConfig.containerBorderStyle
+    val containerBorderColor = ThemeConfig.containerBorderColor
+
+    // 中间单线间隔设置
+    val enableItemDivider = ThemeConfig.enableItemDivider
+    val itemDividerWidth = ThemeConfig.itemDividerWidth
+    val itemDividerLength = ThemeConfig.itemDividerLength
+    val itemDividerColor = ThemeConfig.itemDividerColor
 
     AppScaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -106,9 +121,32 @@ fun PersonalizationConfigScreen(
 
             item {
                 SplicedColumnGroup(title = stringResource(R.string.color_setting)) {
+                    ClickableSettingItem(
+                        title = stringResource(R.string.reset_color),
+                        description = "恢复为 Material Design 生成的主题颜色",
+                        onClick = {
+                            // 重置所有 MD3 颜色为默认值
+                            ThemeConfig.cMD3Primary = 0
+                            ThemeConfig.cMD3OnPrimary = 0
+                            ThemeConfig.cMD3PrimaryContainer = 0
+                            ThemeConfig.cMD3OnPrimaryContainer = 0
+                            ThemeConfig.cMD3Secondary = 0
+                            ThemeConfig.cMD3OnSecondary = 0
+                            ThemeConfig.cMD3SecondaryContainer = 0
+                            ThemeConfig.cMD3Tertiary = 0
+                            ThemeConfig.cMD3Error = 0
+                            ThemeConfig.cMD3Surface = 0
+                            ThemeConfig.cMD3OnSurface = 0
+                            ThemeConfig.cMD3Background = 0
+                            ThemeConfig.cMD3Outline = 0
+                            ThemeConfig.cMD3SurfaceContainerLow = 0
+                            ThemeConfig.cMD3SurfaceVariant = 0
+                        }
+                    )
                     // Primary colors
                     ClickableSettingItem(
                         title = "Primary",
+                        description = "主题色",
                         option = if (md3Primary != 0) "#${Integer.toHexString(md3Primary).uppercase()}" else stringResource(R.string.click_to_select),
                         onClick = {
                             currentColorKey = "cMD3Primary"
@@ -133,6 +171,7 @@ fun PersonalizationConfigScreen(
 
                     ClickableSettingItem(
                         title = "On Primary",
+                        description = "次要主题色",
                         option = if (md3OnPrimary != 0) "#${Integer.toHexString(md3OnPrimary).uppercase()}" else stringResource(R.string.click_to_select),
                         onClick = {
                             currentColorKey = "cMD3OnPrimary"
@@ -157,6 +196,7 @@ fun PersonalizationConfigScreen(
 
                     ClickableSettingItem(
                         title = "Primary Container",
+                        description = "标签色",
                         option = if (md3PrimaryContainer != 0) "#${Integer.toHexString(md3PrimaryContainer).uppercase()}" else stringResource(R.string.click_to_select),
                         onClick = {
                             currentColorKey = "cMD3PrimaryContainer"
@@ -327,6 +367,7 @@ fun PersonalizationConfigScreen(
 
                     ClickableSettingItem(
                         title = "Surface",
+                        description = "头栏颜色",
                         option = if (md3Surface != 0) "#${Integer.toHexString(md3Surface).uppercase()}" else stringResource(R.string.click_to_select),
                         onClick = {
                             currentColorKey = "cMD3Surface"
@@ -351,6 +392,7 @@ fun PersonalizationConfigScreen(
 
                     ClickableSettingItem(
                         title = "On Surface",
+                        description = "主要字体颜色",
                         option = if (md3OnSurface != 0) "#${Integer.toHexString(md3OnSurface).uppercase()}" else stringResource(R.string.click_to_select),
                         onClick = {
                             currentColorKey = "cMD3OnSurface"
@@ -399,6 +441,7 @@ fun PersonalizationConfigScreen(
 
                     ClickableSettingItem(
                         title = "Outline",
+                        description = "边框色",
                         option = if (md3Outline != 0) "#${Integer.toHexString(md3Outline).uppercase()}" else stringResource(R.string.click_to_select),
                         onClick = {
                             currentColorKey = "cMD3Outline"
@@ -423,6 +466,7 @@ fun PersonalizationConfigScreen(
 
                     ClickableSettingItem(
                         title = "Surface Container Low",
+                        description = "容器色",
                         option = if (md3SurfaceContainerLow != 0) "#${Integer.toHexString(md3SurfaceContainerLow).uppercase()}" else stringResource(R.string.click_to_select),
                         onClick = {
                             currentColorKey = "cMD3SurfaceContainerLow"
@@ -444,6 +488,147 @@ fun PersonalizationConfigScreen(
                             }
                         }
                     )
+
+                    ClickableSettingItem(
+                        title = "Surface Variant",
+                        description = "卡片色",
+                        option = if (md3SurfaceVariant != 0) "#${Integer.toHexString(md3SurfaceVariant).uppercase()}" else stringResource(R.string.click_to_select),
+                        onClick = {
+                            currentColorKey = "cMD3SurfaceVariant"
+                            showColorPicker = true
+                        },
+                        trailingContent = {
+                            if (md3SurfaceVariant != 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(md3SurfaceVariant))
+                                        .border(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.outlineVariant,
+                                            CircleShape
+                                        )
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+
+            item {
+                SplicedColumnGroup(title = "边框设置") {
+                    SwitchSettingItem(
+                        title = "显示容器边框",
+                        checked = enableContainerBorder,
+                        onCheckedChange = { ThemeConfig.enableContainerBorder = it }
+                    )
+
+                    SliderSettingItem(
+                        title = "边框粗细",
+                        description = "${containerBorderWidth}dp",
+                        value = containerBorderWidth,
+                        defaultValue = 1f,
+                        valueRange = 0f..5f,
+                        steps = 10,
+                        onValueChange = { ThemeConfig.containerBorderWidth = it }
+                    )
+
+                    DropdownListSettingItem(
+                        title = "边框样式",
+                        selectedValue = containerBorderStyle,
+                        displayEntries = arrayOf("实线", "虚线"),
+                        entryValues = arrayOf("solid", "dashed"),
+                        onValueChange = { ThemeConfig.containerBorderStyle = it }
+                    )
+
+                    if (containerBorderStyle == "dashed") {
+                        SliderSettingItem(
+                            title = "虚线间隔",
+                            description = "${ThemeConfig.containerBorderDashWidth}dp",
+                            value = ThemeConfig.containerBorderDashWidth,
+                            defaultValue = 4f,
+                            valueRange = 1f..10f,
+                            steps = 9,
+                            onValueChange = { ThemeConfig.containerBorderDashWidth = it }
+                        )
+                    }
+
+                    ClickableSettingItem(
+                        title = "边框颜色",
+                        option = if (containerBorderColor != 0) "#${Integer.toHexString(containerBorderColor).uppercase()}" else stringResource(R.string.click_to_select),
+                        onClick = {
+                            currentColorKey = "containerBorderColor"
+                            showColorPicker = true
+                        },
+                        trailingContent = {
+                            if (containerBorderColor != 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(containerBorderColor))
+                                        .border(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.outlineVariant,
+                                            CircleShape
+                                        )
+                                )
+                            }
+                        }
+                    )
+
+                    SwitchSettingItem(
+                        title = "显示中间单线",
+                        checked = enableItemDivider,
+                        onCheckedChange = { ThemeConfig.enableItemDivider = it }
+                    )
+
+                    if (enableItemDivider) {
+                        SliderSettingItem(
+                            title = "单线粗细",
+                            description = "${itemDividerWidth}dp",
+                            value = itemDividerWidth,
+                            defaultValue = 1f,
+                            valueRange = 0f..5f,
+                            steps = 10,
+                            onValueChange = { ThemeConfig.itemDividerWidth = it }
+                        )
+
+                        SliderSettingItem(
+                            title = "单线长度",
+                            description = "${itemDividerLength.toInt()}%",
+                            value = itemDividerLength,
+                            defaultValue = 80f,
+                            valueRange = 30f..100f,
+                            steps = 14,
+                            onValueChange = { ThemeConfig.itemDividerLength = it }
+                        )
+
+                        ClickableSettingItem(
+                            title = "单线颜色",
+                            option = if (itemDividerColor != 0) "#${Integer.toHexString(itemDividerColor).uppercase()}" else stringResource(R.string.click_to_select),
+                            onClick = {
+                                currentColorKey = "itemDividerColor"
+                                showColorPicker = true
+                            },
+                            trailingContent = {
+                                if (itemDividerColor != 0) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(28.dp)
+                                            .clip(CircleShape)
+                                            .background(Color(itemDividerColor))
+                                            .border(
+                                                1.dp,
+                                                MaterialTheme.colorScheme.outlineVariant,
+                                                CircleShape
+                                            )
+                                    )
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -465,6 +650,9 @@ fun PersonalizationConfigScreen(
                 "cMD3Background" -> md3Background
                 "cMD3Outline" -> md3Outline
                 "cMD3SurfaceContainerLow" -> md3SurfaceContainerLow
+                "cMD3SurfaceVariant" -> md3SurfaceVariant
+                "containerBorderColor" -> containerBorderColor
+                "itemDividerColor" -> itemDividerColor
                 else -> 0
             },
             onDismissRequest = { showColorPicker = false },
@@ -484,6 +672,9 @@ fun PersonalizationConfigScreen(
                     "cMD3Background" -> ThemeConfig.cMD3Background = it
                     "cMD3Outline" -> ThemeConfig.cMD3Outline = it
                     "cMD3SurfaceContainerLow" -> ThemeConfig.cMD3SurfaceContainerLow = it
+                    "cMD3SurfaceVariant" -> ThemeConfig.cMD3SurfaceVariant = it
+                    "containerBorderColor" -> ThemeConfig.containerBorderColor = it
+                    "itemDividerColor" -> ThemeConfig.itemDividerColor = it
                 }
             }
         )

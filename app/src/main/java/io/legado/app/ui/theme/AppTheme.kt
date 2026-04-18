@@ -92,7 +92,8 @@ fun AppTheme(
              ThemeConfig.cMD3Secondary != 0 || 
              ThemeConfig.cMD3Surface != 0 || 
              ThemeConfig.cMD3Background != 0 ||
-             ThemeConfig.cMD3SurfaceContainerLow != 0)) {
+             ThemeConfig.cMD3SurfaceContainerLow != 0 ||
+             ThemeConfig.cMD3SurfaceVariant != 0)) {
             // 使用自定义颜色角色
             val primary = if (ThemeConfig.cMD3Primary != 0) Color(ThemeConfig.cMD3Primary) else Color(0xFF6750A4)
             val onPrimary = if (ThemeConfig.cMD3OnPrimary != 0) Color(ThemeConfig.cMD3OnPrimary) else Color(0xFFFFFFFF)
@@ -108,6 +109,7 @@ fun AppTheme(
             val background = if (ThemeConfig.cMD3Background != 0) Color(ThemeConfig.cMD3Background) else Color(0xFFFFFBFE)
             val outline = if (ThemeConfig.cMD3Outline != 0) Color(ThemeConfig.cMD3Outline) else Color(0xFF79747E)
             val surfaceContainerLow = if (ThemeConfig.cMD3SurfaceContainerLow != 0) Color(ThemeConfig.cMD3SurfaceContainerLow) else Color(0xFFF3EDF7)
+            val surfaceVariant = if (ThemeConfig.cMD3SurfaceVariant != 0) Color(ThemeConfig.cMD3SurfaceVariant) else Color(0xFFE7E0EC)
             
             if (darkTheme) {
                 androidx.compose.material3.darkColorScheme(
@@ -124,7 +126,8 @@ fun AppTheme(
                     onSurface = onSurface,
                     background = background,
                     outline = outline,
-                    surfaceContainerLow = surfaceContainerLow
+                    surfaceContainerLow = surfaceContainerLow,
+                    surfaceVariant = surfaceVariant
                 )
             } else {
                 androidx.compose.material3.lightColorScheme(
@@ -141,7 +144,8 @@ fun AppTheme(
                     onSurface = onSurface,
                     background = background,
                     outline = outline,
-                    surfaceContainerLow = surfaceContainerLow
+                    surfaceContainerLow = surfaceContainerLow,
+                    surfaceVariant = surfaceVariant
                 )
             }
         } else {

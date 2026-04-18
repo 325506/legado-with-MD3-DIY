@@ -127,6 +127,46 @@ object ThemeConfig {
     var cMD3SurfaceContainerLow by prefDelegate(PreferKey.cMD3SurfaceContainerLow, 0) {
         postEvent(EventBus.RECREATE, "")
     }
+    var cMD3SurfaceVariant by prefDelegate(PreferKey.cMD3SurfaceVariant, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
+    var enableContainerBorder by prefDelegate(PreferKey.enableContainerBorder, false) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
+    var containerBorderWidth by prefDelegate(PreferKey.containerBorderWidth, 1f) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
+    var containerBorderStyle by prefDelegate(PreferKey.containerBorderStyle, "solid") {
+        postEvent(EventBus.RECREATE, "")
+    }
+
+    var containerBorderColor by prefDelegate(PreferKey.containerBorderColor, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
+    var containerBorderDashWidth by prefDelegate(PreferKey.containerBorderDashWidth, 4f) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
+    // 中间单线间隔设置
+    var enableItemDivider by prefDelegate(PreferKey.enableItemDivider, true) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
+    var itemDividerWidth by prefDelegate(PreferKey.itemDividerWidth, 1f) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
+    var itemDividerLength by prefDelegate(PreferKey.itemDividerLength, 80f) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
+    var itemDividerColor by prefDelegate(PreferKey.itemDividerColor, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
 
     var customContrast by prefDelegate(PreferKey.customContrast, "Default") {
         postEvent(EventBus.RECREATE, "")
