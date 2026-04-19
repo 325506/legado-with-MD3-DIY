@@ -171,6 +171,10 @@ object ThemeConfig {
         postEvent(EventBus.RECREATE, "")
     }
 
+    var cBookInfoInputColor by prefDelegate(PreferKey.cBookInfoInputColor, 0) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
     var customContrast by prefDelegate(PreferKey.customContrast, "Default") {
         postEvent(EventBus.RECREATE, "")
     }

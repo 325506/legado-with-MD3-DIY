@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -53,6 +54,7 @@ import io.legado.app.ui.widget.components.menuItem.RoundDropdownMenuItem
 import io.legado.app.ui.widget.components.settingItem.SwitchSettingItem
 import io.legado.app.ui.widget.components.topbar.GlassMediumFlexibleTopAppBar
 import io.legado.app.ui.widget.components.topbar.GlassTopAppBarDefaults
+import io.legado.app.ui.config.themeConfig.ThemeConfig
 import io.legado.app.utils.SelectImageContract
 import io.legado.app.utils.launch
 import io.legado.app.utils.showDialogFragment
@@ -176,10 +178,17 @@ fun BookInfoEditContent(
             onCheckedChange = { viewModel.onFixedTypeChange(it) }
         )
         Spacer(modifier = Modifier.height(16.dp))
+        val bookInfoInputColor = ThemeConfig.cBookInfoInputColor
+        val inputBackgroundColor = if (bookInfoInputColor != 0) {
+            Color(bookInfoInputColor)
+        } else {
+            Color.Unspecified
+        }
         AppTextField(
             value = uiState.name,
             onValueChange = { viewModel.onNameChange(it) },
             label = "书名",
+            backgroundColor = inputBackgroundColor,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -187,6 +196,7 @@ fun BookInfoEditContent(
             value = uiState.author,
             onValueChange = { viewModel.onAuthorChange(it) },
             label = "作者",
+            backgroundColor = inputBackgroundColor,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -194,6 +204,7 @@ fun BookInfoEditContent(
             value = uiState.coverUrl ?: "",
             onValueChange = { viewModel.onCoverUrlChange(it) },
             label = "封面链接",
+            backgroundColor = inputBackgroundColor,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -201,6 +212,7 @@ fun BookInfoEditContent(
             value = uiState.intro ?: "",
             onValueChange = { viewModel.onIntroChange(it) },
             label = "简介",
+            backgroundColor = inputBackgroundColor,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -208,6 +220,7 @@ fun BookInfoEditContent(
             value = uiState.remark ?: "",
             onValueChange = { viewModel.onRemarkChange(it) },
             label = "备注",
+            backgroundColor = inputBackgroundColor,
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -230,6 +243,13 @@ fun BookTypeDropdown(
         textFieldState.setTextAndPlaceCursorAtEnd(selectedType)
     }
 
+    val bookInfoInputColor = ThemeConfig.cBookInfoInputColor
+    val inputBackgroundColor = if (bookInfoInputColor != 0) {
+        Color(bookInfoInputColor)
+    } else {
+        Color.Unspecified
+    }
+
     ExposedDropdownMenuBox(
         modifier = Modifier.padding(horizontal = 8.dp),
         expanded = expanded,
@@ -240,6 +260,7 @@ fun BookTypeDropdown(
             readOnly = true,
             lineLimits = TextFieldLineLimits.SingleLine,
             label = "书籍类型",
+            backgroundColor = inputBackgroundColor,
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },

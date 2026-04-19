@@ -51,6 +51,7 @@ fun PersonalizationConfigScreen(
     val fontColor = ThemeConfig.cFontColor
     val bgColor = ThemeConfig.cBgColor
     val enableDeepPersonalization = ThemeConfig.enableDeepPersonalization
+    val bookInfoInputColor = ThemeConfig.cBookInfoInputColor
     
     // Material Design 3 color roles
     val md3Primary = ThemeConfig.cMD3Primary
@@ -141,6 +142,11 @@ fun PersonalizationConfigScreen(
                             ThemeConfig.cMD3Outline = 0
                             ThemeConfig.cMD3SurfaceContainerLow = 0
                             ThemeConfig.cMD3SurfaceVariant = 0
+                            // 同时重置非 MD3 颜色配置
+                            ThemeConfig.cTopBarColor = 0
+                            ThemeConfig.cNavBarColor = 0
+                            ThemeConfig.cFontColor = 0
+                            ThemeConfig.cBgColor = 0
                         }
                     )
                     // Primary colors
@@ -513,6 +519,131 @@ fun PersonalizationConfigScreen(
                             }
                         }
                     )
+
+                    ClickableSettingItem(
+                        title = "Top Bar Color",
+                        description = "头栏颜色",
+                        option = if (topBarColor != 0) "#${Integer.toHexString(topBarColor).uppercase()}" else stringResource(R.string.click_to_select),
+                        onClick = {
+                            currentColorKey = "cTopBarColor"
+                            showColorPicker = true
+                        },
+                        trailingContent = {
+                            if (topBarColor != 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(topBarColor))
+                                        .border(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.outlineVariant,
+                                            CircleShape
+                                        )
+                                )
+                            }
+                        }
+                    )
+
+                    ClickableSettingItem(
+                        title = "Nav Bar Color",
+                        description = "底栏颜色",
+                        option = if (navBarColor != 0) "#${Integer.toHexString(navBarColor).uppercase()}" else stringResource(R.string.click_to_select),
+                        onClick = {
+                            currentColorKey = "cNavBarColor"
+                            showColorPicker = true
+                        },
+                        trailingContent = {
+                            if (navBarColor != 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(navBarColor))
+                                        .border(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.outlineVariant,
+                                            CircleShape
+                                        )
+                                )
+                            }
+                        }
+                    )
+
+                    ClickableSettingItem(
+                        title = "Font Color",
+                        description = "主要字体颜色",
+                        option = if (fontColor != 0) "#${Integer.toHexString(fontColor).uppercase()}" else stringResource(R.string.click_to_select),
+                        onClick = {
+                            currentColorKey = "cFontColor"
+                            showColorPicker = true
+                        },
+                        trailingContent = {
+                            if (fontColor != 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(fontColor))
+                                        .border(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.outlineVariant,
+                                            CircleShape
+                                        )
+                                )
+                            }
+                        }
+                    )
+
+                    ClickableSettingItem(
+                        title = "Background Color",
+                        description = "背景颜色",
+                        option = if (bgColor != 0) "#${Integer.toHexString(bgColor).uppercase()}" else stringResource(R.string.click_to_select),
+                        onClick = {
+                            currentColorKey = "cBgColor"
+                            showColorPicker = true
+                        },
+                        trailingContent = {
+                            if (bgColor != 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(bgColor))
+                                        .border(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.outlineVariant,
+                                            CircleShape
+                                        )
+                                )
+                            }
+                        }
+                    )
+
+                    ClickableSettingItem(
+                        title = "Book Info Input Color",
+                        description = "书籍信息编辑页面输入框颜色",
+                        option = if (bookInfoInputColor != 0) "#${Integer.toHexString(bookInfoInputColor).uppercase()}" else stringResource(R.string.click_to_select),
+                        onClick = {
+                            currentColorKey = "cBookInfoInputColor"
+                            showColorPicker = true
+                        },
+                        trailingContent = {
+                            if (bookInfoInputColor != 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(bookInfoInputColor))
+                                        .border(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.outlineVariant,
+                                            CircleShape
+                                        )
+                                )
+                            }
+                        }
+                    )
                 }
             }
 
@@ -651,6 +782,11 @@ fun PersonalizationConfigScreen(
                 "cMD3Outline" -> md3Outline
                 "cMD3SurfaceContainerLow" -> md3SurfaceContainerLow
                 "cMD3SurfaceVariant" -> md3SurfaceVariant
+                "cTopBarColor" -> topBarColor
+                "cNavBarColor" -> navBarColor
+                "cFontColor" -> fontColor
+                "cBgColor" -> bgColor
+                "cBookInfoInputColor" -> bookInfoInputColor
                 "containerBorderColor" -> containerBorderColor
                 "itemDividerColor" -> itemDividerColor
                 else -> 0
@@ -673,6 +809,11 @@ fun PersonalizationConfigScreen(
                     "cMD3Outline" -> ThemeConfig.cMD3Outline = it
                     "cMD3SurfaceContainerLow" -> ThemeConfig.cMD3SurfaceContainerLow = it
                     "cMD3SurfaceVariant" -> ThemeConfig.cMD3SurfaceVariant = it
+                    "cTopBarColor" -> ThemeConfig.cTopBarColor = it
+                    "cNavBarColor" -> ThemeConfig.cNavBarColor = it
+                    "cFontColor" -> ThemeConfig.cFontColor = it
+                    "cBgColor" -> ThemeConfig.cBgColor = it
+                    "cBookInfoInputColor" -> ThemeConfig.cBookInfoInputColor = it
                     "containerBorderColor" -> ThemeConfig.containerBorderColor = it
                     "itemDividerColor" -> ThemeConfig.itemDividerColor = it
                 }

@@ -228,6 +228,7 @@ object PreferKey {
     const val itemDividerWidth = "itemDividerWidth"
     const val itemDividerLength = "itemDividerLength"
     const val itemDividerColor = "itemDividerColor"
+    const val cBookInfoInputColor = "colorBookInfoInput"
     const val bgImage = "backgroundImage"
     const val bgImageBlurring = "backgroundImageBlurring"
     const val cNPrimary = "colorPrimaryNight"

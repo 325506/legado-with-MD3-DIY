@@ -1335,7 +1335,7 @@
     <string name="reduce_stutter">Reduces stutter when entering the reading interface, but increases book loading time.</string>
     <string name="delay_book_load">Delay Book Loading</string>
     <string name="compact_list">Compact List</string>
-    <string name="author_read">%s • %dNot read</string>
+    <string name="author_read">%1$s • %2$d Not read</string>
     <string name="menu_alpha_sum">Current %d%%</string>
     <string name="menu_alpha">Menu transparency</string>
     <string name="change_source_option_title">请选择操作</string>

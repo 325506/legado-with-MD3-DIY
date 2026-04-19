@@ -256,7 +256,9 @@ fun AppTheme(
                     } else {
                         miuixColorScheme.background
                     }
-                    val customFontColor = if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cFontColor != 0) {
+                    val customFontColor = if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cMD3OnSurface != 0) {
+                        Color(ThemeConfig.cMD3OnSurface)
+                    } else if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cFontColor != 0) {
                         Color(ThemeConfig.cFontColor)
                     } else {
                         miuixColorScheme.onSurface
@@ -295,7 +297,7 @@ fun AppTheme(
                         surface = miuixColorScheme.surface,
                         onSurface = customFontColor,
                         surfaceVariant = miuixColorScheme.surfaceVariant,
-                        onSurfaceVariant = miuixColorScheme.onSurfaceSecondary,
+                        onSurfaceVariant = customFontColor,
                         surfaceTint = miuixColorScheme.primary,
                         inverseSurface = miuixColorScheme.onSurface,
                         inverseOnSurface = miuixColorScheme.surface,
@@ -314,8 +316,7 @@ fun AppTheme(
                         surfaceContainer = miuixColorScheme.surfaceContainer,
                         surfaceContainerHigh = miuixColorScheme.surfaceContainerHigh,
                         surfaceContainerHighest = miuixColorScheme.surfaceContainerHighest,
-                        surfaceContainerLow = miuixColorScheme.secondaryContainer.copy(alpha = 0.32f)
-                            .compositeOver(miuixColorScheme.surface),
+                        surfaceContainerLow = miuixColorScheme.secondaryContainer.copy(alpha = 0.32f),
                         surfaceContainerLowest = miuixColorScheme.background,
 
                         primaryFixed = miuixColorScheme.primaryContainer,
@@ -410,7 +411,9 @@ fun AppTheme(
                     } else {
                         colorScheme.background
                     }
-                    val customFontColor = if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cFontColor != 0) {
+                    val customFontColor = if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cMD3OnSurface != 0) {
+                        Color(ThemeConfig.cMD3OnSurface)
+                    } else if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cFontColor != 0) {
                         Color(ThemeConfig.cFontColor)
                     } else {
                         colorScheme.onSurface

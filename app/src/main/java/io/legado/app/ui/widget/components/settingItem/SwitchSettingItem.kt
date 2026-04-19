@@ -6,6 +6,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import io.legado.app.ui.theme.LegadoTheme
 import io.legado.app.ui.theme.ThemeResolver
 import io.legado.app.ui.widget.components.AdaptiveSwitch
+import io.legado.app.ui.widget.components.LocalSplicedColumnGroupState
+import io.legado.app.ui.widget.components.divider.SettingItemDivider
 import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 
@@ -20,6 +22,13 @@ fun SwitchSettingItem(
     onCheckedChange: (Boolean) -> Unit
 ) {
     val composeEngine = LegadoTheme.composeEngine
+    val groupState = LocalSplicedColumnGroupState.current
+    val showDivider = groupState.enableItemDivider && groupState.currentIndex() > 0
+
+    if (showDivider) {
+        SettingItemDivider()
+    }
+    groupState.incrementIndex()
 
     if (ThemeResolver.isMiuixEngine(composeEngine)) {
         SwitchPreference(

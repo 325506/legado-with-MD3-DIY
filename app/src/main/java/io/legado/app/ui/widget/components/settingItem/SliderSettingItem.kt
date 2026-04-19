@@ -1,4 +1,4 @@
-﻿package io.legado.app.ui.widget.components.settingItem
+package io.legado.app.ui.widget.components.settingItem
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -34,6 +34,8 @@ import io.legado.app.ui.theme.LegadoTheme
 import io.legado.app.ui.theme.LegadoTheme.composeEngine
 import io.legado.app.ui.theme.ThemeResolver
 import io.legado.app.ui.widget.components.button.ConfirmDismissButtonsRow
+import io.legado.app.ui.widget.components.divider.SettingItemDivider
+import io.legado.app.ui.widget.components.LocalSplicedColumnGroupState
 import io.legado.app.ui.widget.components.text.AppText
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Slider as MiuixSlider
@@ -54,6 +56,14 @@ fun SliderSettingItem(
     var expanded by remember { mutableStateOf(false) }
     var isInputMode by remember { mutableStateOf(false) }
     val textFieldState = rememberTextFieldState(initialText = value.toInt().toString())
+
+    val groupState = LocalSplicedColumnGroupState.current
+    val showDivider = groupState.enableItemDivider && groupState.currentIndex() > 0
+
+    if (showDivider) {
+        SettingItemDivider()
+    }
+    groupState.incrementIndex()
 
     if (ThemeResolver.isMiuixEngine(composeEngine)) {
 
