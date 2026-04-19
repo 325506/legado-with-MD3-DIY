@@ -475,6 +475,7 @@
     <string name="rule_web_js">Web view js(webJs)</string>
     <string name="rule_source_regex">Source regex(sourceRegex)</string>
     <string name="rule_replace_regex">Replace regex(replaceRegex)</string>
+    <string name="rule_sub_content">Sub content(subContent)</string>
     <string name="rule_image_style">Image style(imageStyle)</string>
     <string name="rule_pay_action">Pay action(payAction)</string>
 
