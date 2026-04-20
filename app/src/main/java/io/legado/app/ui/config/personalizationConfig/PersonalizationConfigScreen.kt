@@ -2,6 +2,7 @@ package io.legado.app.ui.config.personalizationConfig
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.background
@@ -14,15 +15,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.legado.app.R
+import io.legado.app.help.config.PersonalizationThemeConfig
 import io.legado.app.ui.config.themeConfig.ThemeConfig
 import io.legado.app.ui.theme.adaptiveContentPadding
 import io.legado.app.ui.widget.components.AppScaffold
@@ -35,6 +40,10 @@ import io.legado.app.ui.widget.components.settingItem.ClickableSettingItem
 import io.legado.app.ui.widget.components.settingItem.SwitchSettingItem
 import io.legado.app.ui.widget.components.topbar.GlassMediumFlexibleTopAppBar
 import io.legado.app.ui.widget.components.topbar.GlassTopAppBarDefaults
+import io.legado.app.ui.config.personalizationConfig.PersonalizationThemeListDialog
+import io.legado.app.ui.theme.LegadoTheme
+import io.legado.app.ui.widget.components.AppTextField
+import io.legado.app.ui.widget.components.alert.AppAlertDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,6 +54,11 @@ fun PersonalizationConfigScreen(
     val scrollBehavior = GlassTopAppBarDefaults.defaultScrollBehavior()
     var showColorPicker by remember { mutableStateOf(false) }
     var currentColorKey by remember { mutableStateOf("cTopBarColor") }
+    var showThemeListDialog by remember { mutableStateOf(false) }
+    var saveThemeKey by remember { mutableStateOf<String?>(null) }
+    var themeName by remember { mutableStateOf("") }
+    var listVersion by remember { mutableIntStateOf(0) }
+    val context = LocalContext.current
 
     val topBarColor = ThemeConfig.cTopBarColor
     val navBarColor = ThemeConfig.cNavBarColor
@@ -151,8 +165,7 @@ fun PersonalizationConfigScreen(
                     )
                     // Primary colors
                     ClickableSettingItem(
-                        title = "Primary",
-                        description = "主题色",
+                        title = "主题色",
                         option = if (md3Primary != 0) "#${Integer.toHexString(md3Primary).uppercase()}" else stringResource(R.string.click_to_select),
                         onClick = {
                             currentColorKey = "cMD3Primary"
@@ -176,8 +189,7 @@ fun PersonalizationConfigScreen(
                     )
 
                     ClickableSettingItem(
-                        title = "On Primary",
-                        description = "次要主题色",
+                        title = "次要主题色",
                         option = if (md3OnPrimary != 0) "#${Integer.toHexString(md3OnPrimary).uppercase()}" else stringResource(R.string.click_to_select),
                         onClick = {
                             currentColorKey = "cMD3OnPrimary"
@@ -201,204 +213,7 @@ fun PersonalizationConfigScreen(
                     )
 
                     ClickableSettingItem(
-                        title = "Primary Container",
-                        description = "标签色",
-                        option = if (md3PrimaryContainer != 0) "#${Integer.toHexString(md3PrimaryContainer).uppercase()}" else stringResource(R.string.click_to_select),
-                        onClick = {
-                            currentColorKey = "cMD3PrimaryContainer"
-                            showColorPicker = true
-                        },
-                        trailingContent = {
-                            if (md3PrimaryContainer != 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(md3PrimaryContainer))
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant,
-                                            CircleShape
-                                        )
-                                )
-                            }
-                        }
-                    )
-
-                    ClickableSettingItem(
-                        title = "On Primary Container",
-                        option = if (md3OnPrimaryContainer != 0) "#${Integer.toHexString(md3OnPrimaryContainer).uppercase()}" else stringResource(R.string.click_to_select),
-                        onClick = {
-                            currentColorKey = "cMD3OnPrimaryContainer"
-                            showColorPicker = true
-                        },
-                        trailingContent = {
-                            if (md3OnPrimaryContainer != 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(md3OnPrimaryContainer))
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant,
-                                            CircleShape
-                                        )
-                                )
-                            }
-                        }
-                    )
-
-                    // Secondary colors
-                    ClickableSettingItem(
-                        title = "Secondary",
-                        option = if (md3Secondary != 0) "#${Integer.toHexString(md3Secondary).uppercase()}" else stringResource(R.string.click_to_select),
-                        onClick = {
-                            currentColorKey = "cMD3Secondary"
-                            showColorPicker = true
-                        },
-                        trailingContent = {
-                            if (md3Secondary != 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(md3Secondary))
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant,
-                                            CircleShape
-                                        )
-                                )
-                            }
-                        }
-                    )
-
-                    ClickableSettingItem(
-                        title = "On Secondary",
-                        option = if (md3OnSecondary != 0) "#${Integer.toHexString(md3OnSecondary).uppercase()}" else stringResource(R.string.click_to_select),
-                        onClick = {
-                            currentColorKey = "cMD3OnSecondary"
-                            showColorPicker = true
-                        },
-                        trailingContent = {
-                            if (md3OnSecondary != 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(md3OnSecondary))
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant,
-                                            CircleShape
-                                        )
-                                )
-                            }
-                        }
-                    )
-
-                    ClickableSettingItem(
-                        title = "Secondary Container",
-                        option = if (md3SecondaryContainer != 0) "#${Integer.toHexString(md3SecondaryContainer).uppercase()}" else stringResource(R.string.click_to_select),
-                        onClick = {
-                            currentColorKey = "cMD3SecondaryContainer"
-                            showColorPicker = true
-                        },
-                        trailingContent = {
-                            if (md3SecondaryContainer != 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(md3SecondaryContainer))
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant,
-                                            CircleShape
-                                        )
-                                )
-                            }
-                        }
-                    )
-
-                    // Other colors
-                    ClickableSettingItem(
-                        title = "Tertiary",
-                        option = if (md3Tertiary != 0) "#${Integer.toHexString(md3Tertiary).uppercase()}" else stringResource(R.string.click_to_select),
-                        onClick = {
-                            currentColorKey = "cMD3Tertiary"
-                            showColorPicker = true
-                        },
-                        trailingContent = {
-                            if (md3Tertiary != 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(md3Tertiary))
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant,
-                                            CircleShape
-                                        )
-                                )
-                            }
-                        }
-                    )
-
-                    ClickableSettingItem(
-                        title = "Error",
-                        option = if (md3Error != 0) "#${Integer.toHexString(md3Error).uppercase()}" else stringResource(R.string.click_to_select),
-                        onClick = {
-                            currentColorKey = "cMD3Error"
-                            showColorPicker = true
-                        },
-                        trailingContent = {
-                            if (md3Error != 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(md3Error))
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant,
-                                            CircleShape
-                                        )
-                                )
-                            }
-                        }
-                    )
-
-                    ClickableSettingItem(
-                        title = "Surface",
-                        description = "头栏颜色",
-                        option = if (md3Surface != 0) "#${Integer.toHexString(md3Surface).uppercase()}" else stringResource(R.string.click_to_select),
-                        onClick = {
-                            currentColorKey = "cMD3Surface"
-                            showColorPicker = true
-                        },
-                        trailingContent = {
-                            if (md3Surface != 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(md3Surface))
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant,
-                                            CircleShape
-                                        )
-                                )
-                            }
-                        }
-                    )
-
-                    ClickableSettingItem(
-                        title = "On Surface",
-                        description = "主要字体颜色",
+                        title = "主要字体色",
                         option = if (md3OnSurface != 0) "#${Integer.toHexString(md3OnSurface).uppercase()}" else stringResource(R.string.click_to_select),
                         onClick = {
                             currentColorKey = "cMD3OnSurface"
@@ -422,7 +237,31 @@ fun PersonalizationConfigScreen(
                     )
 
                     ClickableSettingItem(
-                        title = "Background",
+                        title = "次要字体色",
+                        option = if (md3OnPrimaryContainer != 0) "#${Integer.toHexString(md3OnPrimaryContainer).uppercase()}" else stringResource(R.string.click_to_select),
+                        onClick = {
+                            currentColorKey = "cMD3OnPrimaryContainer"
+                            showColorPicker = true
+                        },
+                        trailingContent = {
+                            if (md3OnPrimaryContainer != 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(md3OnPrimaryContainer))
+                                        .border(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.outlineVariant,
+                                            CircleShape
+                                        )
+                                )
+                            }
+                        }
+                    )
+
+                    ClickableSettingItem(
+                        title = "背景色",
                         option = if (md3Background != 0) "#${Integer.toHexString(md3Background).uppercase()}" else stringResource(R.string.click_to_select),
                         onClick = {
                             currentColorKey = "cMD3Background"
@@ -446,33 +285,7 @@ fun PersonalizationConfigScreen(
                     )
 
                     ClickableSettingItem(
-                        title = "Outline",
-                        description = "边框色",
-                        option = if (md3Outline != 0) "#${Integer.toHexString(md3Outline).uppercase()}" else stringResource(R.string.click_to_select),
-                        onClick = {
-                            currentColorKey = "cMD3Outline"
-                            showColorPicker = true
-                        },
-                        trailingContent = {
-                            if (md3Outline != 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(md3Outline))
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant,
-                                            CircleShape
-                                        )
-                                )
-                            }
-                        }
-                    )
-
-                    ClickableSettingItem(
-                        title = "Surface Container Low",
-                        description = "容器色",
+                        title = "标签容器色",
                         option = if (md3SurfaceContainerLow != 0) "#${Integer.toHexString(md3SurfaceContainerLow).uppercase()}" else stringResource(R.string.click_to_select),
                         onClick = {
                             currentColorKey = "cMD3SurfaceContainerLow"
@@ -485,156 +298,6 @@ fun PersonalizationConfigScreen(
                                         .size(28.dp)
                                         .clip(CircleShape)
                                         .background(Color(md3SurfaceContainerLow))
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant,
-                                            CircleShape
-                                        )
-                                )
-                            }
-                        }
-                    )
-
-                    ClickableSettingItem(
-                        title = "Surface Variant",
-                        description = "卡片色",
-                        option = if (md3SurfaceVariant != 0) "#${Integer.toHexString(md3SurfaceVariant).uppercase()}" else stringResource(R.string.click_to_select),
-                        onClick = {
-                            currentColorKey = "cMD3SurfaceVariant"
-                            showColorPicker = true
-                        },
-                        trailingContent = {
-                            if (md3SurfaceVariant != 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(md3SurfaceVariant))
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant,
-                                            CircleShape
-                                        )
-                                )
-                            }
-                        }
-                    )
-
-                    ClickableSettingItem(
-                        title = "Top Bar Color",
-                        description = "头栏颜色",
-                        option = if (topBarColor != 0) "#${Integer.toHexString(topBarColor).uppercase()}" else stringResource(R.string.click_to_select),
-                        onClick = {
-                            currentColorKey = "cTopBarColor"
-                            showColorPicker = true
-                        },
-                        trailingContent = {
-                            if (topBarColor != 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(topBarColor))
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant,
-                                            CircleShape
-                                        )
-                                )
-                            }
-                        }
-                    )
-
-                    ClickableSettingItem(
-                        title = "Nav Bar Color",
-                        description = "底栏颜色",
-                        option = if (navBarColor != 0) "#${Integer.toHexString(navBarColor).uppercase()}" else stringResource(R.string.click_to_select),
-                        onClick = {
-                            currentColorKey = "cNavBarColor"
-                            showColorPicker = true
-                        },
-                        trailingContent = {
-                            if (navBarColor != 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(navBarColor))
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant,
-                                            CircleShape
-                                        )
-                                )
-                            }
-                        }
-                    )
-
-                    ClickableSettingItem(
-                        title = "Font Color",
-                        description = "主要字体颜色",
-                        option = if (fontColor != 0) "#${Integer.toHexString(fontColor).uppercase()}" else stringResource(R.string.click_to_select),
-                        onClick = {
-                            currentColorKey = "cFontColor"
-                            showColorPicker = true
-                        },
-                        trailingContent = {
-                            if (fontColor != 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(fontColor))
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant,
-                                            CircleShape
-                                        )
-                                )
-                            }
-                        }
-                    )
-
-                    ClickableSettingItem(
-                        title = "Background Color",
-                        description = "背景颜色",
-                        option = if (bgColor != 0) "#${Integer.toHexString(bgColor).uppercase()}" else stringResource(R.string.click_to_select),
-                        onClick = {
-                            currentColorKey = "cBgColor"
-                            showColorPicker = true
-                        },
-                        trailingContent = {
-                            if (bgColor != 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(bgColor))
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant,
-                                            CircleShape
-                                        )
-                                )
-                            }
-                        }
-                    )
-
-                    ClickableSettingItem(
-                        title = "Book Info Input Color",
-                        description = "书籍信息编辑页面输入框颜色",
-                        option = if (bookInfoInputColor != 0) "#${Integer.toHexString(bookInfoInputColor).uppercase()}" else stringResource(R.string.click_to_select),
-                        onClick = {
-                            currentColorKey = "cBookInfoInputColor"
-                            showColorPicker = true
-                        },
-                        trailingContent = {
-                            if (bookInfoInputColor != 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(bookInfoInputColor))
                                         .border(
                                             1.dp,
                                             MaterialTheme.colorScheme.outlineVariant,
@@ -762,7 +425,31 @@ fun PersonalizationConfigScreen(
                     }
                 }
             }
+
+            item {
+                SplicedColumnGroup(title = "主题管理") {
+                    ClickableSettingItem(
+                        title = stringResource(R.string.theme_list),
+                        description = stringResource(R.string.theme_list_summary),
+                        onClick = { showThemeListDialog = true }
+                    )
+                    ClickableSettingItem(
+                        title = stringResource(R.string.save_theme_config),
+                        description = stringResource(R.string.save_day_theme_summary),
+                        onClick = {
+                            saveThemeKey = "savePersonalizationTheme"
+                            themeName = ""
+                        }
+                    )
+                }
+            }
         }
+
+    // 保存个性化主题设置
+    fun savePersonalizationTheme(themeName: String) {
+        PersonalizationThemeConfig.savePersonalizationTheme(themeName)
+        listVersion++
+    }
 
         ColorPickerSheet(
             show = showColorPicker,
@@ -818,6 +505,37 @@ fun PersonalizationConfigScreen(
                     "itemDividerColor" -> ThemeConfig.itemDividerColor = it
                 }
             }
+        )
+
+        PersonalizationThemeListDialog(
+            show = showThemeListDialog,
+            onDismissRequest = { showThemeListDialog = false },
+            listVersion = listVersion
+        )
+
+        AppAlertDialog(
+            data = saveThemeKey,
+            onDismissRequest = { saveThemeKey = null },
+            title = stringResource(R.string.theme_name),
+            content = { _ ->
+                AppTextField(
+                    value = themeName,
+                    onValueChange = { themeName = it },
+                    label = "name",
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    backgroundColor = LegadoTheme.colorScheme.surface
+                )
+            },
+            confirmText = stringResource(android.R.string.ok),
+            onConfirm = { _ ->
+                if (themeName.isNotBlank()) {
+                    savePersonalizationTheme(themeName)
+                }
+                saveThemeKey = null
+            },
+            dismissText = stringResource(android.R.string.cancel),
+            onDismiss = { saveThemeKey = null }
         )
     }
 }

@@ -7,6 +7,8 @@ import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -21,6 +23,129 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.theme.ThemeController
 import io.legado.app.ui.theme.CustomColorScheme
 import io.legado.app.ui.theme.ThemeResolver
+
+// 用户自定义的颜色集合
+data class UserColorPalette(
+    val primaryColor: Color,        // 用户定义的主题色
+    val secondaryColor: Color,      // 用户定义的次要主题色
+    val backgroundColor: Color,     // 用户定义的背景色
+    val primaryFontColor: Color,    // 用户定义的主要字体色
+    val secondaryFontColor: Color,  // 用户定义的次要字体色
+    val labelContainerColor: Color  // 用户定义的标签容器色
+)
+
+// 将用户自定义颜色映射到 Material Theme 的 ColorScheme
+fun generateColorScheme(userPalette: UserColorPalette, isDark: Boolean): androidx.compose.material3.ColorScheme {
+    return if (isDark) {
+        darkColorScheme(
+            primary = userPalette.primaryColor,
+            onPrimary = userPalette.primaryFontColor, // 关键映射：主要字体色 -> onPrimary
+            primaryContainer = userPalette.labelContainerColor, // 关键映射：标签容器色 -> primaryContainer
+            onPrimaryContainer = userPalette.primaryFontColor,
+
+            secondary = userPalette.secondaryColor,
+            onSecondary = userPalette.secondaryFontColor,
+            secondaryContainer = userPalette.labelContainerColor,
+            onSecondaryContainer = userPalette.secondaryFontColor,
+
+            tertiary = userPalette.secondaryColor, // 可以将次要主题色也用作第三色
+            onTertiary = userPalette.secondaryFontColor,
+
+            background = userPalette.backgroundColor,
+            surface = userPalette.backgroundColor,
+            onBackground = userPalette.primaryFontColor,
+            onSurface = userPalette.primaryFontColor, // 关键映射：主要字体色 -> onSurface
+            surfaceVariant = userPalette.labelContainerColor,
+            onSurfaceVariant = userPalette.secondaryFontColor, // 关键映射：次要字体色 -> onSurfaceVariant
+
+            // 其他颜色
+            error = Color(0xFFB3261E),
+            onError = Color(0xFFFFFFFF),
+            errorContainer = Color(0xFFF9DEDC),
+            onErrorContainer = Color(0xFF410E0B),
+            outline = Color(0xFF79747E),
+            outlineVariant = Color(0xFFC4C7C5),
+            scrim = Color(0xFF000000),
+
+            // 表面颜色变体
+            surfaceBright = userPalette.backgroundColor,
+            surfaceDim = userPalette.backgroundColor,
+            surfaceContainer = userPalette.backgroundColor,
+            surfaceContainerHigh = userPalette.backgroundColor,
+            surfaceContainerHighest = userPalette.backgroundColor,
+            surfaceContainerLow = userPalette.labelContainerColor,
+            surfaceContainerLowest = userPalette.backgroundColor,
+
+            // 固定颜色
+            primaryFixed = userPalette.primaryColor,
+            primaryFixedDim = userPalette.primaryColor.copy(alpha = 0.8f),
+            onPrimaryFixed = userPalette.primaryFontColor,
+            onPrimaryFixedVariant = userPalette.primaryFontColor,
+            secondaryFixed = userPalette.secondaryColor,
+            secondaryFixedDim = userPalette.secondaryColor.copy(alpha = 0.8f),
+            onSecondaryFixed = userPalette.secondaryFontColor,
+            onSecondaryFixedVariant = userPalette.secondaryFontColor,
+            tertiaryFixed = userPalette.secondaryColor,
+            tertiaryFixedDim = userPalette.secondaryColor.copy(alpha = 0.8f),
+            onTertiaryFixed = userPalette.secondaryFontColor,
+            onTertiaryFixedVariant = userPalette.secondaryFontColor
+        )
+    } else {
+        lightColorScheme(
+            primary = userPalette.primaryColor,
+            onPrimary = userPalette.primaryFontColor,
+            primaryContainer = userPalette.labelContainerColor,
+            onPrimaryContainer = userPalette.primaryFontColor,
+
+            secondary = userPalette.secondaryColor,
+            onSecondary = userPalette.secondaryFontColor,
+            secondaryContainer = userPalette.labelContainerColor,
+            onSecondaryContainer = userPalette.secondaryFontColor,
+
+            tertiary = userPalette.secondaryColor,
+            onTertiary = userPalette.secondaryFontColor,
+
+            background = userPalette.backgroundColor,
+            surface = userPalette.backgroundColor,
+            onBackground = userPalette.primaryFontColor,
+            onSurface = userPalette.primaryFontColor,
+            surfaceVariant = userPalette.labelContainerColor,
+            onSurfaceVariant = userPalette.secondaryFontColor,
+
+            // 其他颜色
+            error = Color(0xFFB3261E),
+            onError = Color(0xFFFFFFFF),
+            errorContainer = Color(0xFFF9DEDC),
+            onErrorContainer = Color(0xFF410E0B),
+            outline = Color(0xFF79747E),
+            outlineVariant = Color(0xFFC4C7C5),
+            scrim = Color(0xFF000000),
+
+            // 表面颜色变体
+            surfaceBright = userPalette.backgroundColor,
+            surfaceDim = userPalette.backgroundColor,
+            surfaceContainer = userPalette.backgroundColor,
+            surfaceContainerHigh = userPalette.backgroundColor,
+            surfaceContainerHighest = userPalette.backgroundColor,
+            surfaceContainerLow = userPalette.labelContainerColor,
+            surfaceContainerLowest = userPalette.backgroundColor,
+
+            // 固定颜色
+            primaryFixed = userPalette.primaryColor,
+            primaryFixedDim = userPalette.primaryColor.copy(alpha = 0.8f),
+            onPrimaryFixed = userPalette.primaryFontColor,
+            onPrimaryFixedVariant = userPalette.primaryFontColor,
+            secondaryFixed = userPalette.secondaryColor,
+            secondaryFixedDim = userPalette.secondaryColor.copy(alpha = 0.8f),
+            onSecondaryFixed = userPalette.secondaryFontColor,
+            onSecondaryFixedVariant = userPalette.secondaryFontColor,
+            tertiaryFixed = userPalette.secondaryColor,
+            tertiaryFixedDim = userPalette.secondaryColor.copy(alpha = 0.8f),
+            onTertiaryFixed = userPalette.secondaryFontColor,
+            onTertiaryFixedVariant = userPalette.secondaryFontColor
+        )
+    }
+}
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -38,7 +163,18 @@ fun AppTheme(
     val useMiuixMonet = ThemeConfig.useMiuixMonet
     val customPrimary = ThemeConfig.cPrimary
     val customNightPrimary = ThemeConfig.cNPrimary
+    val customFontColor = ThemeConfig.cFontColor
+    val customBgColor = ThemeConfig.cBgColor
     val appFontPath = ThemeConfig.appFontPath
+    
+    // Material Design 3 color roles
+    val md3Primary = ThemeConfig.cMD3Primary
+    val md3OnPrimary = ThemeConfig.cMD3OnPrimary
+    val md3OnPrimaryContainer = ThemeConfig.cMD3OnPrimaryContainer
+    val md3OnSurface = ThemeConfig.cMD3OnSurface
+    val md3Background = ThemeConfig.cMD3Background
+    val md3SurfaceContainerLow = ThemeConfig.cMD3SurfaceContainerLow
+    
     val colorSchemeMode = ThemeResolver.resolveColorSchemeMode(themeModeValue)
     val miuixColorSchemeMode = remember(themeModeValue, useMiuixMonet) {
         ThemeResolver.resolveMiuixColorSchemeMode(themeModeValue, useMiuixMonet)
@@ -79,63 +215,36 @@ fun AppTheme(
             isPureBlack,
             customPrimary,
             customNightPrimary,
+            customFontColor,
+            customBgColor,
+            md3Primary,
+            md3OnPrimary,
+            md3OnSurface,
+            md3Background,
+            md3SurfaceContainerLow,
+            md3OnPrimaryContainer,
             paletteStyleValue,
             materialVersion
         ) {
-            val customSeedColor = if (darkTheme) customNightPrimary else customPrimary
             if (ThemeConfig.enableDeepPersonalization &&
-                (ThemeConfig.cMD3Primary != 0 ||
-                 ThemeConfig.cMD3Secondary != 0 ||
-                 ThemeConfig.cMD3Surface != 0 ||
-                 ThemeConfig.cMD3Background != 0 ||
-                 ThemeConfig.cMD3SurfaceContainerLow != 0 ||
-                 ThemeConfig.cMD3SurfaceVariant != 0)) {
-                // 使用自定义颜色角色
-                val primary = if (ThemeConfig.cMD3Primary != 0) Color(ThemeConfig.cMD3Primary) else Color(0xFF6750A4)
-                val onPrimary = if (ThemeConfig.cMD3OnPrimary != 0) Color(ThemeConfig.cMD3OnPrimary) else Color(0xFFFFFFFF)
-                val primaryContainer = if (ThemeConfig.cMD3PrimaryContainer != 0) Color(ThemeConfig.cMD3PrimaryContainer) else Color(0xFFEADDFF)
-                val onPrimaryContainer = if (ThemeConfig.cMD3OnPrimaryContainer != 0) Color(ThemeConfig.cMD3OnPrimaryContainer) else Color(0xFF21005D)
-                val secondary = if (ThemeConfig.cMD3Secondary != 0) Color(ThemeConfig.cMD3Secondary) else Color(0xFF625B71)
-                val onSecondary = if (ThemeConfig.cMD3OnSecondary != 0) Color(ThemeConfig.cMD3OnSecondary) else Color(0xFFFFFFFF)
-                val secondaryContainer = if (ThemeConfig.cMD3SecondaryContainer != 0) Color(ThemeConfig.cMD3SecondaryContainer) else Color(0xFFE8DEF8)
-                val onSecondaryContainer = if (ThemeConfig.cMD3OnSecondaryContainer != 0) Color(ThemeConfig.cMD3OnSecondaryContainer) else Color(0xFF1E192B)
-                val tertiary = if (ThemeConfig.cMD3Tertiary != 0) Color(ThemeConfig.cMD3Tertiary) else Color(0xFF7D5260)
-                val error = if (ThemeConfig.cMD3Error != 0) Color(ThemeConfig.cMD3Error) else Color(0xFFB3261E)
-                val surface = if (ThemeConfig.cMD3Surface != 0) Color(ThemeConfig.cMD3Surface) else Color(0xFFFEF7FF)
-                val onSurface = if (ThemeConfig.cMD3OnSurface != 0) Color(ThemeConfig.cMD3OnSurface) else Color(0xFF1C1B1F)
-                val background = if (ThemeConfig.cMD3Background != 0) Color(ThemeConfig.cMD3Background) else Color(0xFFFEF7FF)
-                val outline = if (ThemeConfig.cMD3Outline != 0) Color(ThemeConfig.cMD3Outline) else Color(0xFF79747E)
-                val surfaceContainerLow = if (ThemeConfig.cMD3SurfaceContainerLow != 0) Color(ThemeConfig.cMD3SurfaceContainerLow) else Color(0xFFF7F2FA)
-                val surfaceVariant = if (ThemeConfig.cMD3SurfaceVariant != 0) Color(ThemeConfig.cMD3SurfaceVariant) else Color(0xFFE7E0EC)
-
-                // 由于ThemeEngine.getColorScheme不支持customColors参数，这里使用CustomColorScheme直接创建
-                val style = ThemeResolver.resolvePaletteStyle(paletteStyleValue)
-                val colorSpec = ThemeResolver.resolveColorSpecFromMaterialVersion(materialVersion)
-                // 直接使用硬编码的默认值，避免类型推断问题
-                CustomColorScheme(
-                    seed = 0xFF6750A4.toInt(),
-                    style = style,
-                    colorSpec = colorSpec
-                ).getColorScheme(darkTheme)
-                    .copy(
-                        primary = primary,
-                        onPrimary = onPrimary,
-                        primaryContainer = primaryContainer,
-                        onPrimaryContainer = onPrimaryContainer,
-                        secondary = secondary,
-                        onSecondary = onSecondary,
-                        secondaryContainer = secondaryContainer,
-                        onSecondaryContainer = onSecondaryContainer,
-                        tertiary = tertiary,
-                        error = error,
-                        surface = surface,
-                        onSurface = onSurface,
-                        background = background,
-                        outline = outline,
-                        surfaceContainerLow = surfaceContainerLow,
-                        surfaceVariant = surfaceVariant
-                    )
+                (md3Primary != 0 ||
+                 md3OnPrimary != 0 ||
+                 md3OnSurface != 0 ||
+                 md3Background != 0 ||
+                 md3SurfaceContainerLow != 0 ||
+                 md3OnPrimaryContainer != 0)) {
+                // 使用用户自定义颜色
+                val userPalette = UserColorPalette(
+                    primaryColor = if (md3Primary != 0) Color(md3Primary) else Color(0xFF6750A4),
+                    secondaryColor = if (md3OnPrimary != 0) Color(md3OnPrimary) else Color(0xFFFFFFFF),
+                    backgroundColor = if (md3Background != 0) Color(md3Background) else Color(0xFFFEF7FF),
+                    primaryFontColor = if (md3OnSurface != 0) Color(md3OnSurface) else Color(0xFF1C1B1F),
+                    secondaryFontColor = if (md3OnPrimaryContainer != 0) Color(md3OnPrimaryContainer) else Color(0xFF21005D),
+                    labelContainerColor = if (md3SurfaceContainerLow != 0) Color(md3SurfaceContainerLow) else Color(0xFFF7F2FA)
+                )
+                generateColorScheme(userPalette, darkTheme)
             } else {
+                val customSeedColor = if (darkTheme) customNightPrimary else customPrimary
                 ThemeEngine.getColorScheme(
                     context = context,
                     mode = appThemeMode,
