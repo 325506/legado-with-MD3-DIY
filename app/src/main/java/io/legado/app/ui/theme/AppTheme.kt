@@ -83,90 +83,78 @@ fun AppTheme(
             materialVersion
         ) {
             val customSeedColor = if (darkTheme) customNightPrimary else customPrimary
-    val colorScheme = remember(
-        context,
-        appThemeMode,
-        darkTheme,
-        isPureBlack,
-        paletteStyleValue,
-        materialVersion
-    ) {
-        if (ThemeConfig.enableDeepPersonalization &&
-            (ThemeConfig.cMD3Primary != 0 ||
-             ThemeConfig.cMD3Secondary != 0 ||
-             ThemeConfig.cMD3Surface != 0 ||
-             ThemeConfig.cMD3Background != 0 ||
-             ThemeConfig.cMD3SurfaceContainerLow != 0 ||
-             ThemeConfig.cMD3SurfaceVariant != 0)) {
-            // 使用自定义颜色角色
-            val primary = if (ThemeConfig.cMD3Primary != 0) Color(ThemeConfig.cMD3Primary) else Color(0xFF6750A4)
-            val onPrimary = if (ThemeConfig.cMD3OnPrimary != 0) Color(ThemeConfig.cMD3OnPrimary) else Color(0xFFFFFFFF)
-            val primaryContainer = if (ThemeConfig.cMD3PrimaryContainer != 0) Color(ThemeConfig.cMD3PrimaryContainer) else Color(0xFFEADDFF)
-            val onPrimaryContainer = if (ThemeConfig.cMD3OnPrimaryContainer != 0) Color(ThemeConfig.cMD3OnPrimaryContainer) else Color(0xFF21005D)
-            val secondary = if (ThemeConfig.cMD3Secondary != 0) Color(ThemeConfig.cMD3Secondary) else Color(0xFF625B71)
-            val onSecondary = if (ThemeConfig.cMD3OnSecondary != 0) Color(ThemeConfig.cMD3OnSecondary) else Color(0xFFFFFFFF)
-            val secondaryContainer = if (ThemeConfig.cMD3SecondaryContainer != 0) Color(ThemeConfig.cMD3SecondaryContainer) else Color(0xFFE8DEF8)
-            val onSecondaryContainer = if (ThemeConfig.cMD3OnSecondaryContainer != 0) Color(ThemeConfig.cMD3OnSecondaryContainer) else Color(0xFF1E192B)
-            val tertiary = if (ThemeConfig.cMD3Tertiary != 0) Color(ThemeConfig.cMD3Tertiary) else Color(0xFF7D5260)
-            val error = if (ThemeConfig.cMD3Error != 0) Color(ThemeConfig.cMD3Error) else Color(0xFFB3261E)
-            val surface = if (ThemeConfig.cMD3Surface != 0) Color(ThemeConfig.cMD3Surface) else Color(0xFFFEF7FF)
-            val onSurface = if (ThemeConfig.cMD3OnSurface != 0) Color(ThemeConfig.cMD3OnSurface) else Color(0xFF1C1B1F)
-            val background = if (ThemeConfig.cMD3Background != 0) Color(ThemeConfig.cMD3Background) else Color(0xFFFEF7FF)
-            val outline = if (ThemeConfig.cMD3Outline != 0) Color(ThemeConfig.cMD3Outline) else Color(0xFF79747E)
-            val surfaceContainerLow = if (ThemeConfig.cMD3SurfaceContainerLow != 0) Color(ThemeConfig.cMD3SurfaceContainerLow) else Color(0xFFF7F2FA)
-            val surfaceVariant = if (ThemeConfig.cMD3SurfaceVariant != 0) Color(ThemeConfig.cMD3SurfaceVariant) else Color(0xFFE7E0EC)
+            if (ThemeConfig.enableDeepPersonalization &&
+                (ThemeConfig.cMD3Primary != 0 ||
+                 ThemeConfig.cMD3Secondary != 0 ||
+                 ThemeConfig.cMD3Surface != 0 ||
+                 ThemeConfig.cMD3Background != 0 ||
+                 ThemeConfig.cMD3SurfaceContainerLow != 0 ||
+                 ThemeConfig.cMD3SurfaceVariant != 0)) {
+                // 使用自定义颜色角色
+                val primary = if (ThemeConfig.cMD3Primary != 0) Color(ThemeConfig.cMD3Primary) else Color(0xFF6750A4)
+                val onPrimary = if (ThemeConfig.cMD3OnPrimary != 0) Color(ThemeConfig.cMD3OnPrimary) else Color(0xFFFFFFFF)
+                val primaryContainer = if (ThemeConfig.cMD3PrimaryContainer != 0) Color(ThemeConfig.cMD3PrimaryContainer) else Color(0xFFEADDFF)
+                val onPrimaryContainer = if (ThemeConfig.cMD3OnPrimaryContainer != 0) Color(ThemeConfig.cMD3OnPrimaryContainer) else Color(0xFF21005D)
+                val secondary = if (ThemeConfig.cMD3Secondary != 0) Color(ThemeConfig.cMD3Secondary) else Color(0xFF625B71)
+                val onSecondary = if (ThemeConfig.cMD3OnSecondary != 0) Color(ThemeConfig.cMD3OnSecondary) else Color(0xFFFFFFFF)
+                val secondaryContainer = if (ThemeConfig.cMD3SecondaryContainer != 0) Color(ThemeConfig.cMD3SecondaryContainer) else Color(0xFFE8DEF8)
+                val onSecondaryContainer = if (ThemeConfig.cMD3OnSecondaryContainer != 0) Color(ThemeConfig.cMD3OnSecondaryContainer) else Color(0xFF1E192B)
+                val tertiary = if (ThemeConfig.cMD3Tertiary != 0) Color(ThemeConfig.cMD3Tertiary) else Color(0xFF7D5260)
+                val error = if (ThemeConfig.cMD3Error != 0) Color(ThemeConfig.cMD3Error) else Color(0xFFB3261E)
+                val surface = if (ThemeConfig.cMD3Surface != 0) Color(ThemeConfig.cMD3Surface) else Color(0xFFFEF7FF)
+                val onSurface = if (ThemeConfig.cMD3OnSurface != 0) Color(ThemeConfig.cMD3OnSurface) else Color(0xFF1C1B1F)
+                val background = if (ThemeConfig.cMD3Background != 0) Color(ThemeConfig.cMD3Background) else Color(0xFFFEF7FF)
+                val outline = if (ThemeConfig.cMD3Outline != 0) Color(ThemeConfig.cMD3Outline) else Color(0xFF79747E)
+                val surfaceContainerLow = if (ThemeConfig.cMD3SurfaceContainerLow != 0) Color(ThemeConfig.cMD3SurfaceContainerLow) else Color(0xFFF7F2FA)
+                val surfaceVariant = if (ThemeConfig.cMD3SurfaceVariant != 0) Color(ThemeConfig.cMD3SurfaceVariant) else Color(0xFFE7E0EC)
 
-            // 由于ThemeEngine.getColorScheme不支持customColors参数，这里使用CustomColorScheme直接创建
-            val style = ThemeResolver.resolvePaletteStyle(paletteStyleValue)
-            val colorSpec = ThemeResolver.resolveColorSpecFromMaterialVersion(materialVersion)
-            // 直接使用硬编码的默认值，避免类型推断问题
-            CustomColorScheme(
-                seed = 0xFF6750A4.toInt(),
-                style = style,
-                colorSpec = colorSpec
-            ).getColorScheme(darkTheme)
-                .copy(
-                    primary = primary,
-                    onPrimary = onPrimary,
-                    primaryContainer = primaryContainer,
-                    onPrimaryContainer = onPrimaryContainer,
-                    secondary = secondary,
-                    onSecondary = onSecondary,
-                    secondaryContainer = secondaryContainer,
-                    onSecondaryContainer = onSecondaryContainer,
-                    tertiary = tertiary,
-                    error = error,
-                    surface = surface,
-                    onSurface = onSurface,
-                    background = background,
-                    outline = outline,
-                    surfaceContainerLow = surfaceContainerLow,
-                    surfaceVariant = surfaceVariant
+                // 由于ThemeEngine.getColorScheme不支持customColors参数，这里使用CustomColorScheme直接创建
+                val style = ThemeResolver.resolvePaletteStyle(paletteStyleValue)
+                val colorSpec = ThemeResolver.resolveColorSpecFromMaterialVersion(materialVersion)
+                // 直接使用硬编码的默认值，避免类型推断问题
+                CustomColorScheme(
+                    seed = 0xFF6750A4.toInt(),
+                    style = style,
+                    colorSpec = colorSpec
+                ).getColorScheme(darkTheme)
+                    .copy(
+                        primary = primary,
+                        onPrimary = onPrimary,
+                        primaryContainer = primaryContainer,
+                        onPrimaryContainer = onPrimaryContainer,
+                        secondary = secondary,
+                        onSecondary = onSecondary,
+                        secondaryContainer = secondaryContainer,
+                        onSecondaryContainer = onSecondaryContainer,
+                        tertiary = tertiary,
+                        error = error,
+                        surface = surface,
+                        onSurface = onSurface,
+                        background = background,
+                        outline = outline,
+                        surfaceContainerLow = surfaceContainerLow,
+                        surfaceVariant = surfaceVariant
+                    )
+            } else {
+                ThemeEngine.getColorScheme(
+                    context = context,
+                    mode = appThemeMode,
+                    darkTheme = darkTheme,
+                    isAmoled = isPureBlack,
+                    paletteStyle = paletteStyleValue,
+                    materialVersion = materialVersion,
+                    customSeedColor = customSeedColor
                 )
-        } else {
-            ThemeEngine.getColorScheme(
-                context = context,
-                mode = appThemeMode,
-                darkTheme = darkTheme,
-                isAmoled = isPureBlack,
-                paletteStyle = paletteStyleValue,
-                materialVersion = materialVersion,
-                customSeedColor = customSeedColor
-            )
+            }
         }
-    }
 
-    val customSeedColor = remember(
-        darkTheme,
-        customPrimary,
-        customNightPrimary,
-        colorScheme.primary
-    ) {
-        val seed = if (darkTheme) customNightPrimary else customPrimary
-        if (seed != 0) Color(seed) else colorScheme.primary
-    }
-    val themeSeedColor = remember(appThemeMode, customSeedColor, colorScheme.primary) {
-        if (appThemeMode == AppThemeMode.Custom) customSeedColor else colorScheme.primary
+    val themeSeedColor = remember(appThemeMode, colorScheme.primary) {
+        if (appThemeMode == AppThemeMode.Custom) {
+            val seed = if (darkTheme) customNightPrimary else customPrimary
+            if (seed != 0) Color(seed) else colorScheme.primary
+        } else {
+            colorScheme.primary
+        }
     }
     val miuixPaletteStyle = remember(paletteStyleValue) {
         ThemeResolver.resolveMiuixPaletteStyle(paletteStyleValue)
@@ -202,7 +190,9 @@ fun AppTheme(
                 themeColors.useDynamicColor &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
             ) {
-                colorResource(id = android.R.color.system_accent1_500)
+                // colorResource 只能在 @Composable 上下文中调用
+                // 这里使用一个固定颜色作为替代
+                Color(0xFF6750A4)
             } else {
                 themeSeedColor
             }
