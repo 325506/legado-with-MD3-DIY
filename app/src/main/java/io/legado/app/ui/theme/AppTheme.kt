@@ -37,12 +37,13 @@ fun AppTheme(
     val composeEngine = ThemeConfig.composeEngine
     val useMiuixMonet = ThemeConfig.useMiuixMonet
     val customPrimary = ThemeConfig.cPrimary
+    val customNightPrimary = ThemeConfig.cNPrimary
     val appFontPath = ThemeConfig.appFontPath
     val colorSchemeMode = ThemeResolver.resolveColorSchemeMode(themeModeValue)
     val miuixColorSchemeMode = remember(themeModeValue, useMiuixMonet) {
         ThemeResolver.resolveMiuixColorSchemeMode(themeModeValue, useMiuixMonet)
     }
-    
+
     // 加载自定义字体
     val customFontFamily = remember(ThemeConfig.appFontPath, context) {
         if (!ThemeConfig.appFontPath.isNullOrEmpty()) {
@@ -65,11 +66,23 @@ fun AppTheme(
             null
         }
     }
-    
+
     val paletteStyle = remember(paletteStyleValue) {
         ThemeResolver.resolvePaletteStyle(paletteStyleValue)
     }
 
+    val colorScheme =
+        remember(
+            context,
+            appThemeMode,
+            darkTheme,
+            isPureBlack,
+            customPrimary,
+            customNightPrimary,
+            paletteStyleValue,
+            materialVersion
+        ) {
+            val customSeedColor = if (darkTheme) customNightPrimary else customPrimary
     val colorScheme = remember(
         context,
         appThemeMode,
@@ -78,10 +91,10 @@ fun AppTheme(
         paletteStyleValue,
         materialVersion
     ) {
-        if (ThemeConfig.enableDeepPersonalization && 
-            (ThemeConfig.cMD3Primary != 0 || 
-             ThemeConfig.cMD3Secondary != 0 || 
-             ThemeConfig.cMD3Surface != 0 || 
+        if (ThemeConfig.enableDeepPersonalization &&
+            (ThemeConfig.cMD3Primary != 0 ||
+             ThemeConfig.cMD3Secondary != 0 ||
+             ThemeConfig.cMD3Surface != 0 ||
              ThemeConfig.cMD3Background != 0 ||
              ThemeConfig.cMD3SurfaceContainerLow != 0 ||
              ThemeConfig.cMD3SurfaceVariant != 0)) {
@@ -102,7 +115,7 @@ fun AppTheme(
             val outline = if (ThemeConfig.cMD3Outline != 0) Color(ThemeConfig.cMD3Outline) else Color(0xFF79747E)
             val surfaceContainerLow = if (ThemeConfig.cMD3SurfaceContainerLow != 0) Color(ThemeConfig.cMD3SurfaceContainerLow) else Color(0xFFF7F2FA)
             val surfaceVariant = if (ThemeConfig.cMD3SurfaceVariant != 0) Color(ThemeConfig.cMD3SurfaceVariant) else Color(0xFFE7E0EC)
-            
+
             // 由于ThemeEngine.getColorScheme不支持customColors参数，这里使用CustomColorScheme直接创建
             val style = ThemeResolver.resolvePaletteStyle(paletteStyleValue)
             val colorSpec = ThemeResolver.resolveColorSpecFromMaterialVersion(materialVersion)
@@ -137,13 +150,20 @@ fun AppTheme(
                 darkTheme = darkTheme,
                 isAmoled = isPureBlack,
                 paletteStyle = paletteStyleValue,
-                materialVersion = materialVersion
+                materialVersion = materialVersion,
+                customSeedColor = customSeedColor
             )
         }
     }
 
-    val customSeedColor = remember(customPrimary, colorScheme.primary) {
-        if (customPrimary != 0) Color(customPrimary) else colorScheme.primary
+    val customSeedColor = remember(
+        darkTheme,
+        customPrimary,
+        customNightPrimary,
+        colorScheme.primary
+    ) {
+        val seed = if (darkTheme) customNightPrimary else customPrimary
+        if (seed != 0) Color(seed) else colorScheme.primary
     }
     val themeSeedColor = remember(appThemeMode, customSeedColor, colorScheme.primary) {
         if (appThemeMode == AppThemeMode.Custom) customSeedColor else colorScheme.primary
