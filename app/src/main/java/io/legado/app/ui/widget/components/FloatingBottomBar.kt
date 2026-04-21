@@ -65,6 +65,7 @@ import com.kyant.backdrop.shadow.Shadow
 import com.kyant.capsule.ContinuousCapsule
 import io.legado.app.ui.animation.DampedDragAnimation
 import io.legado.app.ui.animation.InteractiveHighlight
+import io.legado.app.ui.config.themeConfig.ThemeConfig
 import io.legado.app.ui.theme.LegadoTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -113,8 +114,14 @@ fun FloatingBottomBar(
     content: @Composable RowScope.() -> Unit
 ) {
     val isInLightTheme = !LegadoTheme.isDark
-    val accentColor = LegadoTheme.colorScheme.primary
-    val containerColor = if (isBlurEnabled) {
+    val accentColor = if (ThemeConfig.cMD3Secondary != 0) {
+        Color(ThemeConfig.cMD3Secondary)
+    } else {
+        LegadoTheme.colorScheme.primary
+    }
+    val containerColor = if (ThemeConfig.cMD3Secondary != 0) {
+        Color(ThemeConfig.cMD3Secondary).copy(alpha = if (isBlurEnabled) 0.4f else 1f)
+    } else if (isBlurEnabled) {
         LegadoTheme.colorScheme.surfaceContainer.copy(alpha = 0.4f)
     } else {
         LegadoTheme.colorScheme.surfaceContainer

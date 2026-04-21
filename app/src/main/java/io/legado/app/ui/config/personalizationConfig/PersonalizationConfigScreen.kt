@@ -190,18 +190,18 @@ fun PersonalizationConfigScreen(
 
                     ClickableSettingItem(
                         title = "次要主题色",
-                        option = if (md3OnPrimary != 0) "#${Integer.toHexString(md3OnPrimary).uppercase()}" else stringResource(R.string.click_to_select),
+                        option = if (md3Secondary != 0) "#${Integer.toHexString(md3Secondary).uppercase()}" else stringResource(R.string.click_to_select),
                         onClick = {
-                            currentColorKey = "cMD3OnPrimary"
+                            currentColorKey = "cMD3Secondary"
                             showColorPicker = true
                         },
                         trailingContent = {
-                            if (md3OnPrimary != 0) {
+                            if (md3Secondary != 0) {
                                 Box(
                                     modifier = Modifier
                                         .size(28.dp)
                                         .clip(CircleShape)
-                                        .background(Color(md3OnPrimary))
+                                        .background(Color(md3Secondary))
                                         .border(
                                             1.dp,
                                             MaterialTheme.colorScheme.outlineVariant,

@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import dev.chrisbanes.haze.HazeState
@@ -59,6 +60,7 @@ import io.legado.app.R
 import io.legado.app.ui.book.info.BookInfoActivity
 import io.legado.app.ui.book.search.SearchActivity
 import io.legado.app.ui.config.mainConfig.MainConfig
+import io.legado.app.ui.config.themeConfig.ThemeConfig
 import io.legado.app.ui.main.bookshelf.BookshelfScreen
 import io.legado.app.ui.main.bookshelf.BookshelfViewModel
 import io.legado.app.ui.main.explore.ExploreScreen
@@ -102,7 +104,11 @@ fun MainScreen(
     val bookshelfUiState by bookshelfViewModel.uiState.collectAsState()
 
     val hazeState = remember { HazeState() }
-    val floatingBarSurfaceColor = MaterialTheme.colorScheme.surface
+    val floatingBarSurfaceColor = if (ThemeConfig.cMD3Secondary != 0) {
+        Color(ThemeConfig.cMD3Secondary)
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
     val floatingBarBackdrop = rememberLayerBackdrop {
         drawRect(floatingBarSurfaceColor)
         drawContent()
