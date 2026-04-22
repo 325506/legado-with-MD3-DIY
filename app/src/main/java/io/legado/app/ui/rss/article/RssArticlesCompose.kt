@@ -1,6 +1,7 @@
 package io.legado.app.ui.rss.article
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -63,6 +64,9 @@ import io.legado.app.ui.widget.components.EmptyMessage
 import io.legado.app.ui.widget.components.card.GlassCard
 import io.legado.app.ui.widget.components.cover.buildCoverImageRequest
 import io.legado.app.utils.toastOnUi
+import io.legado.app.ui.config.themeConfig.ThemeConfig
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
@@ -334,11 +338,22 @@ private fun RssArticleItem(
         RssArticleLayout.Waterfall -> 3
     }
 
+    // 边框设置
+    val borderModifier = if (ThemeConfig.enableContainerBorder) {
+        Modifier.border(
+            width = Dp(ThemeConfig.containerBorderWidth),
+            color = Color(ThemeConfig.containerBorderColor),
+            shape = RoundedCornerShape(12.dp)
+        )
+    } else {
+        Modifier
+    }
+
     GlassCard(
         onClick = { onClick(article) },
         cornerRadius = 12.dp,
         containerColor = containerColor,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().then(borderModifier)
     ) {
         when (layout) {
             RssArticleLayout.List -> {
