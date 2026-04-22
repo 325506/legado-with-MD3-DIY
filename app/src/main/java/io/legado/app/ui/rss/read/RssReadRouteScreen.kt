@@ -192,7 +192,7 @@ fun RssReadRouteScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         VisibleWebViewCompose(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().statusBarsPadding(),
             onCreated = { createdWebView ->
                 webView = createdWebView
                 configureRssReadWebView(
