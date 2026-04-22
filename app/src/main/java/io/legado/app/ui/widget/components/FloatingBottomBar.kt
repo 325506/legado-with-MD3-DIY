@@ -114,8 +114,8 @@ fun FloatingBottomBar(
     content: @Composable RowScope.() -> Unit
 ) {
     val isInLightTheme = !LegadoTheme.isDark
-    val accentColor = if (ThemeConfig.cMD3Secondary != 0) {
-        Color(ThemeConfig.cMD3Secondary)
+    val accentColor = if (ThemeConfig.cMD3Primary != 0) {
+        Color(ThemeConfig.cMD3Primary)
     } else {
         LegadoTheme.colorScheme.primary
     }
