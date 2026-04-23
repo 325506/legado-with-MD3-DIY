@@ -58,7 +58,6 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import io.legado.app.R
 import io.legado.app.ui.book.info.BookInfoActivity
-import io.legado.app.ui.book.search.SearchActivity
 import io.legado.app.ui.config.mainConfig.MainConfig
 import io.legado.app.ui.config.themeConfig.ThemeConfig
 import io.legado.app.ui.main.bookshelf.BookshelfScreen
@@ -92,8 +91,10 @@ fun MainScreen(
     viewModel: MainViewModel = koinViewModel(),
     useRail: Boolean,
     onOpenSettings: () -> Unit,
+    onNavigateToSearch: (String?) -> Unit,
     onNavigateToRemoteImport: () -> Unit,
     onNavigateToLocalImport: () -> Unit,
+    onNavigateToCache: (Long) -> Unit,
     onNavigateToRssSort: (sourceUrl: String, sortUrl: String?, key: String?) -> Unit,
     onNavigateToRssRead: (title: String?, origin: String, link: String?, openUrl: String?) -> Unit
 ) {
@@ -180,7 +181,7 @@ fun MainScreen(
 
                         ExtendedFloatingActionButton(
                             modifier = Modifier.padding(start = 20.dp),
-                            onClick = { context.startActivity<SearchActivity>() },
+                            onClick = { onNavigateToSearch(null) },
                             expanded = expanded,
                             icon = { Icon(Icons.Default.Search, contentDescription = null) },
                             text = { AppText(stringResource(R.string.search)) }
@@ -383,8 +384,10 @@ fun MainScreen(
                                     putExtra("bookUrl", book.bookUrl)
                                 }
                             },
+                            onNavigateToSearch = { query -> onNavigateToSearch(query) },
                             onNavigateToRemoteImport = onNavigateToRemoteImport,
-                            onNavigateToLocalImport = onNavigateToLocalImport
+                            onNavigateToLocalImport = onNavigateToLocalImport,
+                            onNavigateToCache = onNavigateToCache
                         )
 
                         MainDestination.Explore -> ExploreScreen()
