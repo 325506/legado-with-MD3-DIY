@@ -48,23 +48,51 @@ class RegexColorConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_reg
             "《匹配内容》" to "《.+?》",
             "\"匹配内容\"" to "\".+?\""
         )
+        val displayItems = defaultPatterns.map { it.first } + "自定义规则"
         context?.alert(title = "添加正则规则") {
-            items(defaultPatterns.map { it.first }) { _, i ->
-                val (name, pattern) = defaultPatterns[i]
-                val rule = RegexColorRule(name, pattern, ReadBookConfig.durConfig.curTextAccentColor())
-                ReadBookConfig.regexColorRules.add(rule)
-                adapter.setItems(ReadBookConfig.regexColorRules)
-                postEvent(EventBus.UP_CONFIG, arrayListOf(8, 5))
+            items(displayItems) { _, i ->
+                if (i < defaultPatterns.size) {
+                    val (name, pattern) = defaultPatterns[i]
+                    addRule(name, pattern)
+                } else {
+                    showCustomRuleDialog()
+                }
             }
         }
+    }
+
+    private fun showCustomRuleDialog() {
+        val editText = android.widget.EditText(context).apply {
+            hint = "输入正则表达式，如：\\u201C.+?\\u201D"
+        }
+        context?.alert(title = "自定义正则规则") {
+            customView { editText }
+            okButton {
+                val pattern = editText.text.toString().trim()
+                if (pattern.isNotEmpty()) {
+                    addRule(pattern, pattern)
+                }
+            }
+            cancelButton()
+        }
+    }
+
+    private fun addRule(name: String, pattern: String) {
+        val rule = RegexColorRule(name, pattern, ReadBookConfig.durConfig.curTextAccentColor())
+        ReadBookConfig.regexColorRules.add(rule)
+        notifyConfigChanged()
     }
     
     private fun deleteRule(position: Int) {
         if (position >= 0 && position < ReadBookConfig.regexColorRules.size) {
             ReadBookConfig.regexColorRules.removeAt(position)
-            adapter.setItems(ReadBookConfig.regexColorRules)
-            postEvent(EventBus.UP_CONFIG, arrayListOf(8, 5))
+            notifyConfigChanged()
         }
+    }
+
+    private fun notifyConfigChanged() {
+        adapter.setItems(ReadBookConfig.regexColorRules)
+        postEvent(EventBus.UP_CONFIG, arrayListOf(8, 5))
     }
 }
 
