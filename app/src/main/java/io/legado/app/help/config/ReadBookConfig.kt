@@ -13,6 +13,7 @@ import io.legado.app.constant.PageAnim
 import io.legado.app.constant.PreferKey
 import io.legado.app.help.DefaultData
 import io.legado.app.help.coroutine.Coroutine
+import io.legado.app.ui.book.read.config.RegexColorRule
 import io.legado.app.utils.BitmapUtils
 import io.legado.app.utils.FileUtils
 import io.legado.app.utils.GSON
@@ -226,6 +227,8 @@ object ReadBookConfig {
                 appCtx.putPrefBoolean(PreferKey.shareLayout, value)
             }
         }
+    
+    var regexColorRules: ArrayList<RegexColorRule> = arrayListOf()
 
     /**
      * 两端对齐

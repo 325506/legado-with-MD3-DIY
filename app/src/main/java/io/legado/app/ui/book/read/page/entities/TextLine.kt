@@ -73,6 +73,8 @@ data class TextLine(
     fun addColumn(column: BaseColumn) {
         if (column !is TextColumn) {
             onlyTextColumn = false
+        } else if (column.color != null) {
+            onlyTextColumn = false
         }
         column.textLine = this
         textColumns.add(column)

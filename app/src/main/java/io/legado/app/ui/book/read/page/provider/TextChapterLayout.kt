@@ -864,6 +864,7 @@ class TextChapterLayout(
     ) {
         val widthsArray = allocateFloatArray(text.length)
         textPaint.getTextWidthsCompat(text, widthsArray)
+        val colorMap = applyRegexColorRules(text)
         val layout = if (useZhLayout) {
             val (words, widths) = measureTextSplit(text, widthsArray)
             val indentSize = if (isFirstLine) paragraphIndent.length else 0
@@ -915,12 +916,15 @@ class TextChapterLayout(
             val (words, widths) = measureTextSplit(lineText, widthsArray, lineStart)
             val desiredWidth = widths.fastSum()
             textLine.text = lineText
+            val lineWordColors = if (colorMap != null) {
+                buildWordColors(words, lineText, colorMap, lineStart)
+            } else null
             when (lineIndex) {
                 0 if layout.lineCount > 1 && !isTitle && isFirstLine -> {
                     //多行的第一行 非标题
                     addCharsToLineFirst(
                         book, absStartX, textLine, words, textPaint,
-                        desiredWidth, widths, srcList, clickList
+                        desiredWidth, widths, srcList, clickList, lineWordColors
                     )
                 }
 
@@ -938,7 +942,7 @@ class TextChapterLayout(
                     }
                     addCharsToLineNatural(
                         book, absStartX, textLine, words,
-                        startX, !isTitle && lineIndex == 0, widths, srcList, clickList
+                        startX, !isTitle && lineIndex == 0, widths, srcList, clickList, lineWordColors
                     )
                 }
                 else -> {
@@ -951,13 +955,13 @@ class TextChapterLayout(
                         val startX = (visibleWidth - desiredWidth) / 2
                         addCharsToLineNatural(
                             book, absStartX, textLine, words,
-                            startX, false, widths, srcList, clickList
+                            startX, false, widths, srcList, clickList, lineWordColors
                         )
                     } else {
                         //中间行
                         addCharsToLineMiddle(
                             book, absStartX, textLine, words, textPaint,
-                            desiredWidth, 0f, widths, srcList, clickList
+                            desiredWidth, 0f, widths, srcList, clickList, lineWordColors
                         )
                     }
                 }
@@ -1007,17 +1011,17 @@ class TextChapterLayout(
         textLine: TextLine,
         words: List<String>,
         textPaint: TextPaint,
-        /**自然排版长度**/
         desiredWidth: Float,
         textWidths: List<Float>,
         srcList: LinkedList<String>?,
-        clickList: LinkedList<String?>?
+        clickList: LinkedList<String?>?,
+        wordColors: List<Int?>? = null
     ) {
         var x = 0f
         if (!textFullJustify) {
             addCharsToLineNatural(
                 book, absStartX, textLine, words,
-                x, true, textWidths, srcList, clickList
+                x, true, textWidths, srcList, clickList, wordColors
             )
             return
         }
@@ -1038,9 +1042,10 @@ class TextChapterLayout(
         if (words.size > bodyIndent.length) {
             val text1 = words.subList(bodyIndent.length, words.size)
             val textWidths1 = textWidths.subList(bodyIndent.length, textWidths.size)
+            val wordColors1 = wordColors?.subList(bodyIndent.length, wordColors.size)
             addCharsToLineMiddle(
                 book, absStartX, textLine, text1, textPaint,
-                desiredWidth, x, textWidths1, srcList, clickList
+                desiredWidth, x, textWidths1, srcList, clickList, wordColors1
             )
         }
     }
@@ -1054,18 +1059,17 @@ class TextChapterLayout(
         textLine: TextLine,
         words: List<String>,
         textPaint: TextPaint,
-        /**自然排版长度**/
         desiredWidth: Float,
-        /**起始x坐标**/
         startX: Float,
         textWidths: List<Float>,
         srcList: LinkedList<String>?,
-        clickList: LinkedList<String?>?
+        clickList: LinkedList<String?>?,
+        wordColors: List<Int?>? = null
     ) {
         if (!textFullJustify) {
             addCharsToLineNatural(
                 book, absStartX, textLine, words,
-                startX, false, textWidths, srcList, clickList
+                startX, false, textWidths, srcList, clickList, wordColors
             )
             return
         }
@@ -1086,7 +1090,7 @@ class TextChapterLayout(
                 }
                 addCharToLine(
                     book, absStartX, textLine, char,
-                    x, x1, index + 1 == words.size, srcList, clickList
+                    x, x1, index + 1 == words.size, srcList, clickList, wordColors?.getOrNull(index)
                 )
                 x = x1
             }
@@ -1102,7 +1106,7 @@ class TextChapterLayout(
                 val x1 = if (index != words.lastIndex) (x + cw + d) else (x + cw)
                 addCharToLine(
                     book, absStartX, textLine, char,
-                    x, x1, index + 1 == words.size, srcList, clickList
+                    x, x1, index + 1 == words.size, srcList, clickList, wordColors?.getOrNull(index)
                 )
                 x = x1
             }
@@ -1122,7 +1126,8 @@ class TextChapterLayout(
         hasIndent: Boolean,
         textWidths: List<Float>,
         srcList: LinkedList<String>?,
-        clickList: LinkedList<String?>?
+        clickList: LinkedList<String?>?,
+        wordColors: List<Int?>? = null
     ) {
         val indentLength = paragraphIndent.length
         var x = startX
@@ -1140,7 +1145,8 @@ class TextChapterLayout(
                 x1,
                 index + 1 == words.size,
                 srcList,
-                clickList
+                clickList,
+                wordColors?.getOrNull(index)
             )
             x = x1
             if (hasIndent && index == indentLength - 1) {
@@ -1162,7 +1168,8 @@ class TextChapterLayout(
         xEnd: Float,
         isLineEnd: Boolean,
         srcList: LinkedList<String>?,
-        clickList: LinkedList<String?>?
+        clickList: LinkedList<String?>?,
+        color: Int? = null
     ) {
         val column = when {
             !srcList.isNullOrEmpty() && (char == srcReplaceChar || char == reviewChar) -> {
@@ -1176,19 +1183,13 @@ class TextChapterLayout(
                     click = click
                 )
             }
-//            isLineEnd && char == ChapterProvider.reviewChar -> {
-//                ReviewColumn(
-//                    start = absStartX + xStart,
-//                    end = absStartX + xEnd,
-//                    count = 10
-//                )
-//            }
 
             else -> {
                 TextColumn(
                     start = absStartX + xStart,
                     end = absStartX + xEnd,
-                    charData = char
+                    charData = char,
+                    color = color
                 )
             }
         }
@@ -1287,6 +1288,50 @@ class TextChapterLayout(
     private fun isZeroWidthChar(char: Char): Boolean {
         val code = char.code
         return code == 8203 || code == 8204 || code == 8205 || code == 8288
+    }
+
+    private fun applyRegexColorRules(text: String): IntArray? {
+        if (ReadBookConfig.regexColorRules.isEmpty()) return null
+        val colorArray = IntArray(text.length) { -1 }
+        var hasMatch = false
+        for (rule in ReadBookConfig.regexColorRules) {
+            try {
+                val regex = Regex(rule.pattern)
+                val matches = regex.findAll(text)
+                for (match in matches) {
+                    hasMatch = true
+                    for (i in match.range) {
+                        colorArray[i] = rule.color
+                    }
+                }
+            } catch (_: Exception) {
+            }
+        }
+        return if (hasMatch) colorArray else null
+    }
+
+    private fun buildWordColors(
+        words: List<String>,
+        lineText: String,
+        colorArray: IntArray,
+        lineStart: Int
+    ): List<Int?> {
+        val wordColors = mutableListOf<Int?>()
+        var charOffset = 0
+        for (word in words) {
+            val wordLen = word.length
+            var color: Int? = null
+            for (j in 0 until wordLen) {
+                val c = colorArray[lineStart + charOffset + j]
+                if (c != -1) {
+                    color = c
+                    break
+                }
+            }
+            wordColors.add(color)
+            charOffset += wordLen
+        }
+        return wordColors
     }
 
 }

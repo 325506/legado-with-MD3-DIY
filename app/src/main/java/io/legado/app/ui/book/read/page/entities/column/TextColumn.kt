@@ -17,6 +17,7 @@ data class TextColumn(
     override var start: Float,
     override var end: Float,
     override val charData: String,
+    var color: Int? = null,
 ) : TextBaseColumn {
 
     override var textLine: TextLine = emptyTextLine
@@ -47,7 +48,7 @@ data class TextColumn(
         } else {
             ChapterProvider.contentPaint
         }
-        val textColor = if (!textLine.useUnderline && (textLine.isReadAloud || isSearchResult)) {
+        val textColor = color ?: if (!textLine.useUnderline && (textLine.isReadAloud || isSearchResult)) {
             ReadBookConfig.textAccentColor
         } else {
             ReadBookConfig.textColor
