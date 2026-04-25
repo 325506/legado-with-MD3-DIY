@@ -91,6 +91,7 @@ class RegexColorConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_reg
     }
 
     private fun notifyConfigChanged() {
+        ReadBookConfig.saveRegexColorRules()
         adapter.setItems(ReadBookConfig.regexColorRules)
         postEvent(EventBus.UP_CONFIG, arrayListOf(8, 5))
     }

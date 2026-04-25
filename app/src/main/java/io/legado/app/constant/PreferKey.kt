@@ -101,6 +101,7 @@ object PreferKey {
     const val replaceEnableDefault = "replaceEnableDefault"
     const val showBrightnessView = "showBrightnessView"
     const val useUnderline = "useUnderline"
+    const val regexColorRules = "regexColorRules"
     const val adaptSpecialStyle = "adaptSpecialStyle"
     const val autoClearExpired = "autoClearExpired"
     const val autoChangeSource = "autoChangeSource"

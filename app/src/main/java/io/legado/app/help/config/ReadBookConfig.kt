@@ -27,10 +27,12 @@ import io.legado.app.utils.getFile
 import io.legado.app.utils.getMeanColor
 import io.legado.app.utils.getPrefBoolean
 import io.legado.app.utils.getPrefInt
+import io.legado.app.utils.getPrefString
 import io.legado.app.utils.hexString
 import io.legado.app.utils.printOnDebug
 import io.legado.app.utils.putPrefBoolean
 import io.legado.app.utils.putPrefInt
+import io.legado.app.utils.putPrefString
 import io.legado.app.utils.resizeAndRecycle
 import splitties.init.appCtx
 import java.io.File
@@ -228,7 +230,26 @@ object ReadBookConfig {
             }
         }
     
-    var regexColorRules: ArrayList<RegexColorRule> = arrayListOf()
+    var regexColorRules: ArrayList<RegexColorRule> = loadRegexColorRules()
+        private set
+
+    fun saveRegexColorRules() {
+        appCtx.putPrefString(PreferKey.regexColorRules, GSON.toJson(regexColorRules))
+    }
+
+    private fun loadRegexColorRules(): ArrayList<RegexColorRule> {
+        val json = appCtx.getPrefString(PreferKey.regexColorRules)
+        if (!json.isNullOrEmpty()) {
+            try {
+                val list = GSON.fromJsonArray<RegexColorRule>(json).getOrNull()
+                if (!list.isNullOrEmpty()) {
+                    return ArrayList(list)
+                }
+            } catch (_: Exception) {
+            }
+        }
+        return arrayListOf()
+    }
 
     /**
      * 两端对齐
