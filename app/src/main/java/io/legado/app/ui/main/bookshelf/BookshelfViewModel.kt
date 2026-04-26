@@ -1,5 +1,6 @@
 package io.legado.app.ui.main.bookshelf
 
+import kotlinx.coroutines.flow.flow
 import android.app.Application
 import android.net.Uri
 import androidx.compose.runtime.snapshotFlow
@@ -19,6 +20,8 @@ import io.legado.app.data.entities.BookSource
 import io.legado.app.data.entities.BookSourcePart
 import io.legado.app.data.repository.BookGroupRepository
 import io.legado.app.data.repository.UploadRepository
+import io.legado.app.domain.usecase.BatchCacheDownloadUseCase
+import io.legado.app.domain.usecase.UpdateBooksGroupUseCase
 import io.legado.app.exception.NoStackTraceException
 import io.legado.app.help.book.BookHelp
 import io.legado.app.help.book.addType
@@ -67,7 +70,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
@@ -91,7 +93,9 @@ import kotlin.math.min
 class BookshelfViewModel(
     application: Application,
     private val bookGroupRepository: BookGroupRepository,
-    private val uploadRepository: UploadRepository
+    private val uploadRepository: UploadRepository,
+    private val batchCacheDownloadUseCase: BatchCacheDownloadUseCase,
+    private val updateBooksGroupUseCase: UpdateBooksGroupUseCase
 ) : BaseViewModel(application) {
     var addBookJob: Coroutine<*>? = null
 
@@ -130,7 +134,8 @@ class BookshelfViewModel(
 
     private data class GroupPreviewState(
         val previews: Map<Long, List<BookShelfItem>>,
-        val counts: Map<Long, Int>
+        val counts: Map<Long, Int>,
+        val allBookCount: Int
     )
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -202,9 +207,9 @@ class BookshelfViewModel(
                     }
                     previews[group.groupId] = result
                 }
-                GroupPreviewState(previews, counts)
+                GroupPreviewState(previews, counts, allBooks.size)
             } else {
-                GroupPreviewState(emptyMap(), emptyMap())
+                GroupPreviewState(emptyMap(), emptyMap(), allBooks.size)
             }
         }.distinctUntilChanged().flowOn(Dispatchers.Default)
 
@@ -253,6 +258,8 @@ class BookshelfViewModel(
             allGroups = allGroups,
             groupPreviews = previews.previews,
             groupBookCounts = previews.counts,
+            currentGroupBookCount = books.size,
+            allBooksCount = previews.allBookCount,
             selectedGroupIndex = groups.indexOfFirst { it.groupId == internal.groupId }
                 .coerceAtLeast(0),
             selectedGroupId = internal.groupId,
@@ -377,30 +384,48 @@ class BookshelfViewModel(
     }
 
     fun moveBooksToGroup(bookUrls: Set<String>, groupId: Long) {
-        updateBooksGroup(bookUrls) { groupId }
-    }
-
-    private fun updateBooksGroup(
-        bookUrls: Set<String>,
-        transform: (Long) -> Long
-    ) {
         if (bookUrls.isEmpty()) return
         execute {
-            val updateBooks = bookUrls.mapNotNull { url ->
-                appDb.bookDao.getBook(url)?.let { book ->
-                    val targetGroup = transform(book.group)
-                    if (targetGroup != book.group) {
-                        book.copy(group = targetGroup)
-                    } else {
-                        null
-                    }
-                }
-            }
-            if (updateBooks.isNotEmpty()) {
-                appDb.bookDao.update(*updateBooks.toTypedArray())
-            }
+            updateBooksGroupUseCase.replaceGroup(bookUrls, groupId)
         }.onError {
             context.toastOnUi("更新分组失败\n${it.localizedMessage}")
+        }
+    }
+
+    fun saveBookOrder(reorderedBooks: List<BookShelfItem>) {
+        if (reorderedBooks.isEmpty()) return
+        val isDescending = BookshelfConfig.bookshelfSortOrder == 1
+        val maxOrder = reorderedBooks.size
+        execute {
+            val updates = reorderedBooks.mapIndexedNotNull { index, book ->
+                appDb.bookDao.getBook(book.bookUrl)?.apply {
+                    order = if (isDescending) maxOrder - index else index + 1
+                }
+            }
+            if (updates.isNotEmpty()) {
+                appDb.bookDao.update(*updates.toTypedArray())
+            }
+        }.onError {
+            context.toastOnUi("排序保存失败\n${it.localizedMessage}")
+        }
+    }
+
+    fun downloadBooks(bookUrls: Set<String>, downloadAllChapters: Boolean = false) {
+        if (bookUrls.isEmpty()) return
+        execute {
+            batchCacheDownloadUseCase.execute(
+                bookUrls = bookUrls,
+                downloadAllChapters = downloadAllChapters,
+                skipAudioBooks = true
+            )
+        }.onSuccess { count ->
+            if (count > 0) {
+                context.toastOnUi("已加入缓存队列: $count 本")
+            } else {
+                context.toastOnUi(R.string.no_download)
+            }
+        }.onError {
+            context.toastOnUi("批量缓存失败\n${it.localizedMessage}")
         }
     }
 

@@ -56,6 +56,8 @@ fun RssSortRouteScreen(
     var isSourceLoaded by rememberSaveable { mutableStateOf(false) }
     var searchKey by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingSortUrl by rememberSaveable { mutableStateOf<String?>(initialSortUrl) }
+    val setSourceVariableText = stringResource(R.string.set_source_variable)
+    val errorText = stringResource(R.string.error)
 
     var showReadRecordSheet by remember { mutableStateOf(false) }
     var readRecords by remember { mutableStateOf<List<RssReadRecord>>(emptyList()) }
@@ -110,7 +112,7 @@ fun RssSortRouteScreen(
                 if (!sortUrl.isNullOrBlank()) {
                     val parsedSorts = GSON.fromJsonObject<Map<String, String>>(sortUrl).getOrNull()
                     if (!parsedSorts.isNullOrEmpty()) {
-                        sortList = parsedSorts.entries.map { (name, url) -> 
+                        sortList = parsedSorts.entries.map { (name, url) ->
                             Pair(name, url.trim().trim('`'))
                         }
                         pendingSortUrl = sortList.firstOrNull()?.second
@@ -175,7 +177,7 @@ fun RssSortRouteScreen(
                 val variable = withContext(Dispatchers.IO) { source.getVariable() }
                 activity?.showDialogFragment(
                     VariableDialog(
-                        context.getString(R.string.set_source_variable),
+                        setSourceVariableText,
                         source.getKey(),
                         variable,
                         comment
@@ -212,7 +214,7 @@ fun RssSortRouteScreen(
                 viewModel.rssSource?.sourceUrl ?: sourceUrl.orEmpty()
             }
             if (openOrigin.isBlank()) {
-                context.toastOnUi(context.getString(R.string.error))
+                context.toastOnUi(errorText)
             } else {
                 onOpenRead(record.title, openOrigin, null, record.record)
             }

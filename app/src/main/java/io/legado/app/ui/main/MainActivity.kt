@@ -30,7 +30,6 @@ import io.legado.app.R
 import io.legado.app.base.BaseComposeActivity
 import io.legado.app.constant.AppConst.appInfo
 import io.legado.app.constant.PreferKey
-import io.legado.app.help.AppWebDav
 import io.legado.app.help.book.BookHelp
 import io.legado.app.help.config.AppConfig
 import io.legado.app.help.config.LocalConfig
@@ -48,7 +47,7 @@ import io.legado.app.ui.book.search.SearchIntent
 import io.legado.app.ui.book.search.SearchScreen
 import io.legado.app.ui.book.search.SearchViewModel
 import io.legado.app.ui.book.source.manage.BookSourceActivity
-import io.legado.app.ui.book.cache.CacheRouteScreen
+import io.legado.app.ui.book.manage.BookshelfManageRouteScreen
 import io.legado.app.ui.book.read.ReadBookActivity
 import io.legado.app.ui.config.ConfigNavScreen
 import io.legado.app.ui.config.ConfigTag
@@ -166,7 +165,7 @@ open class MainActivity : BaseComposeActivity() {
             }
         }
 
-        fun createCacheIntent(
+        fun createBookshelfManageScreenIntent(
             context: Context,
             groupId: Long = -1L
         ): Intent {
@@ -175,6 +174,11 @@ open class MainActivity : BaseComposeActivity() {
                 putExtra(EXTRA_CACHE_GROUP_ID, groupId)
             }
         }
+
+        fun createCacheIntent(
+            context: Context,
+            groupId: Long = -1L
+        ): Intent = createBookshelfManageScreenIntent(context, groupId)
 
         fun createSearchIntent(
             context: Context,
@@ -486,7 +490,7 @@ open class MainActivity : BaseComposeActivity() {
                 }
 
                 entry<MainRouteCache> { route ->
-                    CacheRouteScreen(
+                    BookshelfManageRouteScreen(
                         groupId = route.groupId,
                         onBackClick = { navigateBack(backStack) }
                     )
@@ -750,13 +754,13 @@ open class MainActivity : BaseComposeActivity() {
         }
         lifecycleScope.launch {
             val lastBackupFile =
-                withContext(IO) { AppWebDav.lastBackUp().getOrNull() } ?: return@launch
+                withContext(IO) { viewModel.getLatestWebDavBackup() } ?: return@launch
             if (lastBackupFile.lastModify - LocalConfig.lastBackup > DateUtils.MINUTE_IN_MILLIS) {
                 LocalConfig.lastBackup = lastBackupFile.lastModify
                 alert(R.string.restore, R.string.webdav_after_local_restore_confirm) {
                     cancelButton()
                     okButton {
-                        viewModel.restoreWebDav(lastBackupFile.displayName)
+                        viewModel.restoreWebDav(lastBackupFile.name)
                     }
                 }
             }
