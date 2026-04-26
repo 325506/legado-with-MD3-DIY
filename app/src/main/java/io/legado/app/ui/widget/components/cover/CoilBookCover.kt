@@ -81,7 +81,8 @@ fun CoilBookCover(
     }
 
     NormalCard(
-        cornerRadius = 4.dp
+        cornerRadius = 4.dp,
+        containerColor = Color.Transparent
     ){
         BoxWithConstraints(
             modifier = modifier
@@ -89,11 +90,6 @@ fun CoilBookCover(
                 .then(
                     if (CoverConfig.coverShowShadow) {
                         Modifier.shadow(4.dp, RoundedCornerShape(4.dp))
-                    } else Modifier
-                )
-                .then(
-                    if (!hasCustomDefault && !isOnlineCoverLoaded) {
-                        Modifier.background(LegadoTheme.colorScheme.surfaceContainer)
                     } else Modifier
                 )
         ) {

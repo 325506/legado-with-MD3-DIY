@@ -219,7 +219,6 @@ fun BookGroupCover(
         modifier = modifier
             .aspectRatio(5f / 7f)
             .clip(RoundedCornerShape(4.dp))
-            .background(LegadoTheme.colorScheme.surfaceContainer)
     ) {
         if (!coverPath.isNullOrBlank()) {
             CoilBookCover(
