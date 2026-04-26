@@ -82,8 +82,6 @@ fun CoilBookCover(
 
     NormalCard(
         cornerRadius = 4.dp,
-        containerColor = Color.Transparent
-        cornerRadius = 4.dp,
         containerColor = if (!hasCustomDefault && !isOnlineCoverLoaded) {
             LegadoTheme.colorScheme.surfaceContainerLow
         } else
