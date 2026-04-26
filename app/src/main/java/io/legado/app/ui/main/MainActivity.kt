@@ -549,15 +549,25 @@ open class MainActivity : BaseComposeActivity() {
                         initialSortUrl = route.sortUrl,
                         onBackClick = { navigateBack(backStack) },
                         onOpenRead = { title, origin, link, openUrl ->
-                            navigateToRoute(
-                                backStack,
-                                MainRouteRssRead(
-                                    title = title,
-                                    origin = origin,
-                                    link = link,
-                                    openUrl = openUrl
+                            if (link?.contains("@js:") == true) {
+                                navigateToRoute(
+                                    backStack,
+                                    MainRouteRssSort(
+                                        sourceUrl = origin,
+                                        sortUrl = link
+                                    )
                                 )
-                            )
+                            } else {
+                                navigateToRoute(
+                                    backStack,
+                                    MainRouteRssRead(
+                                        title = title,
+                                        origin = origin,
+                                        link = link,
+                                        openUrl = openUrl
+                                    )
+                                )
+                            }
                         }
                     )
                 }

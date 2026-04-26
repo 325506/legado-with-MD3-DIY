@@ -27,9 +27,12 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -74,6 +77,8 @@ fun RssSortScreen(
     sortList: List<Pair<String, String>>,
     preferredSortUrl: String?,
     hasLogin: Boolean,
+    hasSearch: Boolean,
+    searchKey: String?,
     redirectPolicy: RedirectPolicy,
     showReadRecordSheet: Boolean,
     readRecords: List<RssReadRecord>,
@@ -89,6 +94,7 @@ fun RssSortScreen(
     onOpenReadRecord: (RssReadRecord) -> Unit,
     onClearArticles: () -> Unit,
     onRedirectPolicyChanged: (RedirectPolicy) -> Unit,
+    onSearch: (String) -> Unit,
     pagerContent: @Composable (index: Int, item: Pair<String, String>) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -107,11 +113,16 @@ fun RssSortScreen(
     var showMainMenu by remember { mutableStateOf(false) }
     var showRedirectMenu by remember { mutableStateOf(false) }
     var showGroupMenu by remember { mutableStateOf(false) }
+    var showSearchBar by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
-    BackHandler(enabled = showMainMenu || showRedirectMenu || showGroupMenu) {
-        showMainMenu = false
-        showRedirectMenu = false
-        showGroupMenu = false
+    BackHandler(enabled = showMainMenu || showRedirectMenu || showGroupMenu || showSearchBar) {
+        when {
+            showSearchBar -> showSearchBar = false
+            showMainMenu -> showMainMenu = false
+            showRedirectMenu -> showRedirectMenu = false
+            showGroupMenu -> showGroupMenu = false
+        }
     }
 
     LaunchedEffect(sortList.size) {
@@ -126,12 +137,19 @@ fun RssSortScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             GlassMediumFlexibleTopAppBar(
-                title = title,
+                title = if (searchKey != null) "搜索: $searchKey" else title,
                 scrollBehavior = scrollBehavior,
                 navigationIcon = {
                     TopBarNavigationButton(onClick = onBackClick, imageVector = AppIcons.Back)
                 },
                 actions = {
+                    if (hasSearch && searchKey == null) {
+                        TopBarActionButton(
+                            onClick = { showSearchBar = true },
+                            imageVector = Icons.Default.Search,
+                            contentDescription = stringResource(R.string.search)
+                        )
+                    }
                     TopBarActionButton(
                         onClick = { showMainMenu = true },
                         imageVector = AppIcons.MoreVert,
@@ -301,6 +319,58 @@ fun RssSortScreen(
         }
     }
 
+    if (showSearchBar) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable { showSearchBar = false }
+        ) {
+            SearchBar(
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = searchQuery,
+                        onQueryChange = { searchQuery = it },
+                        onSearch = {
+                            if (searchQuery.isNotBlank()) {
+                                onSearch(searchQuery.trim())
+                                showSearchBar = false
+                                searchQuery = ""
+                            }
+                        },
+                        expanded = showSearchBar,
+                        onExpandedChange = { showSearchBar = it },
+                        placeholder = { AppText(stringResource(R.string.search)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = null
+                            )
+                        },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                SmallIconButton(
+                                    onClick = { searchQuery = "" },
+                                    imageVector = AppIcons.Close,
+                                    contentDescription = stringResource(R.string.clear)
+                                )
+                            }
+                        }
+                    )
+                },
+                expanded = showSearchBar,
+                onExpandedChange = { showSearchBar = it },
+                modifier = Modifier.align(Alignment.TopCenter)
+            ) {
+                EmptyMessage(
+                    message = stringResource(R.string.input_search_key),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp)
+                )
+            }
+        }
+    }
+
     RssReadRecordSheet(
         show = showReadRecordSheet,
         records = readRecords,
@@ -370,4 +440,3 @@ private fun RssReadRecordSheet(
         }
     }
 }
-

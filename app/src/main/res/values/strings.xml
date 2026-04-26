@@ -117,6 +117,7 @@
     <string name="version">Version</string>
     <string name="local">Local</string>
     <string name="search">Search</string>
+    <string name="input_search_key">Input search keyword</string>
     <string name="origin_format">Origin: %s</string>
     <string name="read_dur_progress">Origin: %s</string>
     <string name="book_name">Title</string>
@@ -1133,6 +1134,15 @@
     <string name="clear_webview_data">Clear WebView Data</string>
     <string name="clear_webview_data_summary">Clear all data in WebView</string>
     <string name="source_tab_list">List</string>
+    <string name="source_tab_start">启动</string>
+    <string name="r_startHtml">启动页html文本</string>
+    <string name="r_startStyle">启动页style文本</string>
+    <string name="r_startJs">启动页Js（startJs）</string>
+    <string name="r_preloadJs">预注入Js（preloadJs）</string>
+    <string name="enable_preload">预加载</string>
+    <string name="load_with_web_log">显示WebView日志</string>
+    <string name="cache_first">优先缓存</string>
+    <string name="layout_type">布局</string>
     <string name="dict_rule">Dict rule</string>
     <string name="config_dict_rule">Config dict rule</string>
     <string name="create">Create</string>

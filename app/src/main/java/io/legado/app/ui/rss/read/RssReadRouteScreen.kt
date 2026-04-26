@@ -133,6 +133,7 @@ fun RssReadRouteScreen(
     var showFloatingCardJob by remember { mutableStateOf<Job?>(null) }
 
     var webView by remember { mutableStateOf<WebView?>(null) }
+    var hasLoadedInitialContent by remember { mutableStateOf(false) }
 
     var redirectPolicy by remember { mutableStateOf(RedirectPolicy.ALLOW_ALL) }
 
@@ -169,9 +170,13 @@ fun RssReadRouteScreen(
         val url = NetworkUtils.getAbsoluteURL(article.origin, article.link)
         val html = viewModel.clHtml(body)
         if (viewModel.rssSource?.loadWithBaseUrl == true) {
-            currentWebView.loadDataWithBaseURL(url, html, "text/html", "utf-8", url)
+            currentWebView.loadDataWithBaseURL(url, html, "text/html", "utf-8", null)
         } else {
-            currentWebView.loadDataWithBaseURL(null, html, "text/html;charset=utf-8", "utf-8", url)
+            currentWebView.loadDataWithBaseURL(null, html, "text/html;charset=utf-8", "utf-8", null)
+        }
+        if (!hasLoadedInitialContent) {
+            hasLoadedInitialContent = true
+            currentWebView.post { currentWebView.clearHistory() }
         }
     }
 
@@ -181,13 +186,14 @@ fun RssReadRouteScreen(
         CookieManager.applyToWebView(url.url)
         currentWebView.settings.userAgentString = url.getUserAgent()
         currentWebView.loadUrl(url.url, url.headerMap)
+        if (!hasLoadedInitialContent) {
+            hasLoadedInitialContent = true
+            currentWebView.post { currentWebView.clearHistory() }
+        }
     }
 
     BackHandler {
-        when {
-            webView?.canGoBack() == true && (webView?.copyBackForwardList()?.size ?: 0) > 1 -> webView?.goBack()
-            else -> onBackClick()
-        }
+        onBackClick()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {

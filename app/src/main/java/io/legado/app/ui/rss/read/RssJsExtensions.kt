@@ -3,12 +3,14 @@ package io.legado.app.ui.rss.read
 import android.webkit.JavascriptInterface
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import io.legado.app.constant.AppLog
 import io.legado.app.data.appDb
 import io.legado.app.data.entities.BaseSource
 import io.legado.app.data.entities.BookSource
 import io.legado.app.data.entities.RssReadRecord
 import io.legado.app.data.entities.RssSource
 import io.legado.app.help.JsExtensions
+import io.legado.app.model.analyzeRule.AnalyzeRule
 import io.legado.app.ui.association.AddToBookshelfDialog
 import io.legado.app.ui.book.explore.ExploreShowActivity
 import io.legado.app.ui.book.search.SearchActivity
@@ -73,10 +75,20 @@ open class RssJsExtensions(activity: AppCompatActivity?, source: BaseSource?) : 
         activityRef.get()?.showDialogFragment(PhotoDialog(src, getSource()?.getKey()))
     }
 
+    @JvmOverloads
+    fun getStringList(rule: String?, mContent: Any? = null, isUrl: Boolean = false): List<String>? {
+        return AnalyzeRule(null, source = getSource()).getStringList(rule, mContent, isUrl)
+    }
+
+    @JvmOverloads
+    fun getString(ruleStr: String?, mContent: Any? = null, isUrl: Boolean = false): String {
+        return AnalyzeRule(null, source = getSource()).getString(ruleStr, mContent, isUrl)
+    }
 
     @JavascriptInterface
     @JvmOverloads
-    fun open(name: String, url: String? = null, title: String? = null, origin: String? = null) {
+    open fun open(name: String, url: String? = null, title: String? = null, origin: String? = null) {
+        AppLog.put("RssJsExtensions: open called with name=$name, url=$url, title=$title, origin=$origin")
         val activity = activityRef.get() ?: return
         activity.lifecycleScope.launch(IO) {
             val source = getSource() ?: return@launch
@@ -152,7 +164,7 @@ open class RssJsExtensions(activity: AppCompatActivity?, source: BaseSource?) : 
                         origin = sourceUrl,
                         readTime = System.currentTimeMillis()
                     )
-                    appDb.rssReadRecordDao.insertRecord(rssReadRecord) //留下历史记录
+                    appDb.rssReadRecordDao.insertRecord(rssReadRecord)
                     withContext(Main) {
                         activity.startActivity(
                             MainActivity.createRssReadIntent(

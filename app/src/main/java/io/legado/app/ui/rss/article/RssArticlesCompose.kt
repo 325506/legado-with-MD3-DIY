@@ -95,6 +95,7 @@ fun RssArticlesPage(
     rssUrl: String?,
     rssSource: RssSource?,
     viewModel: RssArticlesViewModel,
+    searchKey: String? = null,
     onRead: (RssArticle) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -102,8 +103,8 @@ fun RssArticlesPage(
     val layout = remember(articleStyle) { articleStyle.toRssArticleLayout() }
     val loadState by viewModel.loadState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(sortName, sortUrl) {
-        viewModel.init(sortName, sortUrl)
+    LaunchedEffect(sortName, sortUrl, searchKey) {
+        viewModel.init(sortName, sortUrl, searchKey)
     }
 
     val articleFlow = remember(rssUrl, sortName) {
