@@ -41,7 +41,6 @@ private fun BaseCard(
 ) {
     val resolvedContainerColor = (containerColor ?: LegadoTheme.colorScheme.secondaryContainer)
         .let { it.copy(alpha = it.alpha * alpha) }
-    if (ThemeResolver.isMiuixEngine(LegadoTheme.composeEngine)) {
     val isTransparent = containerColor == Color.Transparent
     val shape = RoundedCornerShape(cornerRadius)
 
