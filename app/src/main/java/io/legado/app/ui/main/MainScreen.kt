@@ -64,6 +64,7 @@ import io.legado.app.ui.main.bookshelf.BookshelfScreen
 import io.legado.app.ui.main.bookshelf.BookshelfViewModel
 import io.legado.app.ui.main.explore.ExploreScreen
 import io.legado.app.ui.main.my.MyScreen
+import io.legado.app.ui.main.my.PrefClickEvent
 import io.legado.app.ui.main.rss.RssScreen
 import io.legado.app.ui.theme.regularHazeEffect
 import io.legado.app.ui.widget.components.AppNavigationBar
@@ -95,6 +96,7 @@ fun MainScreen(
     onNavigateToRemoteImport: () -> Unit,
     onNavigateToLocalImport: () -> Unit,
     onNavigateToCache: (Long) -> Unit,
+    onNavigateToBookCacheManage: () -> Unit,
     onNavigateToRssSort: (sourceUrl: String, sortUrl: String?, key: String?) -> Unit,
     onNavigateToRssRead: (title: String?, origin: String, link: String?, openUrl: String?) -> Unit
 ) {
@@ -403,7 +405,11 @@ fun MainScreen(
                             viewModel = koinViewModel(),
                             onOpenSettings = onOpenSettings,
                             onNavigate = { event ->
-                                viewModel.onPrefClickEvent(context, event)
+                                if (event == PrefClickEvent.OpenBookCacheManage) {
+                                    onNavigateToBookCacheManage()
+                                } else {
+                                    viewModel.onPrefClickEvent(context, event)
+                                }
                             }
                         )
                     }
