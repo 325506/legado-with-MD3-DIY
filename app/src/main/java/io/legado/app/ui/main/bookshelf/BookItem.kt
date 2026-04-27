@@ -2,6 +2,7 @@ package io.legado.app.ui.main.bookshelf
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,10 +22,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -34,6 +41,7 @@ import io.legado.app.R
 import io.legado.app.constant.BookType
 import io.legado.app.data.entities.BookGroup
 import io.legado.app.ui.config.bookshelfConfig.BookshelfConfig
+import io.legado.app.ui.config.themeConfig.ThemeConfig
 import io.legado.app.ui.theme.LegadoTheme
 import io.legado.app.ui.widget.components.card.GlassCard
 import io.legado.app.ui.widget.components.card.TextCard
@@ -67,16 +75,49 @@ fun BookshelfItem(
     onClick: () -> Unit,
     onLongClick: (() -> Unit)?
 ) {
-    val selectedColor = if (isSelected) {
-        LegadoTheme.colorScheme.secondaryContainer
+    val containerColor = if (ThemeConfig.enableDeepPersonalization && ThemeConfig.cMD3Secondary != 0) {
+        Color(ThemeConfig.cMD3Secondary)
     } else {
-        LegadoTheme.colorScheme.surface
+        LegadoTheme.colorScheme.cardContainer
     }
+
+    val borderWidth = ThemeConfig.containerBorderWidth.dp
+    val borderColor = if (ThemeConfig.containerBorderColor != 0) {
+        Color(ThemeConfig.containerBorderColor)
+    } else {
+        LegadoTheme.colorScheme.outline
+    }
+    val borderStyle = ThemeConfig.containerBorderStyle
+    val enableBorder = ThemeConfig.enableDeepPersonalization && ThemeConfig.enableContainerBorder
+
+    val borderModifier = if (enableBorder && borderStyle == "solid") {
+        Modifier.border(borderWidth, borderColor, MaterialTheme.shapes.small)
+    } else if (enableBorder) {
+        val dashWidth = ThemeConfig.containerBorderDashWidth
+        val pathEffect = when (borderStyle) {
+            "dashed" -> PathEffect.dashPathEffect(floatArrayOf(dashWidth, dashWidth))
+            "dotted" -> PathEffect.dashPathEffect(floatArrayOf(dashWidth / 2, dashWidth))
+            else -> null
+        }
+        Modifier.drawWithContent {
+            drawContent()
+            val cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
+            val halfStroke = borderWidth.toPx() / 2
+            drawRoundRect(
+                color = borderColor,
+                topLeft = Offset(halfStroke, halfStroke),
+                size = Size(size.width - borderWidth.toPx(), size.height - borderWidth.toPx()),
+                cornerRadius = cornerRadius,
+                style = Stroke(width = borderWidth.toPx(), pathEffect = pathEffect)
+            )
+        }
+    } else {
+        Modifier
+    }
+
     if (isGrid) {
         Box(
             modifier = modifier
-                .clip(MaterialTheme.shapes.small)
-                .background(selectedColor)
                 .combinedClickable(
                     onClick = onClick,
                     onLongClick = onLongClick
@@ -95,7 +136,7 @@ fun BookshelfItem(
                                 MaterialTheme.shapes.extraSmall
                             ) else Modifier
                         )
-                        .clip(MaterialTheme.shapes.extraSmall) // 先阴影后裁剪
+                        .clip(MaterialTheme.shapes.extraSmall)
                 ) {
                     cover(Modifier.fillMaxSize())
                     if (gridStyle == 1) {
@@ -142,14 +183,18 @@ fun BookshelfItem(
             }
         }
     } else {
-        // 列表布局
         Column {
             GlassCard(
                 modifier = modifier
                     .fillMaxWidth()
-                    .padding(all = 4.dp),
+                    .padding(all = 4.dp)
+                    .then(borderModifier),
                 cornerRadius = 8.dp,
-                containerColor = selectedColor,
+                containerColor = if (isSelected) {
+                    LegadoTheme.colorScheme.secondaryContainer
+                } else {
+                    containerColor
+                },
                 onClick = onClick,
                 onLongClick = onLongClick
             ) {
