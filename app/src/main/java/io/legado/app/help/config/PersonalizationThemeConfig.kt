@@ -88,6 +88,9 @@ object PersonalizationThemeConfig {
         ThemeConfig.cBgColor = config.bgColor
         ThemeConfig.cBookInfoInputColor = config.bookInfoInputColor
 
+        // 应用字体设置
+        ThemeConfig.appFontPath = config.appFontPath
+
         // 应用边框设置
         ThemeConfig.enableContainerBorder = config.enableContainerBorder
         ThemeConfig.containerBorderWidth = config.containerBorderWidth
@@ -125,6 +128,7 @@ object PersonalizationThemeConfig {
             fontColor = ThemeConfig.cFontColor,
             bgColor = ThemeConfig.cBgColor,
             bookInfoInputColor = ThemeConfig.cBookInfoInputColor,
+            appFontPath = ThemeConfig.appFontPath,
             enableContainerBorder = ThemeConfig.enableContainerBorder,
             containerBorderWidth = ThemeConfig.containerBorderWidth,
             containerBorderStyle = ThemeConfig.containerBorderStyle,
@@ -161,6 +165,7 @@ object PersonalizationThemeConfig {
         var fontColor: Int,
         var bgColor: Int,
         var bookInfoInputColor: Int,
+        var appFontPath: String?,
         var enableContainerBorder: Boolean,
         var containerBorderWidth: Float,
         var containerBorderStyle: String,

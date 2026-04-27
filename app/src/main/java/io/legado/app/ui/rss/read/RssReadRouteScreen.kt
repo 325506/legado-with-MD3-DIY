@@ -170,10 +170,6 @@ fun RssReadRouteScreen(
         } else {
             currentWebView.loadDataWithBaseURL(null, html, "text/html;charset=utf-8", "utf-8", null)
         }
-        if (!hasLoadedInitialContent) {
-            hasLoadedInitialContent = true
-            currentWebView.post { currentWebView.clearHistory() }
-        }
     }
 
     LaunchedEffect(analyzeUrl, webView) {
@@ -182,14 +178,15 @@ fun RssReadRouteScreen(
         CookieManager.applyToWebView(url.url)
         currentWebView.settings.userAgentString = url.getUserAgent()
         currentWebView.loadUrl(url.url, url.headerMap)
-        if (!hasLoadedInitialContent) {
-            hasLoadedInitialContent = true
-            currentWebView.post { currentWebView.clearHistory() }
-        }
     }
 
     BackHandler {
-        onBackClick()
+        val currentWebView = webView
+        if (currentWebView != null && currentWebView.canGoBack()) {
+            currentWebView.goBack()
+        } else {
+            onBackClick()
+        }
     }
 
     Scaffold(

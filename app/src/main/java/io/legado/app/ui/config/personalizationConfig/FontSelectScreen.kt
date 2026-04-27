@@ -1,6 +1,7 @@
 package io.legado.app.ui.config.personalizationConfig
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Typeface
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -47,6 +48,7 @@ import io.legado.app.utils.FileDoc
 import io.legado.app.utils.getPrefString
 import io.legado.app.utils.listFileDocs
 import io.legado.app.utils.putPrefString
+import io.legado.app.utils.takePersistablePermissionSafely
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,6 +81,8 @@ fun FontSelectScreen(
     ) { uri ->
         if (uri != null) {
             selectedFolderUri = uri
+            // 获取持久化权限
+            uri.takePersistablePermissionSafely(context, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             // 保存选择的文件夹路径到偏好设置
             context.putPrefString(PreferKey.fontFolder, uri.toString())
             loadFonts()
