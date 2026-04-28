@@ -143,30 +143,25 @@ object Debug {
         debugSource = rssSource.sourceUrl
         startTime = System.currentTimeMillis()
         when {
+            key.contains("@js:") -> {
+                val ruleContent = rssSource.ruleContent
+                if (ruleContent.isNullOrEmpty()) {
+                    log(debugSource, "⇒内容规则为空，默认获取整个网页", state = 1000)
+                } else {
+                    val rssArticle = RssArticle()
+                    rssArticle.origin = rssSource.sourceUrl
+                    rssArticle.link = key
+                    log(debugSource, "⇒开始解析@js:链接:$key")
+                    rssContentDebug(scope, rssArticle, ruleContent, rssSource)
+                }
+            }
+
             key.contains("::") -> {
                 val name = key.substringBefore("::")
                 val url = key.substringAfter("::")
                 log(debugSource, "⇒开始访问分类页:$url")
                 log(debugSource, "︾开始解析分类页")
                 rssSortDebug(scope, rssSource, name, url)
-            }
-
-            key.contains("@js:") -> {
-                val ruleContent = rssSource.ruleContent
-                if (!rssSource.ruleArticles.isNullOrBlank()) {
-                    if (ruleContent.isNullOrEmpty()) {
-                        log(debugSource, "⇒内容规则为空，默认获取整个网页", state = 1000)
-                    } else {
-                        val rssArticle = RssArticle()
-                        rssArticle.origin = rssSource.sourceUrl
-                        rssArticle.link = key
-                        log(debugSource, "⇒开始解析@js:链接:$key")
-                        rssContentDebug(scope, rssArticle, ruleContent, rssSource)
-                    }
-                } else {
-                    log(debugSource, "⇒存在描述规则，不解析内容页")
-                    log(debugSource, "︽解析完成", state = 1000)
-                }
             }
 
             key.isAbsUrl() -> {

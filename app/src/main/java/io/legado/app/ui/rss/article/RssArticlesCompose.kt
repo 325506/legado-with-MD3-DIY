@@ -102,6 +102,7 @@ fun RssArticlesPage(
     val context = LocalContext.current
     val layout = remember(articleStyle) { articleStyle.toRssArticleLayout() }
     val loadState by viewModel.loadState.collectAsStateWithLifecycle()
+    val isPreload = remember(rssSource) { rssSource?.preload == true }
 
     LaunchedEffect(sortName, sortUrl, searchKey) {
         viewModel.init(sortName, sortUrl, searchKey)
@@ -120,7 +121,11 @@ fun RssArticlesPage(
     val articles by articleFlow.collectAsStateWithLifecycle(initialValue = emptyList())
 
     LaunchedEffect(rssSource?.sourceUrl, sortName, sortUrl) {
-        rssSource?.let(viewModel::loadArticles)
+        rssSource?.let { source ->
+            if (isPreload) {
+                viewModel.loadArticles(source)
+            }
+        }
     }
 
     LaunchedEffect(loadState.errorMessage) {
@@ -141,6 +146,7 @@ fun RssArticlesPage(
                 LoadMoreDetector(
                     state = listState,
                     enabled = loadState.canLoadMore,
+                    preloadThreshold = if (isPreload) 5 else 3,
                     onLoadMore = { rssSource?.let(viewModel::loadMore) }
                 )
                 LazyColumn(
@@ -173,6 +179,7 @@ fun RssArticlesPage(
                 GridLoadMoreDetector(
                     state = gridState,
                     enabled = loadState.canLoadMore,
+                    preloadThreshold = if (isPreload) 5 else 3,
                     onLoadMore = { rssSource?.let(viewModel::loadMore) }
                 )
                 LazyVerticalGrid(
@@ -207,6 +214,7 @@ fun RssArticlesPage(
                 StaggeredLoadMoreDetector(
                     state = staggeredState,
                     enabled = loadState.canLoadMore,
+                    preloadThreshold = if (isPreload) 5 else 3,
                     onLoadMore = { rssSource?.let(viewModel::loadMore) }
                 )
                 LazyVerticalStaggeredGrid(
@@ -243,13 +251,14 @@ fun RssArticlesPage(
 private fun LoadMoreDetector(
     state: LazyListState,
     enabled: Boolean,
+    preloadThreshold: Int = 3,
     onLoadMore: () -> Unit
 ) {
     LaunchedEffect(state, enabled) {
         snapshotFlow {
             val info = state.layoutInfo
             val lastVisible = info.visibleItemsInfo.lastOrNull()?.index ?: -1
-            enabled && info.totalItemsCount > 0 && lastVisible >= info.totalItemsCount - 3
+            enabled && info.totalItemsCount > 0 && lastVisible >= info.totalItemsCount - preloadThreshold
         }.collect { shouldLoad ->
             if (shouldLoad) onLoadMore()
         }
@@ -260,13 +269,14 @@ private fun LoadMoreDetector(
 private fun GridLoadMoreDetector(
     state: LazyGridState,
     enabled: Boolean,
+    preloadThreshold: Int = 3,
     onLoadMore: () -> Unit
 ) {
     LaunchedEffect(state, enabled) {
         snapshotFlow {
             val info = state.layoutInfo
             val lastVisible = info.visibleItemsInfo.lastOrNull()?.index ?: -1
-            enabled && info.totalItemsCount > 0 && lastVisible >= info.totalItemsCount - 3
+            enabled && info.totalItemsCount > 0 && lastVisible >= info.totalItemsCount - preloadThreshold
         }.collect { shouldLoad ->
             if (shouldLoad) onLoadMore()
         }
@@ -277,13 +287,14 @@ private fun GridLoadMoreDetector(
 private fun StaggeredLoadMoreDetector(
     state: LazyStaggeredGridState,
     enabled: Boolean,
+    preloadThreshold: Int = 3,
     onLoadMore: () -> Unit
 ) {
     LaunchedEffect(state, enabled) {
         snapshotFlow {
             val info = state.layoutInfo
             val lastVisible = info.visibleItemsInfo.maxOfOrNull { it.index } ?: -1
-            enabled && info.totalItemsCount > 0 && lastVisible >= info.totalItemsCount - 3
+            enabled && info.totalItemsCount > 0 && lastVisible >= info.totalItemsCount - preloadThreshold
         }.collect { shouldLoad ->
             if (shouldLoad) onLoadMore()
         }

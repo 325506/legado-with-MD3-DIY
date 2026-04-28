@@ -4,7 +4,6 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import io.legado.app.constant.AppLog
 import io.legado.app.constant.BookType
 import io.legado.app.data.appDb
 import io.legado.app.data.entities.BaseSource
@@ -217,7 +216,6 @@ class WebJsExtensions(
 
     @JavascriptInterface
     override fun open(name: String, url: String?, title: String?, origin: String?) {
-        AppLog.put("WebJsExtensions: open called with name=$name, url=$url, title=$title, origin=$origin")
         when (name) {
             "sort" -> {
                 val sortUrl = if (!url.isNullOrBlank()) {

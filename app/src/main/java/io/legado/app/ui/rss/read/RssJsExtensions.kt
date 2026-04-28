@@ -3,7 +3,6 @@ package io.legado.app.ui.rss.read
 import android.webkit.JavascriptInterface
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import io.legado.app.constant.AppLog
 import io.legado.app.data.appDb
 import io.legado.app.data.entities.BaseSource
 import io.legado.app.data.entities.BookSource
@@ -88,7 +87,6 @@ open class RssJsExtensions(activity: AppCompatActivity?, source: BaseSource?) : 
     @JavascriptInterface
     @JvmOverloads
     open fun open(name: String, url: String? = null, title: String? = null, origin: String? = null) {
-        AppLog.put("RssJsExtensions: open called with name=$name, url=$url, title=$title, origin=$origin")
         val activity = activityRef.get() ?: return
         activity.lifecycleScope.launch(IO) {
             val source = getSource() ?: return@launch

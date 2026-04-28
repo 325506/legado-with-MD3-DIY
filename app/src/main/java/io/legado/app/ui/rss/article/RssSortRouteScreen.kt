@@ -16,7 +16,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.appcompat.app.AppCompatActivity
-import io.legado.app.constant.AppLog
 import io.legado.app.R
 import io.legado.app.data.entities.RssReadRecord
 import io.legado.app.ui.login.SourceLoginActivity
@@ -64,7 +63,6 @@ fun RssSortRouteScreen(
     var hasNavigatedFromStartPage by rememberSaveable { mutableStateOf(false) }
 
     fun reloadSourceState() {
-        AppLog.put("RssSortRouteScreen: reloadSourceState called, sourceUrl=$sourceUrl")
         viewModel.initData(sourceUrl) {
             scope.launch {
                 val loadedSortList = viewModel.loadSorts()
@@ -73,7 +71,6 @@ fun RssSortRouteScreen(
                 redirectPolicy = RedirectPolicy.fromString(viewModel.rssSource?.redirectPolicy)
                 if (!hasNavigatedFromStartPage) {
                     val newShowStartPage = !viewModel.rssSource?.startHtml.isNullOrBlank()
-                    AppLog.put("RssSortRouteScreen: startHtml=${viewModel.rssSource?.startHtml?.take(50)}, newShowStartPage=$newShowStartPage")
                     showStartPage = newShowStartPage
                 }
                 if (initialSortUrl?.contains("@js:") == true && loadedSortList.none { it.second == initialSortUrl }) {
@@ -103,11 +100,9 @@ fun RssSortRouteScreen(
     }
 
     if (showStartPage) {
-        AppLog.put("RssSortRouteScreen: showing RssStartPage")
         RssStartPage(
             rssSource = viewModel.rssSource,
             onNavigateToArticles = { sortUrl ->
-                AppLog.put("RssSortRouteScreen: onNavigateToArticles called with sortUrl=$sortUrl")
                 hasNavigatedFromStartPage = true
                 if (!sortUrl.isNullOrBlank()) {
                     val parsedSorts = GSON.fromJsonObject<Map<String, String>>(sortUrl).getOrNull()

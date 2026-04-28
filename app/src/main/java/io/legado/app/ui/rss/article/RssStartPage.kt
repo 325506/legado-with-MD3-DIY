@@ -31,7 +31,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import io.legado.app.data.entities.RssSource
-import io.legado.app.constant.AppLog
 import io.legado.app.help.WebCacheManager
 import io.legado.app.help.config.AppConfig
 import io.legado.app.help.http.CookieManager
@@ -58,9 +57,7 @@ fun RssStartPage(
     val hasPreloadJs = !preloadJs.isNullOrBlank()
 
     LaunchedEffect(startHtml) {
-        AppLog.put("RssStartPage: LaunchedEffect triggered, startHtml is null or blank: ${startHtml.isNullOrBlank()}")
         if (startHtml.isNullOrBlank()) {
-            AppLog.put("RssStartPage: startHtml is blank, calling onNavigateToArticles")
             onNavigateToArticles(null)
         }
     }
@@ -118,7 +115,6 @@ fun RssStartPage(
                             callback = object : WebJsExtensions.Callback {
                                 override fun upConfig(config: String) {}
                                 override fun onNavigateToArticles(sortUrl: String?) {
-                                    AppLog.put("RssStartPage: onNavigateToArticles callback called with sortUrl=$sortUrl")
                                     activity.runOnUiThread {
                                         onNavigateToArticles(sortUrl)
                                     }
@@ -133,9 +129,7 @@ fun RssStartPage(
                     addJavascriptInterface(object {
                         @android.webkit.JavascriptInterface
                         fun navigateToArticles() {
-                            AppLog.put("RssStartPage: navigateToArticles called from JS")
                             activity?.runOnUiThread {
-                                AppLog.put("RssStartPage: navigateToArticles running on UI thread")
                                 onNavigateToArticles(null)
                             }
                         }
