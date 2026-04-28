@@ -100,6 +100,9 @@ object CacheBook {
         MutableStateFlow<Pair<String, Set<Int>>>("" to emptySet())
     val downloadingIndicesFlow = _downloadingIndicesFlow.asStateFlow()
 
+    private val _queueChangedFlow = MutableSharedFlow<String>(extraBufferCapacity = 64)
+    val queueChangedFlow = _queueChangedFlow.asSharedFlow()
+
     private val _downloadErrorFlow =
         MutableStateFlow<Pair<String, Set<Int>>>("" to emptySet())
     val downloadErrorFlow = _downloadErrorFlow.asStateFlow()
@@ -112,6 +115,10 @@ object CacheBook {
 
     val cacheBookMap: ConcurrentHashMap<String, CacheBookModel>
         get() = coordinator.taskMap
+
+    fun errorIndices(bookUrl: String): Set<Int> {
+        return errorIndexMap[bookUrl]?.toSet().orEmpty()
+    }
 
     private fun collectQueueStats(): QueueStats {
         var waiting = 0
@@ -177,6 +184,19 @@ object CacheBook {
         }
     }
 
+    fun removeBook(bookUrl: String): Boolean {
+        val model = cacheBookMap.remove(bookUrl) ?: return false
+        model.stop()
+        updateSummary()
+        _queueChangedFlow.tryEmit(bookUrl)
+        postEvent(EventBus.UP_DOWNLOAD, bookUrl)
+        return true
+    }
+
+    fun removeChapter(bookUrl: String, chapterIndex: Int): Boolean {
+        return cacheBookMap[bookUrl]?.removeDownload(chapterIndex) == true
+    }
+
     fun stop(context: Context) {
         if (CacheBookService.isRun) {
             context.startService<CacheBookService> {
@@ -222,6 +242,7 @@ object CacheBook {
 
     private fun onTaskQueuesChanged(bookUrl: String) {
         updateSummary()
+        _queueChangedFlow.tryEmit(bookUrl)
         postEvent(EventBus.UP_DOWNLOAD, bookUrl)
     }
 
@@ -238,6 +259,8 @@ object CacheBook {
 
         private val waitDownloadSet = linkedSetOf<Int>()
         private val onDownloadSet = linkedSetOf<Int>()
+        private val pausedDownloadSet = hashSetOf<Int>()
+        private val chapterTasks = hashMapOf<Int, Coroutine<*>>()
         private val tasks = CompositeCoroutine()
         private var isStopped = false
         private var waitingRetry = false
@@ -287,6 +310,8 @@ object CacheBook {
         @Synchronized
         fun stop() {
             waitDownloadSet.clear()
+            pausedDownloadSet.clear()
+            chapterTasks.clear()
             tasks.clear()
             isStopped = true
             isLoading = false
@@ -297,8 +322,14 @@ object CacheBook {
 
         @Synchronized
         fun addDownload(start: Int, end: Int) {
+            addDownloads(start..end)
+        }
+
+        @Synchronized
+        fun addDownloads(indices: Iterable<Int>) {
             isStopped = false
-            for (i in start..end) {
+            for (i in indices) {
+                pausedDownloadSet.remove(i)
                 if (!onDownloadSet.contains(i)) {
                     waitDownloadSet.add(i)
                 }
@@ -316,6 +347,7 @@ object CacheBook {
         @Synchronized
         private fun onSuccess(chapter: BookChapter) {
             onDownloadSet.remove(chapter.index)
+            chapterTasks.remove(chapter.index)
             successDownloadSet.add(chapter.primaryStr())
             errorDownloadMap.remove(chapter.primaryStr())
             errorIndexMap[book.bookUrl]?.remove(chapter.index)
@@ -333,6 +365,7 @@ object CacheBook {
                     .add(chapter.index)
             }
             onDownloadSet.remove(chapter.index)
+            chapterTasks.remove(chapter.index)
         }
 
         @Synchronized
@@ -357,7 +390,8 @@ object CacheBook {
         @Synchronized
         private fun onCancel(index: Int) {
             onDownloadSet.remove(index)
-            if (!isStopped) waitDownloadSet.add(index)
+            chapterTasks.remove(index)
+            if (!isStopped && !pausedDownloadSet.remove(index)) waitDownloadSet.add(index)
             notifyDownloadSetChanged()
         }
 
@@ -370,6 +404,28 @@ object CacheBook {
                 CacheBook.onTaskQueuesChanged(bookUrl)
             }
             notifyDownloadSetChanged()
+        }
+
+        @Synchronized
+        fun removeDownload(index: Int): Boolean {
+            val removedWaiting = waitDownloadSet.remove(index)
+            val task = chapterTasks.remove(index)
+            val removedRunning = onDownloadSet.contains(index) || task != null
+            if (removedRunning) {
+                pausedDownloadSet.add(index)
+                task?.let {
+                    tasks.delete(it)
+                    it.cancel()
+                }
+            }
+            if (!removedWaiting && !removedRunning) return false
+            notifyDownloadSetChanged()
+            if (waitDownloadSet.isEmpty() && onDownloadSet.isEmpty()) {
+                CacheBook.onTaskRemoved(book.bookUrl)
+            } else {
+                CacheBook.onTaskQueuesChanged(book.bookUrl)
+            }
+            return true
         }
 
         /**
@@ -408,7 +464,7 @@ object CacheBook {
             notifyDownloadSetChanged()
 
             if (BookHelp.hasContent(book, chapter)) {
-                Coroutine.async(scope, context, executeContext = context) {
+                val task = Coroutine.async(scope, context, executeContext = context) {
                     BookHelp.getContent(book, chapter)?.let {
                         BookHelp.saveImages(bookSource, book, chapter, it, 1)
                     }
@@ -421,12 +477,15 @@ object CacheBook {
                 }.onCancel {
                     onCancel(chapterIndex)
                 }.onFinally {
+                    chapterTasks.remove(chapterIndex)?.let { tasks.delete(it) }
                     onFinally()
                 }
+                chapterTasks[chapterIndex] = task
+                tasks.add(task)
                 return
             }
 
-            WebBook.getContent(
+            val task = WebBook.getContent(
                 scope,
                 bookSource,
                 book,
@@ -445,10 +504,12 @@ object CacheBook {
             }.onCancel {
                 onCancel(chapterIndex)
             }.onFinally {
+                chapterTasks.remove(chapterIndex)?.let { tasks.delete(it) }
                 onFinally()
-            }.apply {
-                tasks.add(this)
-            }.start()
+            }
+            chapterTasks[chapterIndex] = task
+            tasks.add(task)
+            task.start()
         }
 
         suspend fun downloadAwait(chapter: BookChapter): String {

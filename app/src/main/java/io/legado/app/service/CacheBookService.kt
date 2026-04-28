@@ -98,8 +98,7 @@ class CacheBookService : BaseService() {
                 }
                 IntentAction.remove -> {
                     val bookUrl = intent.getStringExtra("bookUrl")
-                    CacheBook.cacheBookMap[bookUrl]?.stop()
-                    CacheBook.cacheBookMap.remove(bookUrl)
+                    bookUrl?.let { CacheBook.removeBook(it) }
                 }
                 IntentAction.stop -> stopSelf()
             }
@@ -163,10 +162,8 @@ class CacheBookService : BaseService() {
                 }
             }
 
-            //添加每一章到下载队列
-            indices.forEach { index ->
-                cacheBook.addDownload(index)
-            }
+            //添加章节到下载队列
+            cacheBook.addDownloads(indices)
 
             notificationContent = CacheBook.downloadSummary
             upCacheBookNotification()

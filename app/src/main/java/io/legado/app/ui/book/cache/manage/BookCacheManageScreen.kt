@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Checkbox
@@ -31,7 +32,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.legado.app.R
 import io.legado.app.ui.theme.LegadoTheme
 import io.legado.app.ui.theme.adaptiveContentPadding
+import io.legado.app.ui.theme.adaptiveHorizontalPadding
 import io.legado.app.ui.widget.components.AppLinearProgressIndicator
 import io.legado.app.ui.widget.components.AppScaffold
 import io.legado.app.ui.widget.components.alert.AppAlertDialog
@@ -94,10 +95,9 @@ private fun BookCacheManageScreen(
     val scrollBehavior = GlassTopAppBarDefaults.defaultScrollBehavior()
     var pendingDeleteBook by remember { mutableStateOf<BookCacheBookItem?>(null) }
     var pendingDeleteChapter by remember { mutableStateOf<Pair<BookCacheBookItem, BookCacheChapterItem>?>(null) }
-    var expandedBookUrls by rememberSaveable { mutableStateOf(emptySet<String>()) }
     val allBooks = state.shelfBooks + state.notShelfBooks
     val hasRunningDownload = allBooks.any { it.isDownloading }
-    val hasDownloadTarget = allBooks.any { it.chapters.any { chapter -> !chapter.isCached } }
+    val hasDownloadTarget = allBooks.any { it.cachedCount < it.totalCount }
 
     AppScaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -160,9 +160,10 @@ private fun BookCacheManageScreen(
                     title = "书架书籍",
                     emptyText = "没有书架内书籍缓存或下载任务",
                     books = state.shelfBooks,
-                    expandedBookUrls = expandedBookUrls,
+                    expandedBookUrls = state.expandedBookUrls,
+                    chaptersByBookUrl = state.chaptersByBookUrl,
                     onToggleExpanded = { bookUrl ->
-                        expandedBookUrls = expandedBookUrls.toggle(bookUrl)
+                        onIntent(BookCacheManageIntent.ToggleBookExpanded(bookUrl))
                     },
                     onIntent = onIntent,
                     onDeleteBook = { pendingDeleteBook = it },
@@ -172,9 +173,10 @@ private fun BookCacheManageScreen(
                     title = "未在书架",
                     emptyText = "没有未在书架的书籍下载状态",
                     books = state.notShelfBooks,
-                    expandedBookUrls = expandedBookUrls,
+                    expandedBookUrls = state.expandedBookUrls,
+                    chaptersByBookUrl = state.chaptersByBookUrl,
                     onToggleExpanded = { bookUrl ->
-                        expandedBookUrls = expandedBookUrls.toggle(bookUrl)
+                        onIntent(BookCacheManageIntent.ToggleBookExpanded(bookUrl))
                     },
                     onIntent = onIntent,
                     onDeleteBook = { pendingDeleteBook = it },
@@ -187,7 +189,7 @@ private fun BookCacheManageScreen(
     DeleteBookCacheDialog(
         item = pendingDeleteBook,
         onConfirm = { item ->
-            onIntent(BookCacheManageIntent.DeleteBookCache(item.book.bookUrl))
+            onIntent(BookCacheManageIntent.DeleteBookCache(item.bookUrl))
             pendingDeleteBook = null
         },
         onDismiss = { pendingDeleteBook = null }
@@ -197,8 +199,10 @@ private fun BookCacheManageScreen(
         onConfirm = { book, chapter ->
             onIntent(
                 BookCacheManageIntent.DeleteChapterCache(
-                    book.book.bookUrl,
-                    chapter.chapter.url
+                    book.bookUrl,
+                    chapter.chapterUrl,
+                    chapter.title,
+                    chapter.index,
                 )
             )
             pendingDeleteChapter = null
@@ -212,6 +216,7 @@ private fun LazyListScope.cacheSection(
     emptyText: String,
     books: List<BookCacheBookItem>,
     expandedBookUrls: Set<String>,
+    chaptersByBookUrl: Map<String, List<BookCacheChapterItem>>,
     onToggleExpanded: (String) -> Unit,
     onIntent: (BookCacheManageIntent) -> Unit,
     onDeleteBook: (BookCacheBookItem) -> Unit,
@@ -220,18 +225,23 @@ private fun LazyListScope.cacheSection(
     item(key = "$title-header") {
         AppText(
             text = title,
-            modifier = Modifier.padding(start = 4.dp, top = 12.dp, bottom = 4.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
             style = LegadoTheme.typography.titleSmallEmphasized,
             color = LegadoTheme.colorScheme.primary
         )
     }
     if (books.isEmpty()) {
         item(key = "$title-empty") {
-            TextCard(text = emptyText, modifier = Modifier.fillMaxWidth())
+            TextCard(
+                text = emptyText,
+                modifier = Modifier.fillMaxWidth(),
+                verticalPadding = 12.dp,
+                horizontalPadding = 12.dp
+            )
         }
     } else {
         books.forEach { item ->
-            val bookUrl = item.book.bookUrl
+            val bookUrl = item.bookUrl
             val expanded = expandedBookUrls.contains(bookUrl)
             item(key = "$title-book-$bookUrl") {
                 BookCacheBookCard(
@@ -245,8 +255,8 @@ private fun LazyListScope.cacheSection(
             }
             if (expanded) {
                 items(
-                    items = item.chapters,
-                    key = { chapter -> "$title-chapter-$bookUrl-${chapter.chapter.url}" }
+                    items = chaptersByBookUrl[bookUrl].orEmpty(),
+                    key = { chapter -> "$title-chapter-$bookUrl-${chapter.chapterUrl}" }
                 ) { chapter ->
                     BookCacheChapterRow(
                         item = chapter,
@@ -255,7 +265,15 @@ private fun LazyListScope.cacheSection(
                             onIntent(
                                 BookCacheManageIntent.DownloadChapter(
                                     bookUrl,
-                                    chapter.chapter.index
+                                    chapter.index
+                                )
+                            )
+                        },
+                        onStop = {
+                            onIntent(
+                                BookCacheManageIntent.StopChapterDownload(
+                                    bookUrl,
+                                    chapter.index
                                 )
                             )
                         },
@@ -283,7 +301,7 @@ private fun BookCacheBookCard(
     NormalCard(
         modifier = modifier.fillMaxWidth(),
         onClick = onToggleExpanded,
-        containerColor = LegadoTheme.colorScheme.surfaceContainerLow
+        containerColor = LegadoTheme.colorScheme.surfaceContainer
     ) {
         Column(
             modifier = Modifier
@@ -305,20 +323,23 @@ private fun BookCacheBookCard(
                 )
                 Column(modifier = Modifier.weight(1f)) {
                     AppText(
-                        text = item.book.name,
+                        text = item.name,
                         style = LegadoTheme.typography.titleSmallEmphasized,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     AppText(
-                        text = item.book.getRealAuthor(),
-                        style = LegadoTheme.typography.bodySmall,
+                        text = item.author,
+                        style = LegadoTheme.typography.labelSmallEmphasized,
                         color = LegadoTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                TextCard(text = "${item.cachedCount}/${item.totalCount}")
+                TextCard(
+                    text = "${item.cachedCount}/${item.totalCount}",
+                    backgroundColor = LegadoTheme.colorScheme.cardContainer,
+                )
             }
             AppLinearProgressIndicator(
                 progress = item.progress,
@@ -332,9 +353,22 @@ private fun BookCacheBookCard(
                 AppText(
                     text = "下载中 ${item.downloadingCount} · 等待 ${item.waitingCount} · 失败 ${item.errorCount}",
                     modifier = Modifier.weight(1f),
-                    style = LegadoTheme.typography.bodySmall,
+                    style = LegadoTheme.typography.labelMediumEmphasized,
                     color = LegadoTheme.colorScheme.onSurfaceVariant
                 )
+                if (item.isDownloading || item.cachedCount < item.totalCount) {
+                    SmallTonalIconButton(
+                        onClick = {
+                            if (item.isDownloading) {
+                                onIntent(BookCacheManageIntent.StopBookDownload(item.bookUrl))
+                            } else {
+                                onIntent(BookCacheManageIntent.StartBookDownload(item.bookUrl))
+                            }
+                        },
+                        imageVector = if (item.isDownloading) Icons.Default.Stop else Icons.Default.PlayArrow,
+                        contentDescription = if (item.isDownloading) "暂停本书下载" else "开始本书下载"
+                    )
+                }
                 SmallTonalIconButton(
                     onClick = { onDeleteBook(item) },
                     imageVector = Icons.Default.Delete,
@@ -350,21 +384,25 @@ private fun BookCacheChapterRow(
     item: BookCacheChapterItem,
     modifier: Modifier = Modifier,
     onDownload: () -> Unit,
+    onStop: () -> Unit,
     onDelete: () -> Unit,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+            .padding(
+                horizontal = 12.dp,
+                vertical = 4.dp
+            ),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
             AppText(
-                text = item.chapter.title,
+                text = item.title,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = LegadoTheme.typography.bodyMedium
+                style = LegadoTheme.typography.titleSmallEmphasized
             )
             AppText(
                 text = chapterStatusText(item),
@@ -379,21 +417,25 @@ private fun BookCacheChapterRow(
                 }
             )
         }
-        SmallTonalIconButton(
-            onClick = onDownload,
-            imageVector = Icons.Default.Download,
-            contentDescription = null
-        )
+        if (item.isWaiting || item.isDownloading) {
+            SmallTonalIconButton(
+                onClick = onStop,
+                imageVector = Icons.Default.Stop,
+                contentDescription = "暂停章节下载"
+            )
+        } else if (!item.isCached) {
+            SmallTonalIconButton(
+                onClick = onDownload,
+                imageVector = Icons.Default.Download,
+                contentDescription = "下载章节"
+            )
+        }
         SmallTonalIconButton(
             onClick = onDelete,
             imageVector = Icons.Default.Delete,
             contentDescription = null
         )
     }
-}
-
-private fun Set<String>.toggle(value: String): Set<String> {
-    return if (contains(value)) this - value else this + value
 }
 
 private fun chapterStatusText(item: BookCacheChapterItem): String {
@@ -416,7 +458,7 @@ private fun DeleteBookCacheDialog(
         show = item != null,
         onDismissRequest = onDismiss,
         title = stringResource(R.string.delete),
-        text = "删除《${item?.book?.name.orEmpty()}》的全部缓存，并从下载队列移除？",
+        text = "删除《${item?.name.orEmpty()}》的全部缓存，并从下载队列移除？",
         confirmText = stringResource(android.R.string.ok),
         onConfirm = { item?.let(onConfirm) },
         dismissText = stringResource(android.R.string.cancel),
@@ -434,7 +476,7 @@ private fun DeleteChapterCacheDialog(
         show = item != null,
         onDismissRequest = onDismiss,
         title = stringResource(R.string.delete),
-        text = "删除章节缓存：${item?.second?.chapter?.title.orEmpty()}？",
+        text = "删除章节缓存：${item?.second?.title.orEmpty()}？",
         confirmText = stringResource(android.R.string.ok),
         onConfirm = { item?.let { onConfirm(it.first, it.second) } },
         dismissText = stringResource(android.R.string.cancel),
