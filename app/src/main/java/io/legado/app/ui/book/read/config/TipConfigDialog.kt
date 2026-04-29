@@ -19,7 +19,7 @@ import io.legado.app.utils.toastOnUi
 import io.legado.app.utils.viewbindingdelegate.viewBinding
 
 
-class TipConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_tip_config) {
+class TipConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_tip_config), FontSelectDialog.CallBack {
 
     companion object {
         const val TIP_COLOR = 7897
@@ -29,6 +29,14 @@ class TipConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_tip_config
     }
 
     private val binding by viewBinding(DialogTipConfigBinding::bind)
+
+    override val curFontPath: String
+        get() = ReadBookConfig.titleFont
+
+    override fun selectFont(path: String) {
+        ReadBookConfig.titleFont = path
+        postEvent(EventBus.UP_CONFIG, arrayListOf(8, 5))
+    }
 
     override fun onStart() {
         super.onStart()
@@ -53,15 +61,28 @@ class TipConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_tip_config
         }
         val weightOptions = context?.resources?.getStringArray(R.array.text_font_weight)
         val weightValues = listOf(0, 1, 2)
+        val initialWeightIndex = weightValues.indexOf(ReadBookConfig.titleBold)
+        val weightIconMap = mapOf(
+            0 to R.drawable.ic_text_weight_0,
+            1 to R.drawable.ic_text_weight_1,
+            2 to R.drawable.ic_text_weight_2,
+        )
+        val initialIconRes = weightIconMap[initialWeightIndex] ?: R.drawable.ic_text_weight_2
+        binding.textFontWeightConverter.setIconResource(initialIconRes)
         binding.textFontWeightConverter.setOnClickListener {
             context?.alert(titleResource = R.string.text_font_weight_converter) {
                 weightOptions?.let { options ->
                     items(options.toList()) { _, i ->
                         ReadBookConfig.titleBold = weightValues[i]
+                        val iconRes = weightIconMap[i] ?: R.drawable.ic_text_weight_2
+                        binding.textFontWeightConverter.setIconResource(iconRes)
                         postEvent(EventBus.UP_CONFIG, arrayListOf(8, 9, 6))
                     }
                 }
             }
+        }
+        binding.btnSelectTitleFont.setOnClickListener {
+            FontSelectDialog().show(childFragmentManager, "fontSelect")
         }
         binding.abtnBackgroundColor.color = ReadBookConfig.durConfig.curMenuBg()
         binding.abtnAccentColor.color = ReadBookConfig.durConfig.curMenuAc()
