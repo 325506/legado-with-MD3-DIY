@@ -44,6 +44,7 @@ import io.legado.app.ui.widget.components.topbar.M3GlassScrollBehavior
 import io.legado.app.ui.widget.components.topbar.GlassTopAppBarDefaults
 import io.legado.app.ui.widget.components.topbar.GlassTopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -81,9 +82,9 @@ import io.legado.app.ui.widget.components.button.SmallTextButton
 import io.legado.app.ui.widget.components.card.NormalCard
 import io.legado.app.ui.widget.components.card.SelectionItemCard
 import io.legado.app.ui.widget.components.button.ToggleChip
-import io.legado.app.ui.widget.components.button.TopBarActionButton
-import io.legado.app.ui.widget.components.button.TopBarAnimatedActionButton
-import io.legado.app.ui.widget.components.button.TopBarNavigationButton
+import io.legado.app.ui.widget.components.topbar.TopBarActionButton
+import io.legado.app.ui.widget.components.topbar.TopBarAnimatedActionButton
+import io.legado.app.ui.widget.components.topbar.TopBarNavigationButton
 import io.legado.app.ui.widget.components.card.GlassCard
 import io.legado.app.ui.widget.components.icon.AppIcon
 import io.legado.app.ui.widget.components.icon.AppIcons
@@ -178,6 +179,12 @@ fun SearchScreen(
         }
     }
 
+    DisposableEffect(viewModel) {
+        onDispose {
+            viewModel.onIntent(SearchIntent.StopSearch)
+        }
+    }
+
     val submitSearch: (String) -> Unit = { rawQuery ->
         val normalized = rawQuery.trim()
         if (normalized.isNotBlank()) {
@@ -219,13 +226,15 @@ fun SearchScreen(
                             onClick = {
                                 viewModel.onIntent(SearchIntent.SetScopeSheetVisible(true))
                             },
-                            imageVector = AppIcons.Filter
+                            imageVector = AppIcons.Filter,
+                            contentDescription = "筛选"
                         )
                         TopBarActionButton(
                             onClick = {
                                 viewModel.onIntent(SearchIntent.OpenSourceManage)
                             },
                             imageVector = AppIcons.Settings,
+                            contentDescription = "书源管理"
                         )
                     },
                     scrollBehavior = scrollBehavior

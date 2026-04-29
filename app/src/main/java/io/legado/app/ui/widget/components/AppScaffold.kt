@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Scaffold
@@ -16,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -41,12 +43,15 @@ fun AppScaffold(
     floatingActionButtonPosition: FabPosition = FabPosition.End,
     contentColor: Color = contentColorFor(MiuixTheme.colorScheme.surface),
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
+    alwaysDrawBehindBars: Boolean = false,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val isDark = isSystemInDarkTheme()
     val hasImageBg = ThemeConfig.hasImageBg(isDark)
     val hazeState = remember { HazeState() }
     val composeEngine = LegadoTheme.composeEngine
+    val contentDrawsBehindBars =
+        alwaysDrawBehindBars || ThemeConfig.enableBlur || ThemeConfig.enableProgressiveBlur
 
     val containerColor = if (hasImageBg) {
         Color.Transparent
@@ -86,9 +91,16 @@ fun AppScaffold(
                         modifier = Modifier
                             .fillMaxSize()
                             .responsiveHazeSource(hazeState)
+                            .then(
+                                if (contentDrawsBehindBars) Modifier
+                                else Modifier.padding(paddingValues)
+                            )
                     ) {
                         BackgroundImageContent(isDark = isDark, hazeState = hazeState)
-                        content(paddingValues)
+                        content(
+                            if (contentDrawsBehindBars) paddingValues
+                            else PaddingValues(0.dp)
+                        )
                     }
                 }
             }
@@ -111,15 +123,23 @@ fun AppScaffold(
                         modifier = Modifier
                             .fillMaxSize()
                             .responsiveHazeSource(hazeState)
+                            .then(
+                                if (contentDrawsBehindBars) Modifier
+                                else Modifier.padding(paddingValues)
+                            )
                     ) {
                         BackgroundImageContent(isDark = isDark, hazeState = hazeState)
-                        content(paddingValues)
+                        content(
+                            if (contentDrawsBehindBars) paddingValues
+                            else PaddingValues(0.dp)
+                        )
                     }
                 }
             }
         }
     }
 }
+
 
 @Composable
 private fun BackgroundImageContent(
