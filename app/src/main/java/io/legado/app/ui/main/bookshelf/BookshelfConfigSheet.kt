@@ -235,6 +235,13 @@ fun BookshelfConfigSheet(
             )
 
             CompactSwitchSettingItem(
+                title = "列表模式显示更多",
+                checked = BookshelfConfig.showBookIntro,
+                color = MaterialTheme.colorScheme.surface,
+                onCheckedChange = { BookshelfConfig.showBookIntro = it }
+            )
+
+            CompactSwitchSettingItem(
                 title = stringResource(R.string.show_wait_up_count),
                 checked = BookshelfConfig.showWaitUpCount,
                 color = MaterialTheme.colorScheme.surface,

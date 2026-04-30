@@ -7,6 +7,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.aspectRatio
@@ -49,6 +50,7 @@ import io.legado.app.ui.widget.components.card.TextCard
 import io.legado.app.ui.widget.components.cover.CoilBookCover
 import io.legado.app.ui.widget.components.cover.BookshelfCover
 import io.legado.app.ui.widget.components.text.AppText
+import io.legado.app.utils.splitNotBlank
 import io.legado.app.utils.toTimeAgo
 
 /**
@@ -68,7 +70,9 @@ fun BookshelfItem(
     titleEnd: @Composable (() -> Unit)? = null,
     subTitle: String? = null,
     desc: String? = null,
+    descMaxLines: Int = 1,
     extra: @Composable (RowScope.() -> Unit)? = null,
+    bottomContent: @Composable (() -> Unit)? = null,
     titleSmallFont: Boolean = false,
     titleCenter: Boolean = true,
     titleMaxLines: Int = 2,
@@ -240,7 +244,7 @@ fun BookshelfItem(
                                 AppText(
                                     text = it,
                                     style = LegadoTheme.typography.labelSmallEmphasized,
-                                    maxLines = 1,
+                                    maxLines = descMaxLines,
                                     overflow = TextOverflow.Ellipsis
                                 )
                             }
@@ -253,6 +257,7 @@ fun BookshelfItem(
                         }
                     }
                 }
+                bottomContent?.invoke()
             }
             if (BookshelfConfig.bookshelfShowDivider)
                 HorizontalDivider(
@@ -510,6 +515,43 @@ fun BookItem(
             book.author
         },
         desc = book.durChapterTitle ?: "",
+        bottomContent = if (layoutMode == 0 && BookshelfConfig.showBookIntro) {
+            {
+                val kindList = book.kind?.splitNotBlank(",", "\n")?.filter { it.isNotBlank() }
+                val intro = book.intro?.takeIf { it.isNotBlank() }
+                if (!kindList.isNullOrEmpty()) {
+                    FlowRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        kindList.forEach { label ->
+                            TextCard(
+                                text = label,
+                                backgroundColor = LegadoTheme.colorScheme.surfaceContainerHighest,
+                                contentColor = LegadoTheme.colorScheme.primary,
+                                cornerRadius = 4.dp,
+                                horizontalPadding = 6.dp,
+                                verticalPadding = 2.dp,
+                                textStyle = LegadoTheme.typography.labelSmall
+                            )
+                        }
+                    }
+                }
+                if (intro != null) {
+                    AppText(
+                        text = intro,
+                        style = LegadoTheme.typography.bodySmall,
+                        color = LegadoTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp, vertical = 4.dp)
+                    )
+                }
+            }
+        } else null,
         extra = {
             if (BookshelfConfig.showLastUpdateTime && !book.isLocal) {
                 AppText(

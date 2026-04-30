@@ -90,7 +90,9 @@ interface BookDao {
             type,
             `group`,
             `order`,
-            canUpdate
+            canUpdate,
+            ifnull(customIntro, intro) as intro,
+            kind
         FROM books 
         where type & ${BookType.text} > 0
         and type & ${BookType.local} = 0
@@ -123,7 +125,9 @@ interface BookDao {
         type,
         `group`,
         `order`,
-        canUpdate
+        canUpdate,
+        ifnull(customIntro, intro) as intro,
+        kind
     FROM books
     ORDER BY durChapterTime DESC
 """
@@ -153,8 +157,10 @@ interface BookDao {
             type,
             `group`,
             `order`,
-            canUpdate
-        FROM books 
+            canUpdate,
+            ifnull(customIntro, intro) as intro,
+            kind
+        FROM books
         WHERE type & ${BookType.audio} > 0
         """
     )
@@ -183,7 +189,9 @@ interface BookDao {
             type,
             `group`,
             `order`,
-            canUpdate
+            canUpdate,
+            ifnull(customIntro, intro) as intro,
+            kind
         FROM books 
         WHERE type & ${BookType.local} > 0
         """
@@ -218,7 +226,9 @@ interface BookDao {
             type,
             `group`,
             `order`,
-            canUpdate
+            canUpdate,
+            ifnull(customIntro, intro) as intro,
+            kind
         FROM books 
         where type & ${BookType.audio} = 0 and type & ${BookType.local} = 0
         and ((SELECT sum(groupId) FROM book_groups where groupId > 0) & `group`) = 0
@@ -254,7 +264,9 @@ interface BookDao {
             type,
             `group`,
             `order`,
-            canUpdate
+            canUpdate,
+            ifnull(customIntro, intro) as intro,
+            kind
         FROM books 
         where type & ${BookType.local} > 0
         and ((SELECT sum(groupId) FROM book_groups where groupId > 0) & `group`) = 0
@@ -285,7 +297,9 @@ interface BookDao {
             type,
             `group`,
             `order`,
-            canUpdate
+            canUpdate,
+            ifnull(customIntro, intro) as intro,
+            kind
         FROM books 
         WHERE (`group` & :group) > 0
         """
@@ -317,7 +331,9 @@ interface BookDao {
             type,
             `group`,
             `order`,
-            canUpdate
+            canUpdate,
+            ifnull(customIntro, intro) as intro,
+            kind
         FROM books 
         WHERE name like '%'||:key||'%' or author like '%'||:key||'%' or originName like '%'||:key||'%'
         """
@@ -347,7 +363,9 @@ interface BookDao {
             type,
             `group`,
             `order`,
-            canUpdate
+            canUpdate,
+            ifnull(customIntro, intro) as intro,
+            kind
         FROM books 
         where type & ${BookType.updateError} > 0 
         order by durChapterTime desc
@@ -378,7 +396,9 @@ interface BookDao {
             type,
             `group`,
             `order`,
-            canUpdate
+            canUpdate,
+            ifnull(customIntro, intro) as intro,
+            kind
         FROM books 
         WHERE durChapterIndex = 0 AND durChapterPos = 0
         """
@@ -408,7 +428,9 @@ interface BookDao {
             type,
             `group`,
             `order`,
-            canUpdate
+            canUpdate,
+            ifnull(customIntro, intro) as intro,
+            kind
         FROM books 
         WHERE totalChapterNum > 0 AND durChapterIndex >= totalChapterNum - 1
         """
@@ -438,7 +460,9 @@ interface BookDao {
             type,
             `group`,
             `order`,
-            canUpdate
+            canUpdate,
+            ifnull(customIntro, intro) as intro,
+            kind
         FROM books 
         WHERE totalChapterNum > 0 AND durChapterIndex > 0 AND durChapterIndex < totalChapterNum - 1
         """
@@ -468,7 +492,9 @@ interface BookDao {
             type,
             `group`,
             `order`,
-            canUpdate
+            canUpdate,
+            ifnull(customIntro, intro) as intro,
+            kind
         FROM books 
         WHERE type & ${BookType.image} > 0
         """
@@ -498,7 +524,9 @@ interface BookDao {
             type,
             `group`,
             `order`,
-            canUpdate
+            canUpdate,
+            ifnull(customIntro, intro) as intro,
+            kind
         FROM books 
         WHERE type & ${BookType.text} > 0
         """

@@ -54,6 +54,11 @@ object BookshelfConfig {
     var showLastUpdateTime by prefDelegate(PreferKey.showLastUpdateTime, false)
 
     /**
+     * 是否在列表模式中显示书籍简介
+     */
+    var showBookIntro by prefDelegate(PreferKey.showBookIntro, false)
+
+    /**
      * 是否显示等待更新的书籍数量
      */
     var showWaitUpCount by prefDelegate(PreferKey.showWaitUpCount, false)
