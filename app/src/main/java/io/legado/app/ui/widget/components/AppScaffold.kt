@@ -159,6 +159,7 @@ private fun BackgroundImageContent(
             AsyncImage(
                 model = bgImagePath,
                 contentDescription = null,
+                imageLoader = org.koin.compose.koinInject(),
                 modifier = Modifier
                     .fillMaxSize()
                     .hazeSource(hazeState),
@@ -168,6 +169,7 @@ private fun BackgroundImageContent(
             AsyncImage(
                 model = bgImagePath,
                 contentDescription = null,
+                imageLoader = org.koin.compose.koinInject(),
                 modifier = Modifier
                     .fillMaxSize()
                     .blur(blur.dp),
