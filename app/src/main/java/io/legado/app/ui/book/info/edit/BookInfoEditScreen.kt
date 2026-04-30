@@ -3,6 +3,7 @@ package io.legado.app.ui.book.info.edit
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -18,6 +19,8 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.ImageSearch
 import androidx.compose.material.icons.filled.Replay
@@ -27,6 +30,8 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -206,6 +211,12 @@ fun BookInfoEditContent(
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
+        KindEditor(
+            kindList = uiState.kindList,
+            onKindListChange = { viewModel.onKindListChange(it) },
+            backgroundColor = inputBackgroundColor
+        )
+        Spacer(modifier = Modifier.height(8.dp))
         AppTextField(
             value = uiState.intro ?: "",
             onValueChange = { viewModel.onIntroChange(it) },
@@ -282,6 +293,93 @@ fun BookTypeDropdown(
                         expanded = false
                     }
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun KindEditor(
+    kindList: List<String>,
+    onKindListChange: (List<String>) -> Unit,
+    backgroundColor: Color
+) {
+    var newKindText by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AppTextField(
+                value = newKindText,
+                onValueChange = { newKindText = it },
+                label = "标签",
+                backgroundColor = backgroundColor,
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            MediumOutlinedIconButton(
+                onClick = {
+                    val trimmed = newKindText.trim()
+                    val tag = if (trimmed.startsWith("#")) trimmed else "#$trimmed"
+                    if (tag.isNotBlank() && tag !in kindList) {
+                        val sortedList = (kindList + tag).sortedWith(
+                            compareBy<String> { !it.startsWith("#") }.thenBy { it }
+                        )
+                        onKindListChange(sortedList)
+                        newKindText = ""
+                    }
+                },
+                imageVector = Icons.Default.Add
+            )
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        if (kindList.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                kindList.forEach { kind ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AppTextField(
+                            value = kind,
+                            onValueChange = { newValue ->
+                                val index = kindList.indexOf(kind)
+                                if (index >= 0) {
+                                    val newList = kindList.toMutableList()
+                                    newList[index] = newValue
+                                    onKindListChange(newList)
+                                }
+                            },
+                            label = null,
+                            backgroundColor = backgroundColor,
+                            singleLine = true,
+                            maxLines = 1,
+                            modifier = Modifier.width(80.dp)
+                        )
+                        IconButton(
+                            onClick = {
+                                onKindListChange(kindList - kind)
+                            },
+                            modifier = Modifier.padding(0.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "删除标签",
+                                tint = Color.Red.copy(alpha = 0.7f),
+                                modifier = Modifier.padding(4.dp)
+                            )
+                        }
+                    }
+                }
             }
         }
     }
