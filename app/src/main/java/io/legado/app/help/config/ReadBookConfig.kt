@@ -303,13 +303,13 @@ object ReadBookConfig {
         }
 
     var headerFontSize: Int
-        get() = config.headerFontSize
+        get() = config.headerFontSize.takeIf { it > 0 } ?: 12
         set(value) {
             config.headerFontSize = value
         }
 
     var footerFontSize: Int
-        get() = config.footerFontSize
+        get() = config.footerFontSize.takeIf { it > 0 } ?: 12
         set(value) {
             config.footerFontSize = value
         }

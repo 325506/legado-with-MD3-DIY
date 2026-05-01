@@ -521,27 +521,31 @@ fun BookItem(
                 val intro = book.intro?.takeIf { it.isNotBlank() }
                 val customTagColors = if (ThemeConfig.enableCustomTagColors) ThemeConfig.getCustomTagColors() else emptyList()
                 if (!kindList.isNullOrEmpty()) {
-                    FlowRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 4.dp, vertical = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        kindList.forEachIndexed { index, label ->
-                            val colorPair = customTagColors.getOrNull(index % customTagColors.size)
-                            TextCard(
-                                text = label,
-                                backgroundColor = if (colorPair != null && colorPair.bgColor != 0) Color(colorPair.bgColor) else LegadoTheme.colorScheme.surfaceContainerHighest,
-                                contentColor = if (colorPair != null && colorPair.textColor != 0) Color(colorPair.textColor) else LegadoTheme.colorScheme.primary,
-                                cornerRadius = 4.dp,
-                                horizontalPadding = 6.dp,
-                                verticalPadding = 2.dp,
-                                textStyle = LegadoTheme.typography.labelSmall
-                            )
+                        FlowRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 4.dp, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            kindList.forEachIndexed { index, label ->
+                                val colorPair = if (customTagColors.isNotEmpty()) {
+                                    customTagColors[index % customTagColors.size]
+                                } else {
+                                    null
+                                }
+                                TextCard(
+                                    text = label,
+                                    backgroundColor = if (colorPair != null && colorPair.bgColor != 0) Color(colorPair.bgColor) else LegadoTheme.colorScheme.surfaceContainerHighest,
+                                    contentColor = if (colorPair != null && colorPair.textColor != 0) Color(colorPair.textColor) else LegadoTheme.colorScheme.primary,
+                                    cornerRadius = 4.dp,
+                                    horizontalPadding = 6.dp,
+                                    verticalPadding = 2.dp,
+                                    textStyle = LegadoTheme.typography.labelSmall
+                                )
+                            }
                         }
                     }
-                }
                 if (intro != null) {
                     AppText(
                         text = intro,
