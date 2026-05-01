@@ -314,4 +314,6 @@ object PreferKey {
     const val selectVibrator = "selectVibrator"
     const val audioCacheCleanTime = "audioCacheCleanTime"
     const val audioPreDownloadNum = "audioPreDownloadNum"
+    const val customTagColors = "customTagColors"
+    const val enableCustomTagColors = "enableCustomTagColors"
 }

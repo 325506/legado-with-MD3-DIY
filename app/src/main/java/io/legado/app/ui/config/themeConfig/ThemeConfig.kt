@@ -3,10 +3,16 @@ package io.legado.app.ui.config.themeConfig
 import io.legado.app.constant.EventBus
 import io.legado.app.constant.PreferKey
 import io.legado.app.ui.config.prefDelegate
+import io.legado.app.utils.GSON
 import io.legado.app.utils.getPrefString
 import io.legado.app.utils.postEvent
 import io.legado.app.utils.putPrefString
 import splitties.init.appCtx
+
+data class TagColorPair(
+    val textColor: Int = 0,
+    val bgColor: Int = 0
+)
 
 object ThemeConfig {
 
@@ -190,6 +196,31 @@ object ThemeConfig {
     }
 
     var launcherIcon by prefDelegate(PreferKey.launcherIcon, "ic_launcher")
+
+    var enableCustomTagColors by prefDelegate(PreferKey.enableCustomTagColors, false) {
+        postEvent(EventBus.RECREATE, "")
+    }
+
+    var customTagColorsJson: String?
+        get() = appCtx.getPrefString(PreferKey.customTagColors)
+        set(value) {
+            appCtx.putPrefString(PreferKey.customTagColors, value)
+            postEvent(EventBus.RECREATE, "")
+        }
+
+    fun getCustomTagColors(): List<TagColorPair> {
+        return try {
+            val json = customTagColorsJson
+            if (json.isNullOrBlank()) emptyList()
+            else GSON.fromJson(json, Array<TagColorPair>::class.java).toList()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    fun saveCustomTagColors(colors: List<TagColorPair>) {
+        customTagColorsJson = GSON.toJson(colors)
+    }
 
     var showDiscovery by prefDelegate(PreferKey.showDiscovery, true)
 

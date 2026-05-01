@@ -519,6 +519,7 @@ fun BookItem(
             {
                 val kindList = book.kind?.splitNotBlank(",", "\n")?.filter { it.isNotBlank() }
                 val intro = book.intro?.takeIf { it.isNotBlank() }
+                val customTagColors = if (ThemeConfig.enableCustomTagColors) ThemeConfig.getCustomTagColors() else emptyList()
                 if (!kindList.isNullOrEmpty()) {
                     FlowRow(
                         modifier = Modifier
@@ -527,11 +528,12 @@ fun BookItem(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        kindList.forEach { label ->
+                        kindList.forEachIndexed { index, label ->
+                            val colorPair = customTagColors.getOrNull(index % customTagColors.size)
                             TextCard(
                                 text = label,
-                                backgroundColor = LegadoTheme.colorScheme.surfaceContainerHighest,
-                                contentColor = LegadoTheme.colorScheme.primary,
+                                backgroundColor = if (colorPair != null && colorPair.bgColor != 0) Color(colorPair.bgColor) else LegadoTheme.colorScheme.surfaceContainerHighest,
+                                contentColor = if (colorPair != null && colorPair.textColor != 0) Color(colorPair.textColor) else LegadoTheme.colorScheme.primary,
                                 cornerRadius = 4.dp,
                                 horizontalPadding = 6.dp,
                                 verticalPadding = 2.dp,
