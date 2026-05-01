@@ -1509,4 +1509,9 @@
     <string name="subtitle_margin">Subtitle margin</string>
     <string name="subtitle_scale">Subtitle scale</string>
     <string name="tool_bar_style">Tool bar style</string>
+    <string name="bookshelf_total_count">%1$d books</string>
+    <string name="bookshelf_selected_count">%1$d selected</string>
+    <string name="bookshelf_empty_global_search">No books here. Try global search.</string>
+    <string name="global_search">Global search</string>
+    <string name="cache_management">Cache management</string>
 </resources>

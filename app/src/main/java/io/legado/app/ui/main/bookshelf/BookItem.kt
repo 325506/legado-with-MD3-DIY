@@ -1,5 +1,8 @@
 package io.legado.app.ui.main.bookshelf
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -439,6 +442,7 @@ fun BookGroupItemList(
     )
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun BookItem(
     book: BookShelfItem,
@@ -454,6 +458,9 @@ fun BookItem(
     coverShadow: Boolean = false,
     isSearchMode: Boolean = false,
     searchKey: String = "",
+    sharedTransitionScope: SharedTransitionScope? = null,
+    animatedVisibilityScope: AnimatedVisibilityScope? = null,
+    sharedCoverKey: String? = null,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)?
 ) {
@@ -497,15 +504,28 @@ fun BookItem(
             }
         } else null,
         cover = { modifier ->
+            val coverModifier = with(sharedTransitionScope) {
+                if (this != null && animatedVisibilityScope != null && sharedCoverKey != null) {
+                    Modifier.fillMaxWidth().sharedElement(
+                        sharedContentState = rememberSharedContentState(sharedCoverKey),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    )
+                } else {
+                    Modifier.fillMaxWidth()
+                }
+            }
             BookshelfCover(
                 name = book.name,
                 author = book.author,
                 path = book.getDisplayCover(),
                 isUpdating = isUpdating,
                 modifier = modifier,
+                coverModifier = coverModifier,
+                sourceOrigin = book.origin,
                 badgeText = if (layoutMode != 0) unreadText else null,
                 showBadgeDot = BookshelfConfig.showUnread && BookshelfConfig.showUnreadNew && book.isNew,
-                leftBottomText = matchedSourceLabel ?: bookTypeLabel
+                leftBottomText = matchedSourceLabel ?: bookTypeLabel,
+                showLoadingPlaceholder = sharedCoverKey == null,
             )
         },
         title = book.name,

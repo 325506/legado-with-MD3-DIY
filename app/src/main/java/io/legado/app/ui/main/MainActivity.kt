@@ -6,6 +6,8 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.text.format.DateUtils
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -24,6 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import io.legado.app.BuildConfig
 import io.legado.app.R
@@ -350,6 +353,7 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
         routeEvents.tryEmit(resolveStartRoute(intent))
     }
 
+    @OptIn(ExperimentalSharedTransitionApi::class)
     @Composable
     override fun Content() {
         val orientation = resources.configuration.orientation
@@ -372,9 +376,10 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
             }
         }
 
-        NavDisplay(
-            backStack = backStack,
-            transitionSpec = {
+        SharedTransitionLayout {
+            NavDisplay(
+                backStack = backStack,
+                transitionSpec = {
                 (slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Start,
                     animationSpec = tween(
@@ -451,7 +456,7 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
                     finish()
                 }
             },
-            entryProvider = entryProvider {
+                entryProvider = entryProvider {
                 entry<MainRouteHome> {
                     MainScreen(
                         useRail = useRail,
@@ -518,7 +523,9 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
                                     openUrl = openUrl
                                 )
                             )
-                        }
+                        },
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
                     )
                 }
 
@@ -703,6 +710,9 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
                         onOpenSearch = { keyword ->
                             navigateToRoute(backStack, MainRouteSearch(key = keyword))
                         },
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                        sharedCoverKey = bookCoverSharedElementKey(route.bookUrl),
                         onRegisterVariableSetter = { setter ->
                             bookInfoVariableSetter = setter
                         }
@@ -727,8 +737,9 @@ open class MainActivity : BaseComposeActivity(), VariableDialog.Callback {
                         }
                     )
                 }
-            }
-        )
+                }
+            )
+        }
     }
 
     private fun navigateToRoute(backStack: MutableList<NavKey>, route: NavKey) {

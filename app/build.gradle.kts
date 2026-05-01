@@ -173,6 +173,7 @@ dependencies {
     testImplementation(libs.robolectric)
     androidTestImplementation(libs.bundles.androidTest)
     implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.bundles.coroutines)
     implementation(libs.core.ktx)
