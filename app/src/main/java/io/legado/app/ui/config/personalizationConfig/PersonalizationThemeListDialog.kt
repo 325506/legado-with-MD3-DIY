@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -53,7 +54,8 @@ fun PersonalizationThemeListDialog(
 ) {
     val context = LocalContext.current
     var deleteIndex by remember { mutableStateOf<Int?>(null) }
-    val themeList = remember(listVersion) { PersonalizationThemeConfig.configList.toList() }
+    var internalVersion by remember { mutableIntStateOf(0) }
+    val themeList = remember(listVersion, internalVersion) { PersonalizationThemeConfig.configList.toList() }
 
     AppModalBottomSheet(
         show = show,
@@ -64,7 +66,7 @@ fun PersonalizationThemeListDialog(
                 onClick = {
                     val clipText = context.getClipText()
                     if (clipText != null && PersonalizationThemeConfig.addConfig(clipText)) {
-                        // 导入成功，列表会通过外部的 listVersion 更新
+                        internalVersion++
                     } else {
                         context.toastOnUi("导入失败")
                     }
@@ -109,13 +111,13 @@ fun PersonalizationThemeListDialog(
                                     .padding(8.dp)
                             )
                             AppText(
-                                text = item.themeName,
+                                text = item.themeName?.takeIf { it.isNotBlank() } ?: "未命名主题",
                                 style = LegadoTheme.typography.bodyLarge,
                                 modifier = Modifier.weight(1f)
                             )
                             IconButton(
                                 onClick = {
-                                    val json = GSON.toJson(item)
+                                    val json = PersonalizationThemeConfig.toJson(item)
                                     context.share(json, "个性化主题分享")
                                 }
                             ) {
@@ -144,6 +146,7 @@ fun PersonalizationThemeListDialog(
         confirmText = stringResource(android.R.string.ok),
         onConfirm = { index ->
             PersonalizationThemeConfig.delConfig(index)
+            internalVersion++
             deleteIndex = null
         },
         dismissText = stringResource(android.R.string.cancel),

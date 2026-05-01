@@ -354,7 +354,7 @@ fun PersonalizationConfigScreen(
                         value = containerBorderWidth,
                         defaultValue = 1f,
                         valueRange = 0f..5f,
-                        steps = 10,
+                        steps = 49,
                         onValueChange = { ThemeConfig.containerBorderWidth = it }
                     )
 
@@ -373,7 +373,7 @@ fun PersonalizationConfigScreen(
                             value = ThemeConfig.containerBorderDashWidth,
                             defaultValue = 4f,
                             valueRange = 1f..10f,
-                            steps = 9,
+                            steps = 89,
                             onValueChange = { ThemeConfig.containerBorderDashWidth = it }
                         )
                     }
@@ -415,7 +415,7 @@ fun PersonalizationConfigScreen(
                             value = itemDividerWidth,
                             defaultValue = 1f,
                             valueRange = 0f..5f,
-                            steps = 10,
+                            steps = 49,
                             onValueChange = { ThemeConfig.itemDividerWidth = it }
                         )
 

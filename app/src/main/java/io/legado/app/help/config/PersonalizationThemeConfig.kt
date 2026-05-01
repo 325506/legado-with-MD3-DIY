@@ -1,16 +1,44 @@
 package io.legado.app.help.config
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import com.google.gson.JsonPrimitive
+import com.google.gson.JsonSerializationContext
+import com.google.gson.JsonSerializer
 import io.legado.app.constant.PreferKey
+import io.legado.app.ui.config.themeConfig.TagColorPair
 import io.legado.app.ui.config.themeConfig.ThemeConfig
 import io.legado.app.utils.GSON
 import io.legado.app.utils.FileUtils
 import io.legado.app.utils.hexString
 import splitties.init.appCtx
 import java.io.File
+import java.lang.reflect.Type
 
 object PersonalizationThemeConfig {
     const val configFileName = "personalizationThemeConfig.json"
     val configFilePath = FileUtils.getPath(appCtx.filesDir, configFileName)
+
+    private val COLOR_FIELDS = setOf(
+        "md3Primary", "md3OnPrimary", "md3PrimaryContainer", "md3OnPrimaryContainer",
+        "md3Secondary", "md3OnSecondary", "md3SecondaryContainer",
+        "md3Tertiary", "md3Error", "md3Surface", "md3OnSurface",
+        "md3Background", "md3Outline", "md3SurfaceContainerLow", "md3SurfaceVariant",
+        "topBarColor", "navBarColor", "fontColor", "bgColor", "bookInfoInputColor",
+        "containerBorderColor", "itemDividerColor"
+    )
+
+    private val THEME_GSON: Gson by lazy {
+        GsonBuilder()
+            .registerTypeAdapter(Config::class.java, ConfigSerializer())
+            .setPrettyPrinting()
+            .disableHtmlEscaping()
+            .create()
+    }
 
     private val _configList: ArrayList<Config> by lazy {
         val cList = getConfigs() ?: emptyList()
@@ -20,14 +48,53 @@ object PersonalizationThemeConfig {
     val configList: List<Config> get() = _configList
 
     fun save() {
-        val json = GSON.toJson(_configList)
+        val json = THEME_GSON.toJson(_configList)
         FileUtils.delete(configFilePath)
         FileUtils.createFileIfNotExist(configFilePath).writeText(json)
     }
 
+    fun toJson(config: Config): String {
+        return THEME_GSON.toJson(config)
+    }
+
+    private fun convertTagColorsFromHex(json: String?): String? {
+        if (json.isNullOrBlank()) return json
+        return kotlin.runCatching {
+            val root = com.google.gson.JsonParser.parseString(json)
+            if (root.isJsonArray) {
+                val arr = root.asJsonArray
+                val converted = arr.map { elem ->
+                    val obj = elem.asJsonObject
+                    val textColor = parseColorFromJson(obj.get("textColor"))
+                    val bgColor = parseColorFromJson(obj.get("bgColor"))
+                    """{"textColor":$textColor,"bgColor":$bgColor}"""
+                }
+                "[\n  ${converted.joinToString(",\n  ")}\n]"
+            } else json
+        }.getOrNull() ?: json
+    }
+
+    private fun parseColorFromJson(elem: com.google.gson.JsonElement?): Int {
+        if (elem == null || elem.isJsonNull) return 0
+        val prim = elem.asJsonPrimitive
+        return if (prim.isNumber) prim.asNumber.toInt()
+        else if (prim.isString) parseColorString(prim.asString)
+        else 0
+    }
+
+    private fun parseColorString(colorStr: String): Int {
+        return if (colorStr.startsWith("#")) {
+            colorStr.substring(1).toLong(16).toInt()
+        } else {
+            colorStr.toLongOrNull()?.toInt() ?: 0
+        }
+    }
+
     fun delConfig(index: Int) {
-        _configList.removeAt(index)
-        save()
+        if (index in _configList.indices) {
+            _configList.removeAt(index)
+            save()
+        }
     }
 
     fun addConfig(json: String): Boolean {
@@ -56,8 +123,7 @@ object PersonalizationThemeConfig {
         if (configFile.exists()) {
             kotlin.runCatching {
                 val json = configFile.readText()
-                val type = object : com.google.gson.reflect.TypeToken<List<Config>>() {}.type
-                return GSON.fromJson(json, type)
+                return THEME_GSON.fromJson(json, Array<Config>::class.java).toList()
             }
         }
         return null
@@ -94,7 +160,7 @@ object PersonalizationThemeConfig {
         // 应用边框设置
         ThemeConfig.enableContainerBorder = config.enableContainerBorder
         ThemeConfig.containerBorderWidth = config.containerBorderWidth
-        ThemeConfig.containerBorderStyle = config.containerBorderStyle
+        ThemeConfig.containerBorderStyle = config.containerBorderStyle ?: "solid"
         ThemeConfig.containerBorderDashWidth = config.containerBorderDashWidth
         ThemeConfig.containerBorderColor = config.containerBorderColor
 
@@ -103,6 +169,14 @@ object PersonalizationThemeConfig {
         ThemeConfig.itemDividerWidth = config.itemDividerWidth
         ThemeConfig.itemDividerLength = config.itemDividerLength
         ThemeConfig.itemDividerColor = config.itemDividerColor
+
+        // 应用标签颜色设置
+        config.enableCustomTagColors?.let {
+            ThemeConfig.enableCustomTagColors = it
+        }
+        config.customTagColorsJson?.let {
+            ThemeConfig.customTagColorsJson = convertTagColorsFromHex(it)
+        }
     }
 
     fun savePersonalizationTheme(name: String): Config {
@@ -137,14 +211,16 @@ object PersonalizationThemeConfig {
             enableItemDivider = ThemeConfig.enableItemDivider,
             itemDividerWidth = ThemeConfig.itemDividerWidth,
             itemDividerLength = ThemeConfig.itemDividerLength,
-            itemDividerColor = ThemeConfig.itemDividerColor
+            itemDividerColor = ThemeConfig.itemDividerColor,
+            enableCustomTagColors = ThemeConfig.enableCustomTagColors,
+            customTagColorsJson = ThemeConfig.customTagColorsJson
         )
         addConfig(config)
         return config
     }
 
     data class Config(
-        var themeName: String,
+        var themeName: String = "",
         var md3Primary: Int,
         var md3OnPrimary: Int,
         var md3PrimaryContainer: Int,
@@ -168,12 +244,182 @@ object PersonalizationThemeConfig {
         var appFontPath: String?,
         var enableContainerBorder: Boolean,
         var containerBorderWidth: Float,
-        var containerBorderStyle: String,
+        var containerBorderStyle: String?,
         var containerBorderDashWidth: Float,
         var containerBorderColor: Int,
         var enableItemDivider: Boolean,
         var itemDividerWidth: Float,
         var itemDividerLength: Float,
-        var itemDividerColor: Int
+        var itemDividerColor: Int,
+        var enableCustomTagColors: Boolean?,
+        var customTagColorsJson: String?
     )
+}
+
+class ConfigSerializer : JsonSerializer<PersonalizationThemeConfig.Config>,
+    JsonDeserializer<PersonalizationThemeConfig.Config> {
+
+    override fun serialize(
+        src: PersonalizationThemeConfig.Config,
+        typeOfSrc: Type,
+        context: JsonSerializationContext
+    ): JsonElement {
+        val obj = JsonObject()
+        obj.addProperty("themeName", src.themeName)
+        obj.addProperty("md3Primary", src.md3Primary.toHexString())
+        obj.addProperty("md3OnPrimary", src.md3OnPrimary.toHexString())
+        obj.addProperty("md3PrimaryContainer", src.md3PrimaryContainer.toHexString())
+        obj.addProperty("md3OnPrimaryContainer", src.md3OnPrimaryContainer.toHexString())
+        obj.addProperty("md3Secondary", src.md3Secondary.toHexString())
+        obj.addProperty("md3OnSecondary", src.md3OnSecondary.toHexString())
+        obj.addProperty("md3SecondaryContainer", src.md3SecondaryContainer.toHexString())
+        obj.addProperty("md3Tertiary", src.md3Tertiary.toHexString())
+        obj.addProperty("md3Error", src.md3Error.toHexString())
+        obj.addProperty("md3Surface", src.md3Surface.toHexString())
+        obj.addProperty("md3OnSurface", src.md3OnSurface.toHexString())
+        obj.addProperty("md3Background", src.md3Background.toHexString())
+        obj.addProperty("md3Outline", src.md3Outline.toHexString())
+        obj.addProperty("md3SurfaceContainerLow", src.md3SurfaceContainerLow.toHexString())
+        obj.addProperty("md3SurfaceVariant", src.md3SurfaceVariant.toHexString())
+        obj.addProperty("topBarColor", src.topBarColor.toHexString())
+        obj.addProperty("navBarColor", src.navBarColor.toHexString())
+        obj.addProperty("fontColor", src.fontColor.toHexString())
+        obj.addProperty("bgColor", src.bgColor.toHexString())
+        obj.addProperty("bookInfoInputColor", src.bookInfoInputColor.toHexString())
+        obj.addProperty("appFontPath", src.appFontPath)
+        obj.addProperty("enableContainerBorder", src.enableContainerBorder)
+        obj.addProperty("containerBorderWidth", src.containerBorderWidth)
+        obj.addProperty("containerBorderStyle", src.containerBorderStyle)
+        obj.addProperty("containerBorderDashWidth", src.containerBorderDashWidth)
+        obj.addProperty("containerBorderColor", src.containerBorderColor.toHexString())
+        obj.addProperty("enableItemDivider", src.enableItemDivider)
+        obj.addProperty("itemDividerWidth", src.itemDividerWidth)
+        obj.addProperty("itemDividerLength", src.itemDividerLength)
+        obj.addProperty("itemDividerColor", src.itemDividerColor.toHexString())
+        obj.addProperty("enableCustomTagColors", src.enableCustomTagColors)
+        obj.addProperty("customTagColorsJson", convertTagColorsToHex(src.customTagColorsJson))
+        return obj
+    }
+
+    override fun deserialize(
+        json: JsonElement,
+        typeOfT: Type,
+        context: JsonDeserializationContext
+    ): PersonalizationThemeConfig.Config {
+        val obj = json.asJsonObject
+        return PersonalizationThemeConfig.Config(
+            themeName = obj.getString("themeName", "") ?: "",
+            md3Primary = obj.getInt("md3Primary", 0),
+            md3OnPrimary = obj.getInt("md3OnPrimary", 0),
+            md3PrimaryContainer = obj.getInt("md3PrimaryContainer", 0),
+            md3OnPrimaryContainer = obj.getInt("md3OnPrimaryContainer", 0),
+            md3Secondary = obj.getInt("md3Secondary", 0),
+            md3OnSecondary = obj.getInt("md3OnSecondary", 0),
+            md3SecondaryContainer = obj.getInt("md3SecondaryContainer", 0),
+            md3Tertiary = obj.getInt("md3Tertiary", 0),
+            md3Error = obj.getInt("md3Error", 0),
+            md3Surface = obj.getInt("md3Surface", 0),
+            md3OnSurface = obj.getInt("md3OnSurface", 0),
+            md3Background = obj.getInt("md3Background", 0),
+            md3Outline = obj.getInt("md3Outline", 0),
+            md3SurfaceContainerLow = obj.getInt("md3SurfaceContainerLow", 0),
+            md3SurfaceVariant = obj.getInt("md3SurfaceVariant", 0),
+            topBarColor = obj.getInt("topBarColor", 0),
+            navBarColor = obj.getInt("navBarColor", 0),
+            fontColor = obj.getInt("fontColor", 0),
+            bgColor = obj.getInt("bgColor", 0),
+            bookInfoInputColor = obj.getInt("bookInfoInputColor", 0),
+            appFontPath = obj.getString("appFontPath", null),
+            enableContainerBorder = obj.getBoolean("enableContainerBorder", false) ?: false,
+            containerBorderWidth = obj.getFloat("containerBorderWidth", 0f),
+            containerBorderStyle = obj.getString("containerBorderStyle", "solid") ?: "solid",
+            containerBorderDashWidth = obj.getFloat("containerBorderDashWidth", 0f),
+            containerBorderColor = obj.getInt("containerBorderColor", 0),
+            enableItemDivider = obj.getBoolean("enableItemDivider", false) ?: false,
+            itemDividerWidth = obj.getFloat("itemDividerWidth", 0f),
+            itemDividerLength = obj.getFloat("itemDividerLength", 0f),
+            itemDividerColor = obj.getInt("itemDividerColor", 0),
+            enableCustomTagColors = obj.getBoolean("enableCustomTagColors", null),
+            customTagColorsJson = obj.getString("customTagColorsJson", null)
+        )
+    }
+
+    private fun Int.toHexString(): String {
+        return if (this == 0) "0" else "#${Integer.toHexString(this).uppercase()}"
+    }
+
+    private fun JsonObject.getString(name: String, default: String?): String? {
+        val elem = get(name)
+        return when {
+            elem == null || elem.isJsonNull -> default
+            elem.isJsonPrimitive -> {
+                val prim = elem.asJsonPrimitive
+                if (prim.isString) prim.asString
+                else if (prim.isNumber) prim.asString
+                else default
+            }
+            else -> default
+        }
+    }
+
+    private fun JsonObject.getInt(name: String, default: Int): Int {
+        val elem = get(name)
+        return when {
+            elem == null || elem.isJsonNull -> default
+            elem.isJsonPrimitive -> {
+                val prim = elem.asJsonPrimitive
+                if (prim.isNumber) prim.asNumber.toInt()
+                else if (prim.isString) parseColorString(prim.asString)
+                else default
+            }
+            else -> default
+        }
+    }
+
+    private fun JsonObject.getFloat(name: String, default: Float): Float {
+        val elem = get(name)
+        return when {
+            elem == null || elem.isJsonNull -> default
+            elem.isJsonPrimitive -> {
+                val prim = elem.asJsonPrimitive
+                if (prim.isNumber) prim.asNumber.toFloat()
+                else default
+            }
+            else -> default
+        }
+    }
+
+    private fun JsonObject.getBoolean(name: String, default: Boolean?): Boolean? {
+        val elem = get(name)
+        return when {
+            elem == null || elem.isJsonNull -> default
+            elem.isJsonPrimitive -> {
+                val prim = elem.asJsonPrimitive
+                if (prim.isBoolean) prim.asBoolean
+                else default
+            }
+            else -> default
+        }
+    }
+
+    private fun parseColorString(colorStr: String): Int {
+        return if (colorStr.startsWith("#")) {
+            colorStr.substring(1).toLong(16).toInt()
+        } else {
+            colorStr.toLongOrNull()?.toInt() ?: 0
+        }
+    }
+
+    private fun convertTagColorsToHex(json: String?): String? {
+        if (json.isNullOrBlank()) return json
+        return kotlin.runCatching {
+            val colors = GSON.fromJson(json, Array<TagColorPair>::class.java)
+            val converted = colors.map { pair ->
+                val textHex = pair.textColor.toHexString()
+                val bgHex = pair.bgColor.toHexString()
+                """{"textColor":"$textHex","bgColor":"$bgHex"}"""
+            }
+            "[\n  ${converted.joinToString(",\n  ")}\n]"
+        }.getOrNull() ?: json
+    }
 }
