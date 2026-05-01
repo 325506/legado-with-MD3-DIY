@@ -22,7 +22,8 @@ import io.legado.app.utils.viewbindingdelegate.viewBinding
 class TipConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_tip_config), FontSelectDialog.CallBack {
 
     companion object {
-        const val TIP_COLOR = 7897
+        const val TIP_HEADER_COLOR = 7897
+        const val TIP_FOOTER_COLOR = 7899
         const val TIP_DIVIDER_COLOR = 7898
         const val B_COLOR = 114
         const val A_COLOR = 514

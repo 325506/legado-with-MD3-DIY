@@ -290,6 +290,30 @@ object ReadBookConfig {
             config.titleFont = value
         }
 
+    var headerFont: String
+        get() = config.headerFont
+        set(value) {
+            config.headerFont = value
+        }
+
+    var footerFont: String
+        get() = config.footerFont
+        set(value) {
+            config.footerFont = value
+        }
+
+    var headerFontSize: Int
+        get() = config.headerFontSize
+        set(value) {
+            config.headerFontSize = value
+        }
+
+    var footerFontSize: Int
+        get() = config.footerFontSize
+        set(value) {
+            config.footerFontSize = value
+        }
+
     var textBold: Int
         get() = config.textBold
         set(value) {
@@ -578,6 +602,10 @@ object ReadBookConfig {
         if (shareLayout) {
             exportConfig.textFont = shareConfig.textFont
             exportConfig.titleFont = shareConfig.titleFont
+            exportConfig.headerFont = shareConfig.headerFont
+            exportConfig.footerFont = shareConfig.footerFont
+            exportConfig.headerFontSize = shareConfig.headerFontSize
+            exportConfig.footerFontSize = shareConfig.footerFontSize
             exportConfig.textBold = shareConfig.textBold
             exportConfig.textSize = shareConfig.textSize
             exportConfig.letterSpacing = shareConfig.letterSpacing
@@ -607,7 +635,8 @@ object ReadBookConfig {
             exportConfig.tipFooterLeft = shareConfig.tipFooterLeft
             exportConfig.tipFooterMiddle = shareConfig.tipFooterMiddle
             exportConfig.tipFooterRight = shareConfig.tipFooterRight
-            exportConfig.tipColor = shareConfig.tipColor
+            exportConfig.tipHeaderColor = shareConfig.tipHeaderColor
+            exportConfig.tipFooterColor = shareConfig.tipFooterColor
             exportConfig.headerMode = shareConfig.headerMode
             // MD3专有属性
             exportConfig.footerMode = shareConfig.footerMode
@@ -734,6 +763,10 @@ object ReadBookConfig {
         private var pageAnimEInk: Int = 4,
         var textFont: String = "",//字体
         var titleFont: String = "",//标题字体
+        var headerFont: String = "",//页眉字体
+        var footerFont: String = "",//页脚字体
+        var headerFontSize: Int = 12,//页眉字号
+        var footerFontSize: Int = 12,//页脚字号
         var textBold: Int = 500,//是否粗体字 0:正常, 1:粗体, 2:细体
         var textSize: Int = 20,//文字大小
         var textItalic: Boolean = false,// 是否启用斜体
@@ -786,7 +819,8 @@ object ReadBookConfig {
         var tipFooterLeft: Int = ReadTipConfig.chapterTitle,
         var tipFooterMiddle: Int = ReadTipConfig.none,
         var tipFooterRight: Int = ReadTipConfig.pageAndTotal,
-        var tipColor: Int = 0,
+        var tipHeaderColor: Int = 0,
+        var tipFooterColor: Int = 0,
         var tipDividerColor: Int = -1,
         var headerMode: Int = 0,
         var footerMode: Int = 0
@@ -868,6 +902,10 @@ object ReadBookConfig {
             "pageAnimEInk" to pageAnimEInk,
             "textFont" to textFont,
             "titleFont" to titleFont,
+            "headerFont" to headerFont,
+            "footerFont" to footerFont,
+            "headerFontSize" to headerFontSize,
+            "footerFontSize" to footerFontSize,
             "textBold" to textBold,
             "textSize" to textSize,
             "letterSpacing" to letterSpacing,
@@ -898,7 +936,8 @@ object ReadBookConfig {
             "tipFooterLeft" to tipFooterLeft,
             "tipFooterMiddle" to tipFooterMiddle,
             "tipFooterRight" to tipFooterRight,
-            "tipColor" to tipColor,
+            "tipHeaderColor" to tipHeaderColor,
+            "tipFooterColor" to tipFooterColor,
             "tipDividerColor" to tipDividerColor,
             "headerMode" to headerMode,
             "footerMode" to footerMode

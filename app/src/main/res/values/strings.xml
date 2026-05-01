@@ -231,6 +231,7 @@
     <string name="share_app">Share to</string>
     <string name="flow_sys">System</string>
     <string name="add">Add</string>
+    <string name="minus">Minus</string>
     <string name="import_book_source">Import book sources</string>
     <string name="import_local">Import local</string>
     <string name="import_on_line">Import online</string>
@@ -639,6 +640,12 @@
     <string name="bg_image">Background Images</string>
     <string name="bg_color">Background color</string>
     <string name="text_color">Text Color</string>
+    <string name="header_color">页眉</string>
+    <string name="footer_color">页脚</string>
+    <string name="header_font">设置字体</string>
+    <string name="footer_font">页脚字体</string>
+    <string name="header_font_size">设置字号</string>
+    <string name="footer_font_size">页脚字号</string>
     <string name="select_image">Select a picture</string>
     <string name="group_manage">Group Management</string>
     <string name="group_select">Group selection</string>

@@ -86,7 +86,8 @@ import io.legado.app.ui.book.read.config.ReadAloudDialog
 import io.legado.app.ui.book.read.config.ReadStyleDialog
 import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.A_COLOR
 import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.B_COLOR
-import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.TIP_COLOR
+import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.TIP_HEADER_COLOR
+import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.TIP_FOOTER_COLOR
 import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.TIP_DIVIDER_COLOR
 import io.legado.app.ui.book.read.config.ToolButtonConfigDialog
 import io.legado.app.ui.book.read.config.UnderlineConfigDialog.Companion.U_COLOR
@@ -1698,8 +1699,14 @@ class ReadBookActivity : BaseReadBookActivity(),
                 }
             }
 
-            TIP_COLOR -> {
-                ReadTipConfig.tipColor = color
+            TIP_HEADER_COLOR -> {
+                ReadTipConfig.tipHeaderColor = color
+                postEvent(EventBus.TIP_COLOR, "")
+                postEvent(EventBus.UP_CONFIG, arrayListOf(2))
+            }
+
+            TIP_FOOTER_COLOR -> {
+                ReadTipConfig.tipFooterColor = color
                 postEvent(EventBus.TIP_COLOR, "")
                 postEvent(EventBus.UP_CONFIG, arrayListOf(2))
             }
