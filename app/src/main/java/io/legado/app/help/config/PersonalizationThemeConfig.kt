@@ -57,6 +57,20 @@ object PersonalizationThemeConfig {
         return THEME_GSON.toJson(config)
     }
 
+    fun toJson(): String {
+        return THEME_GSON.toJson(_configList)
+    }
+
+    fun fromJson(json: String): Boolean {
+        return kotlin.runCatching {
+            val configs = THEME_GSON.fromJson(json, Array<Config>::class.java)
+            _configList.clear()
+            _configList.addAll(configs)
+            save()
+            true
+        }.getOrNull() ?: false
+    }
+
     private fun convertTagColorsFromHex(json: String?): String? {
         if (json.isNullOrBlank()) return json
         return kotlin.runCatching {
