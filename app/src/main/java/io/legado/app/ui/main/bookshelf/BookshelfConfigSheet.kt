@@ -241,6 +241,17 @@ fun BookshelfConfigSheet(
                 onCheckedChange = { BookshelfConfig.showBookIntro = it }
             )
 
+            AnimatedVisibility(visible = BookshelfConfig.showBookIntro) {
+                CompactSliderSettingItem(
+                    title = "简介行数",
+                    description = if (BookshelfConfig.bookshelfIntroMaxLines == 0) "显示全部简介" else "显示 ${BookshelfConfig.bookshelfIntroMaxLines} 行简介",
+                    value = BookshelfConfig.bookshelfIntroMaxLines.toFloat(),
+                    valueRange = 0f..10f,
+                    steps = 10,
+                    onValueChange = { BookshelfConfig.bookshelfIntroMaxLines = it.toInt() }
+                )
+            }
+
             CompactSwitchSettingItem(
                 title = stringResource(R.string.show_wait_up_count),
                 checked = BookshelfConfig.showWaitUpCount,
