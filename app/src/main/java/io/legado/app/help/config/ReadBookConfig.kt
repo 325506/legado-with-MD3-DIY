@@ -471,6 +471,12 @@ object ReadBookConfig {
             config.underlinePadding = value
         }
 
+    var underlineExtend: Boolean
+        get() = config.underlineExtend
+        set(value) {
+            config.underlineExtend = value
+        }
+
     var dottedLine: Boolean
         get() = config.dottedLine
         set(value) {
@@ -794,6 +800,7 @@ object ReadBookConfig {
         var underline: Boolean = false, //下划线
         var underlinePadding: Int = 10,
         var underlineHeight: Int = 1,
+        var underlineExtend: Boolean = false, //下划线延伸
         var underlineColor: String = "#3E3D3B",
         var underlineColorNight: String = "#ADADAD",
         var dottedLine: Boolean = false, //虚线

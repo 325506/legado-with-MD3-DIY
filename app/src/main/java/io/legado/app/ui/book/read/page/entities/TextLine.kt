@@ -231,7 +231,17 @@ data class TextLine(
             null
 
         val lineY = height + (ReadBookConfig.durConfig.underlinePadding - 10).dpToPx()
-        canvas.drawLine(lineStart + indentWidth, lineY, lineEnd, lineY, paint)
+        val startX = if (ReadBookConfig.underlineExtend) {
+            ChapterProvider.paddingLeft.toFloat()
+        } else {
+            lineStart + indentWidth
+        }
+        val endX = if (ReadBookConfig.underlineExtend) {
+            (ChapterProvider.paddingLeft + ChapterProvider.visibleWidth).toFloat()
+        } else {
+            lineEnd
+        }
+        canvas.drawLine(startX, lineY, endX, lineY, paint)
     }
 
 
