@@ -42,11 +42,11 @@ fun Modifier.responsiveHazeEffect(
 
     if (!enableBlur) return this
 
-    val style = if (enableProgressiveBlur) {
-        HazeLegado.ultraThin(containerColor = containerColor)
-    } else {
-        HazeLegado.regular(containerColor = containerColor)
-    }
+    val style = HazeLegado.custom(
+        containerColor = containerColor,
+        blurRadius = ThemeConfig.topBarBlurRadius,
+        blurAlpha = ThemeConfig.topBarBlurAlpha
+    )
 
     return this.hazeEffect(
         state = state,

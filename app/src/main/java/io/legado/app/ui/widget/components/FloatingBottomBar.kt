@@ -120,9 +120,9 @@ fun FloatingBottomBar(
         LegadoTheme.colorScheme.primary
     }
     val containerColor = if (ThemeConfig.cMD3Secondary != 0) {
-        Color(ThemeConfig.cMD3Secondary).copy(alpha = if (isBlurEnabled) 0.4f else 1f)
+        Color(ThemeConfig.cMD3Secondary).copy(alpha = if (isBlurEnabled) ThemeConfig.bottomBarBlurAlpha / 100f else 1f)
     } else if (isBlurEnabled) {
-        LegadoTheme.colorScheme.surfaceContainer.copy(alpha = 0.4f)
+        LegadoTheme.colorScheme.surfaceContainer.copy(alpha = ThemeConfig.bottomBarBlurAlpha / 100f)
     } else {
         LegadoTheme.colorScheme.surfaceContainer
     }
@@ -257,7 +257,7 @@ fun FloatingBottomBar(
                     effects = {
                         if (isBlurEnabled) {
                             vibrancy()
-                            blur(8f.dp.toPx())
+                            blur(ThemeConfig.bottomBarBlurRadius.toFloat().dp.toPx())
                             lens(24f.dp.toPx(), 24f.dp.toPx())
                         }
                     },
@@ -314,7 +314,7 @@ fun FloatingBottomBar(
                             if (isBlurEnabled) {
                                 val progress = dampedDragAnimation.pressProgress
                                 vibrancy()
-                                blur(8f.dp.toPx())
+                                blur(ThemeConfig.bottomBarBlurRadius.toFloat().dp.toPx())
                                 lens(24f.dp.toPx() * progress, 24f.dp.toPx() * progress)
                             }
                         },

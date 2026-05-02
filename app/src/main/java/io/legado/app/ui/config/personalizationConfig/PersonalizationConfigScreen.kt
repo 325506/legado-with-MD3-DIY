@@ -124,6 +124,13 @@ fun PersonalizationConfigScreen(
     var editingTagColorIndex by remember { mutableIntStateOf(-1) }
     var showTagColorManagement by remember { mutableStateOf(false) }
     var editingTagTextColor by remember { mutableIntStateOf(0) }
+    
+    // 模糊设置
+    val enableBlur = ThemeConfig.enableBlur
+    val topBarBlurRadius = ThemeConfig.topBarBlurRadius
+    val bottomBarBlurRadius = ThemeConfig.bottomBarBlurRadius
+    val topBarBlurAlpha = ThemeConfig.topBarBlurAlpha
+    val bottomBarBlurAlpha = ThemeConfig.bottomBarBlurAlpha
     val primaryColor = MaterialTheme.colorScheme.primary
 
     AppScaffold(
@@ -451,6 +458,50 @@ fun PersonalizationConfigScreen(
                                     )
                                 }
                             }
+                        )
+                    }
+                }
+            }
+
+            item {
+                SplicedColumnGroup(title = "模糊效果设置") {
+                    SwitchSettingItem(
+                        title = "启用模糊效果",
+                        checked = enableBlur,
+                        onCheckedChange = { ThemeConfig.enableBlur = it }
+                    )
+
+                    if (enableBlur) {
+                        SliderSettingItem(
+                            title = "顶栏模糊半径",
+                            value = topBarBlurRadius.toFloat(),
+                            defaultValue = 24f,
+                            valueRange = 0f..30f,
+                            onValueChange = { ThemeConfig.topBarBlurRadius = it.toInt() }
+                        )
+
+                        SliderSettingItem(
+                            title = "底栏模糊半径",
+                            value = bottomBarBlurRadius.toFloat(),
+                            defaultValue = 8f,
+                            valueRange = 0f..10f,
+                            onValueChange = { ThemeConfig.bottomBarBlurRadius = it.toInt() }
+                        )
+
+                        SliderSettingItem(
+                            title = "顶栏模糊透明度",
+                            value = topBarBlurAlpha.toFloat(),
+                            defaultValue = 73f,
+                            valueRange = 0f..100f,
+                            onValueChange = { ThemeConfig.topBarBlurAlpha = it.toInt() }
+                        )
+
+                        SliderSettingItem(
+                            title = "底栏模糊透明度",
+                            value = bottomBarBlurAlpha.toFloat(),
+                            defaultValue = 40f,
+                            valueRange = 0f..100f,
+                            onValueChange = { ThemeConfig.bottomBarBlurAlpha = it.toInt() }
                         )
                     }
                 }

@@ -26,6 +26,14 @@ object ThemeConfig {
 
     var enableProgressiveBlur by prefDelegate(PreferKey.enableProgressiveBlur, false)
 
+    var topBarBlurRadius by prefDelegate(PreferKey.topBarBlurRadius, 24)
+
+    var bottomBarBlurRadius by prefDelegate(PreferKey.bottomBarBlurRadius, 8)
+
+    var topBarBlurAlpha by prefDelegate(PreferKey.topBarBlurAlpha, 73)
+
+    var bottomBarBlurAlpha by prefDelegate(PreferKey.bottomBarBlurAlpha, 40)
+
     var useFlexibleTopAppBar by prefDelegate(PreferKey.useFlexibleTopAppBar, true)
 
     var paletteStyle by prefDelegate(PreferKey.paletteStyle, "tonalSpot")

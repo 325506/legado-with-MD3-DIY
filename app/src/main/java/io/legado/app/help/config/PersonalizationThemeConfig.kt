@@ -191,6 +191,13 @@ object PersonalizationThemeConfig {
         config.customTagColorsJson?.let {
             ThemeConfig.customTagColorsJson = convertTagColorsFromHex(it)
         }
+
+        // 应用模糊设置
+        config.enableBlur?.let { ThemeConfig.enableBlur = it }
+        config.topBarBlurRadius?.let { ThemeConfig.topBarBlurRadius = it }
+        config.bottomBarBlurRadius?.let { ThemeConfig.bottomBarBlurRadius = it }
+        config.topBarBlurAlpha?.let { ThemeConfig.topBarBlurAlpha = it }
+        config.bottomBarBlurAlpha?.let { ThemeConfig.bottomBarBlurAlpha = it }
     }
 
     fun savePersonalizationTheme(name: String): Config {
@@ -227,7 +234,12 @@ object PersonalizationThemeConfig {
             itemDividerLength = ThemeConfig.itemDividerLength,
             itemDividerColor = ThemeConfig.itemDividerColor,
             enableCustomTagColors = ThemeConfig.enableCustomTagColors,
-            customTagColorsJson = ThemeConfig.customTagColorsJson
+            customTagColorsJson = ThemeConfig.customTagColorsJson,
+            enableBlur = ThemeConfig.enableBlur,
+            topBarBlurRadius = ThemeConfig.topBarBlurRadius,
+            bottomBarBlurRadius = ThemeConfig.bottomBarBlurRadius,
+            topBarBlurAlpha = ThemeConfig.topBarBlurAlpha,
+            bottomBarBlurAlpha = ThemeConfig.bottomBarBlurAlpha
         )
         addConfig(config)
         return config
@@ -266,7 +278,12 @@ object PersonalizationThemeConfig {
         var itemDividerLength: Float,
         var itemDividerColor: Int,
         var enableCustomTagColors: Boolean?,
-        var customTagColorsJson: String?
+        var customTagColorsJson: String?,
+        var enableBlur: Boolean?,
+        var topBarBlurRadius: Int?,
+        var bottomBarBlurRadius: Int?,
+        var topBarBlurAlpha: Int?,
+        var bottomBarBlurAlpha: Int?
     )
 }
 
@@ -312,6 +329,11 @@ class ConfigSerializer : JsonSerializer<PersonalizationThemeConfig.Config>,
         obj.addProperty("itemDividerColor", src.itemDividerColor.toHexString())
         obj.addProperty("enableCustomTagColors", src.enableCustomTagColors)
         obj.addProperty("customTagColorsJson", convertTagColorsToHex(src.customTagColorsJson))
+        obj.addProperty("enableBlur", src.enableBlur)
+        obj.addProperty("topBarBlurRadius", src.topBarBlurRadius)
+        obj.addProperty("bottomBarBlurRadius", src.bottomBarBlurRadius)
+        obj.addProperty("topBarBlurAlpha", src.topBarBlurAlpha)
+        obj.addProperty("bottomBarBlurAlpha", src.bottomBarBlurAlpha)
         return obj
     }
 
@@ -354,7 +376,12 @@ class ConfigSerializer : JsonSerializer<PersonalizationThemeConfig.Config>,
             itemDividerLength = obj.getFloat("itemDividerLength", 0f),
             itemDividerColor = obj.getInt("itemDividerColor", 0),
             enableCustomTagColors = obj.getBoolean("enableCustomTagColors", null),
-            customTagColorsJson = obj.getString("customTagColorsJson", null)
+            customTagColorsJson = obj.getString("customTagColorsJson", null),
+            enableBlur = obj.getBoolean("enableBlur", null),
+            topBarBlurRadius = obj.getInt("topBarBlurRadius", null),
+            bottomBarBlurRadius = obj.getInt("bottomBarBlurRadius", null),
+            topBarBlurAlpha = obj.getInt("topBarBlurAlpha", null),
+            bottomBarBlurAlpha = obj.getInt("bottomBarBlurAlpha", null)
         )
     }
 
@@ -377,6 +404,20 @@ class ConfigSerializer : JsonSerializer<PersonalizationThemeConfig.Config>,
     }
 
     private fun JsonObject.getInt(name: String, default: Int): Int {
+        val elem = get(name)
+        return when {
+            elem == null || elem.isJsonNull -> default
+            elem.isJsonPrimitive -> {
+                val prim = elem.asJsonPrimitive
+                if (prim.isNumber) prim.asNumber.toInt()
+                else if (prim.isString) parseColorString(prim.asString)
+                else default
+            }
+            else -> default
+        }
+    }
+
+    private fun JsonObject.getInt(name: String, default: Int?): Int? {
         val elem = get(name)
         return when {
             elem == null || elem.isJsonNull -> default
