@@ -113,7 +113,7 @@ object PersonalizationThemeConfig {
 
     fun addConfig(json: String): Boolean {
         kotlin.runCatching {
-            val config = GSON.fromJson(json, Config::class.java)
+            val config = THEME_GSON.fromJson(json, Config::class.java)
             addConfig(config)
             return true
         }.onFailure {}
@@ -185,19 +185,17 @@ object PersonalizationThemeConfig {
         ThemeConfig.itemDividerColor = config.itemDividerColor
 
         // 应用标签颜色设置
-        config.enableCustomTagColors?.let {
-            ThemeConfig.enableCustomTagColors = it
-        }
+        ThemeConfig.enableCustomTagColors = config.enableCustomTagColors
         config.customTagColorsJson?.let {
             ThemeConfig.customTagColorsJson = convertTagColorsFromHex(it)
         }
 
         // 应用模糊设置
-        config.enableBlur?.let { ThemeConfig.enableBlur = it }
-        config.topBarBlurRadius?.let { ThemeConfig.topBarBlurRadius = it }
-        config.bottomBarBlurRadius?.let { ThemeConfig.bottomBarBlurRadius = it }
-        config.topBarBlurAlpha?.let { ThemeConfig.topBarBlurAlpha = it }
-        config.bottomBarBlurAlpha?.let { ThemeConfig.bottomBarBlurAlpha = it }
+        ThemeConfig.enableBlur = config.enableBlur
+        ThemeConfig.topBarBlurRadius = config.topBarBlurRadius
+        ThemeConfig.bottomBarBlurRadius = config.bottomBarBlurRadius
+        ThemeConfig.topBarBlurAlpha = config.topBarBlurAlpha
+        ThemeConfig.bottomBarBlurAlpha = config.bottomBarBlurAlpha
     }
 
     fun savePersonalizationTheme(name: String): Config {
@@ -267,23 +265,23 @@ object PersonalizationThemeConfig {
         var fontColor: Int,
         var bgColor: Int,
         var bookInfoInputColor: Int,
-        var appFontPath: String?,
-        var enableContainerBorder: Boolean,
-        var containerBorderWidth: Float,
-        var containerBorderStyle: String?,
-        var containerBorderDashWidth: Float,
-        var containerBorderColor: Int,
-        var enableItemDivider: Boolean,
-        var itemDividerWidth: Float,
-        var itemDividerLength: Float,
-        var itemDividerColor: Int,
-        var enableCustomTagColors: Boolean?,
-        var customTagColorsJson: String?,
-        var enableBlur: Boolean?,
-        var topBarBlurRadius: Int?,
-        var bottomBarBlurRadius: Int?,
-        var topBarBlurAlpha: Int?,
-        var bottomBarBlurAlpha: Int?
+        var appFontPath: String? = null,
+        var enableContainerBorder: Boolean = false,
+        var containerBorderWidth: Float = 1f,
+        var containerBorderStyle: String = "solid",
+        var containerBorderDashWidth: Float = 4f,
+        var containerBorderColor: Int = 0,
+        var enableItemDivider: Boolean = true,
+        var itemDividerWidth: Float = 1f,
+        var itemDividerLength: Float = 80f,
+        var itemDividerColor: Int = 0,
+        var enableCustomTagColors: Boolean = false,
+        var customTagColorsJson: String? = null,
+        var enableBlur: Boolean = false,
+        var topBarBlurRadius: Int = 24,
+        var bottomBarBlurRadius: Int = 8,
+        var topBarBlurAlpha: Int = 73,
+        var bottomBarBlurAlpha: Int = 40
     )
 }
 
@@ -367,26 +365,26 @@ class ConfigSerializer : JsonSerializer<PersonalizationThemeConfig.Config>,
             bookInfoInputColor = obj.getInt("bookInfoInputColor", 0),
             appFontPath = obj.getString("appFontPath", null),
             enableContainerBorder = obj.getBoolean("enableContainerBorder", false) ?: false,
-            containerBorderWidth = obj.getFloat("containerBorderWidth", 0f),
+            containerBorderWidth = obj.getFloat("containerBorderWidth", 1f),
             containerBorderStyle = obj.getString("containerBorderStyle", "solid") ?: "solid",
-            containerBorderDashWidth = obj.getFloat("containerBorderDashWidth", 0f),
+            containerBorderDashWidth = obj.getFloat("containerBorderDashWidth", 4f),
             containerBorderColor = obj.getInt("containerBorderColor", 0),
-            enableItemDivider = obj.getBoolean("enableItemDivider", false) ?: false,
-            itemDividerWidth = obj.getFloat("itemDividerWidth", 0f),
-            itemDividerLength = obj.getFloat("itemDividerLength", 0f),
+            enableItemDivider = obj.getBoolean("enableItemDivider", true) ?: true,
+            itemDividerWidth = obj.getFloat("itemDividerWidth", 1f),
+            itemDividerLength = obj.getFloat("itemDividerLength", 80f),
             itemDividerColor = obj.getInt("itemDividerColor", 0),
-            enableCustomTagColors = obj.getBoolean("enableCustomTagColors", null),
+            enableCustomTagColors = obj.getBoolean("enableCustomTagColors", false) ?: false,
             customTagColorsJson = obj.getString("customTagColorsJson", null),
-            enableBlur = obj.getBoolean("enableBlur", null),
-            topBarBlurRadius = obj.getInt("topBarBlurRadius", null),
-            bottomBarBlurRadius = obj.getInt("bottomBarBlurRadius", null),
-            topBarBlurAlpha = obj.getInt("topBarBlurAlpha", null),
-            bottomBarBlurAlpha = obj.getInt("bottomBarBlurAlpha", null)
+            enableBlur = obj.getBoolean("enableBlur", false) ?: false,
+            topBarBlurRadius = obj.getInt("topBarBlurRadius", 24),
+            bottomBarBlurRadius = obj.getInt("bottomBarBlurRadius", 8),
+            topBarBlurAlpha = obj.getInt("topBarBlurAlpha", 73),
+            bottomBarBlurAlpha = obj.getInt("bottomBarBlurAlpha", 40)
         )
     }
 
     private fun Int.toHexString(): String {
-        return if (this == 0) "0" else "#${String.format("%08X", this)}"
+        return "#${String.format("%08X", this)}"
     }
 
     private fun JsonObject.getString(name: String, default: String?): String? {
