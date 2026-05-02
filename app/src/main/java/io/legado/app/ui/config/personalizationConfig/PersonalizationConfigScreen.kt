@@ -474,6 +474,7 @@ fun PersonalizationConfigScreen(
                     if (enableBlur) {
                         SliderSettingItem(
                             title = "顶栏模糊半径",
+                            description = "模糊半径越大，系统运行越卡顿",
                             value = topBarBlurRadius.toFloat(),
                             defaultValue = 24f,
                             valueRange = 0f..30f,
@@ -482,6 +483,7 @@ fun PersonalizationConfigScreen(
 
                         SliderSettingItem(
                             title = "底栏模糊半径",
+                            description = "模糊半径越大，系统运行越卡顿",
                             value = bottomBarBlurRadius.toFloat(),
                             defaultValue = 8f,
                             valueRange = 0f..10f,
