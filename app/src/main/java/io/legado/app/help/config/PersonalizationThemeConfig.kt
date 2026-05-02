@@ -359,7 +359,7 @@ class ConfigSerializer : JsonSerializer<PersonalizationThemeConfig.Config>,
     }
 
     private fun Int.toHexString(): String {
-        return if (this == 0) "0" else "#${Integer.toHexString(this).uppercase()}"
+        return if (this == 0) "0" else "#${String.format("%08X", this)}"
     }
 
     private fun JsonObject.getString(name: String, default: String?): String? {
