@@ -447,6 +447,12 @@ object ReadBookConfig {
             config.titleBottomSpacing = value
         }
 
+    var titleColor: Int
+        get() = config.titleColor
+        set(value) {
+            config.titleColor = value
+        }
+
     var paragraphIndent: String
         get() = config.paragraphIndent
         set(value) {
@@ -621,6 +627,7 @@ object ReadBookConfig {
             exportConfig.titleSize = shareConfig.titleSize
             exportConfig.titleTopSpacing = shareConfig.titleTopSpacing
             exportConfig.titleBottomSpacing = shareConfig.titleBottomSpacing
+            exportConfig.titleColor = shareConfig.titleColor
             exportConfig.paddingBottom = shareConfig.paddingBottom
             exportConfig.paddingLeft = shareConfig.paddingLeft
             exportConfig.paddingRight = shareConfig.paddingRight
@@ -789,6 +796,7 @@ object ReadBookConfig {
         var titleSize: Int = 0,
         var titleTopSpacing: Int = 0,
         var titleBottomSpacing: Int = 0,
+        var titleColor: Int = 0,
         var titleBold: Int = 500,//是否粗体字 0:正常, 1:粗体, 2:细体
         var titleLineSpacingExtra: Int = 12,
         var titleLineSpacingSub: Int = 12,
@@ -922,6 +930,7 @@ object ReadBookConfig {
             "titleSize" to titleSize,
             "titleTopSpacing" to titleTopSpacing,
             "titleBottomSpacing" to titleBottomSpacing,
+            "titleColor" to titleColor,
             "paragraphIndent" to paragraphIndent,
             "paddingBottom" to paddingBottom,
             "paddingLeft" to paddingLeft,

@@ -50,6 +50,8 @@ data class TextColumn(
         }
         val textColor = color ?: if (!textLine.useUnderline && (textLine.isReadAloud || isSearchResult)) {
             ReadBookConfig.textAccentColor
+        } else if (textLine.isTitle && ReadBookConfig.titleColor != 0) {
+            ReadBookConfig.titleColor
         } else {
             ReadBookConfig.textColor
         }

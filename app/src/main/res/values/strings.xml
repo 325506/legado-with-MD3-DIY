@@ -936,6 +936,7 @@
     <string name="content_src">Content source code</string>
     <string name="list_src">List source code</string>
     <string name="title_font_size">Font Size</string>
+    <string name="title_color">Title Color</string>
     <string name="title_margin_top">Margin Top</string>
     <string name="title_margin_bottom">Margin Bottom</string>
     <string name="show">Show</string>

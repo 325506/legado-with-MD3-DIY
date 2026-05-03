@@ -191,6 +191,8 @@ data class TextLine(
         }
         val textColor = if (isReadAloud) {
             ReadBookConfig.textAccentColor
+        } else if (isTitle && ReadBookConfig.titleColor != 0) {
+            ReadBookConfig.titleColor
         } else {
             ReadBookConfig.textColor
         }
