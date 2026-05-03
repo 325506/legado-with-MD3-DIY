@@ -74,10 +74,11 @@ fun RowScope.AppNavigationBarItem(
     m3IndicatorColor: Color,
     m3ShowLabel: Boolean,
     m3AlwaysShowLabel: Boolean,
+    useCustomIcon: Boolean = false,
 ) {
     val isMiuix = ThemeResolver.isMiuixEngine(LegadoTheme.composeEngine)
 
-    if (isMiuix) {
+    if (isMiuix && !useCustomIcon) {
         MiuixNavigationBarItem(
             selected = selected,
             onClick = onClick,

@@ -321,4 +321,8 @@ object PreferKey {
     const val audioPreDownloadNum = "audioPreDownloadNum"
     const val customTagColors = "customTagColors"
     const val enableCustomTagColors = "enableCustomTagColors"
+    const val navIconBookshelf = "navIconBookshelf"
+    const val navIconExplore = "navIconExplore"
+    const val navIconRss = "navIconRss"
+    const val navIconMy = "navIconMy"
 }

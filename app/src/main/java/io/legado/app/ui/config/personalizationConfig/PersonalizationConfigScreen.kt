@@ -1,5 +1,9 @@
 package io.legado.app.ui.config.personalizationConfig
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -47,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import io.legado.app.R
 import io.legado.app.help.TagColorGenerator
 import io.legado.app.help.config.PersonalizationThemeConfig
+import io.legado.app.ui.config.mainConfig.MainConfig
 import io.legado.app.ui.config.themeConfig.TagColorPair
 import io.legado.app.ui.config.themeConfig.ThemeConfig
 import io.legado.app.ui.theme.adaptiveContentPadding
@@ -132,6 +137,32 @@ fun PersonalizationConfigScreen(
     val topBarBlurAlpha = ThemeConfig.topBarBlurAlpha
     val bottomBarBlurAlpha = ThemeConfig.bottomBarBlurAlpha
     val primaryColor = MaterialTheme.colorScheme.primary
+
+    var editingNavIconDestination by remember { mutableStateOf<String?>(null) }
+    val navIconLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        val dest = editingNavIconDestination ?: return@rememberLauncherForActivityResult
+        uri?.let {
+            val inputStream = context.contentResolver.openInputStream(it)
+            val iconDir = java.io.File(context.filesDir, "nav_icons")
+            iconDir.mkdirs()
+            val destFile = java.io.File(iconDir, "$dest.png")
+            inputStream?.use { input ->
+                destFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            val path = destFile.absolutePath
+            when (dest) {
+                "bookshelf" -> MainConfig.navIconBookshelf = path
+                "explore" -> MainConfig.navIconExplore = path
+                "rss" -> MainConfig.navIconRss = path
+                "my" -> MainConfig.navIconMy = path
+            }
+        }
+        editingNavIconDestination = null
+    }
 
     AppScaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -506,6 +537,187 @@ fun PersonalizationConfigScreen(
                             onValueChange = { ThemeConfig.bottomBarBlurAlpha = it.toInt() }
                         )
                     }
+                }
+            }
+
+            item {
+                SplicedColumnGroup(title = "导航栏图标设置") {
+                    ClickableSettingItem(
+                        title = "书架图标",
+                        description = if (MainConfig.navIconBookshelf.isNotEmpty()) "已设置自定义图标" else "使用默认图标",
+                        onClick = {
+                            editingNavIconDestination = "bookshelf"
+                            navIconLauncher.launch("image/png")
+                        },
+                        trailingContent = {
+                            if (MainConfig.navIconBookshelf.isNotEmpty()) {
+                                Row {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(28.dp)
+                                            .clip(CircleShape)
+                                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                                            .padding(2.dp)
+                                    ) {
+                                        val bmp = remember(MainConfig.navIconBookshelf) {
+                                            android.graphics.BitmapFactory.decodeFile(MainConfig.navIconBookshelf)
+                                        }
+                                        if (bmp != null) {
+                                            Icon(
+                                                painter = androidx.compose.ui.graphics.painter.BitmapPainter(bmp.asImageBitmap()),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(24.dp),
+                                                tint = Color.Unspecified
+                                            )
+                                        }
+                                    }
+                                    IconButton(
+                                        onClick = { MainConfig.navIconBookshelf = "" },
+                                        modifier = Modifier.size(28.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "删除",
+                                            modifier = Modifier.size(16.dp),
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    )
+                    ClickableSettingItem(
+                        title = "发现图标",
+                        description = if (MainConfig.navIconExplore.isNotEmpty()) "已设置自定义图标" else "使用默认图标",
+                        onClick = {
+                            editingNavIconDestination = "explore"
+                            navIconLauncher.launch("image/png")
+                        },
+                        trailingContent = {
+                            if (MainConfig.navIconExplore.isNotEmpty()) {
+                                Row {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(28.dp)
+                                            .clip(CircleShape)
+                                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                                            .padding(2.dp)
+                                    ) {
+                                        val bmp = remember(MainConfig.navIconExplore) {
+                                            android.graphics.BitmapFactory.decodeFile(MainConfig.navIconExplore)
+                                        }
+                                        if (bmp != null) {
+                                            Icon(
+                                                painter = androidx.compose.ui.graphics.painter.BitmapPainter(bmp.asImageBitmap()),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(24.dp),
+                                                tint = Color.Unspecified
+                                            )
+                                        }
+                                    }
+                                    IconButton(
+                                        onClick = { MainConfig.navIconExplore = "" },
+                                        modifier = Modifier.size(28.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "删除",
+                                            modifier = Modifier.size(16.dp),
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    )
+                    ClickableSettingItem(
+                        title = "订阅图标",
+                        description = if (MainConfig.navIconRss.isNotEmpty()) "已设置自定义图标" else "使用默认图标",
+                        onClick = {
+                            editingNavIconDestination = "rss"
+                            navIconLauncher.launch("image/png")
+                        },
+                        trailingContent = {
+                            if (MainConfig.navIconRss.isNotEmpty()) {
+                                Row {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(28.dp)
+                                            .clip(CircleShape)
+                                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                                            .padding(2.dp)
+                                    ) {
+                                        val bmp = remember(MainConfig.navIconRss) {
+                                            android.graphics.BitmapFactory.decodeFile(MainConfig.navIconRss)
+                                        }
+                                        if (bmp != null) {
+                                            Icon(
+                                                painter = androidx.compose.ui.graphics.painter.BitmapPainter(bmp.asImageBitmap()),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(24.dp),
+                                                tint = Color.Unspecified
+                                            )
+                                        }
+                                    }
+                                    IconButton(
+                                        onClick = { MainConfig.navIconRss = "" },
+                                        modifier = Modifier.size(28.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "删除",
+                                            modifier = Modifier.size(16.dp),
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    )
+                    ClickableSettingItem(
+                        title = "我的图标",
+                        description = if (MainConfig.navIconMy.isNotEmpty()) "已设置自定义图标" else "使用默认图标",
+                        onClick = {
+                            editingNavIconDestination = "my"
+                            navIconLauncher.launch("image/png")
+                        },
+                        trailingContent = {
+                            if (MainConfig.navIconMy.isNotEmpty()) {
+                                Row {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(28.dp)
+                                            .clip(CircleShape)
+                                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                                            .padding(2.dp)
+                                    ) {
+                                        val bmp = remember(MainConfig.navIconMy) {
+                                            android.graphics.BitmapFactory.decodeFile(MainConfig.navIconMy)
+                                        }
+                                        if (bmp != null) {
+                                            Icon(
+                                                painter = androidx.compose.ui.graphics.painter.BitmapPainter(bmp.asImageBitmap()),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(24.dp),
+                                                tint = Color.Unspecified
+                                            )
+                                        }
+                                    }
+                                    IconButton(
+                                        onClick = { MainConfig.navIconMy = "" },
+                                        modifier = Modifier.size(28.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "删除",
+                                            modifier = Modifier.size(16.dp),
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    )
                 }
             }
 

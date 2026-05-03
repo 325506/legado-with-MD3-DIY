@@ -63,6 +63,8 @@ import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import io.legado.app.R
 import io.legado.app.ui.config.mainConfig.MainConfig
 import io.legado.app.ui.config.themeConfig.ThemeConfig
@@ -277,7 +279,13 @@ fun MainScreen(
                             }
                         },
                         label = if (labelVisibilityMode != "unlabeled") {
-                            { AppText(stringResource(destination.labelId)) }
+                            val hasCustomIcon = when (destination) {
+                                MainDestination.Bookshelf -> MainConfig.navIconBookshelf.isNotEmpty()
+                                MainDestination.Explore -> MainConfig.navIconExplore.isNotEmpty()
+                                MainDestination.Rss -> MainConfig.navIconRss.isNotEmpty()
+                                MainDestination.My -> MainConfig.navIconMy.isNotEmpty()
+                            }
+                            if (hasCustomIcon) null else {{ AppText(stringResource(destination.labelId)) }}
                         } else null
                     )
                 }
@@ -317,6 +325,12 @@ fun MainScreen(
                             ) {
                                 destinations.forEachIndexed { index, destination ->
                                     val selected = pagerState.targetPage == index
+                                    val hasCustomIcon = when (destination) {
+                                        MainDestination.Bookshelf -> MainConfig.navIconBookshelf.isNotEmpty()
+                                        MainDestination.Explore -> MainConfig.navIconExplore.isNotEmpty()
+                                        MainDestination.Rss -> MainConfig.navIconRss.isNotEmpty()
+                                        MainDestination.My -> MainConfig.navIconMy.isNotEmpty()
+                                    }
                                     FloatingBottomBarItem(
                                         onClick = {
                                             coroutineScope.launch {
@@ -329,7 +343,7 @@ fun MainScreen(
                                             destination = destination,
                                             selected = selected
                                         )
-                                        if (showLabel && (alwaysShowLabel || selected)) {
+                                        if (!hasCustomIcon && showLabel && (alwaysShowLabel || selected)) {
                                             AppText(
                                                 text = stringResource(destination.labelId),
                                                 style = MaterialTheme.typography.labelSmall,
@@ -348,6 +362,12 @@ fun MainScreen(
                         ) {
                             destinations.forEachIndexed { index, destination ->
                                 val selected = pagerState.targetPage == index
+                                val customIconPath = when (destination) {
+                                    MainDestination.Bookshelf -> MainConfig.navIconBookshelf
+                                    MainDestination.Explore -> MainConfig.navIconExplore
+                                    MainDestination.Rss -> MainConfig.navIconRss
+                                    MainDestination.My -> MainConfig.navIconMy
+                                }
                                 AppNavigationBarItem(
                                     selected = selected,
                                     onClick = {
@@ -365,8 +385,9 @@ fun MainScreen(
                                         noBlurColor = MaterialTheme.colorScheme.secondaryContainer,
                                         blurAlpha = GlassDefaults.ThickBlurAlpha
                                     ),
-                                    m3ShowLabel = showLabel,
-                                    m3AlwaysShowLabel = alwaysShowLabel
+                                    m3ShowLabel = showLabel && !customIconPath.isNotEmpty(),
+                                    m3AlwaysShowLabel = alwaysShowLabel && !customIconPath.isNotEmpty(),
+                                    useCustomIcon = customIconPath.isNotEmpty()
                                 )
                             }
                         }
@@ -481,6 +502,34 @@ private fun NavigationIcon(
     selected: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val icon = AppIcons.mainDestination(destination, selected)
-    AppIcon(icon, contentDescription = null, modifier = modifier)
+    val customIconPath = when (destination) {
+        MainDestination.Bookshelf -> MainConfig.navIconBookshelf
+        MainDestination.Explore -> MainConfig.navIconExplore
+        MainDestination.Rss -> MainConfig.navIconRss
+        MainDestination.My -> MainConfig.navIconMy
+    }
+    if (customIconPath.isNotEmpty()) {
+        val context = LocalContext.current
+        val bitmap = remember(customIconPath) {
+            kotlin.runCatching {
+                android.graphics.BitmapFactory.decodeFile(customIconPath)
+            }.getOrNull()
+        }
+        if (bitmap != null) {
+            Icon(
+                painter = remember(bitmap) {
+                    BitmapPainter(bitmap.asImageBitmap())
+                },
+                contentDescription = null,
+                modifier = modifier.size(40.dp),
+                tint = Color.Unspecified
+            )
+        } else {
+            val icon = AppIcons.mainDestination(destination, selected)
+            AppIcon(icon, contentDescription = null, modifier = modifier)
+        }
+    } else {
+        val icon = AppIcons.mainDestination(destination, selected)
+        AppIcon(icon, contentDescription = null, modifier = modifier)
+    }
 }
