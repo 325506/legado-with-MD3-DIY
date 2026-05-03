@@ -195,8 +195,10 @@ class FontSelectDialog : BaseBottomSheetDialogFragment(R.layout.dialog_font_sele
         callBack?.selectFont("")
     }
 
+    var explicitCallback: CallBack? = null
+
     private val callBack: CallBack?
-        get() = (parentFragment as? CallBack) ?: (activity as? CallBack)
+        get() = explicitCallback ?: (parentFragment as? CallBack) ?: (activity as? CallBack)
 
     inner class FontAdapter(context: Context, curFilePath: String) :
         RecyclerAdapter<FileDoc, ItemFontBinding>(context) {

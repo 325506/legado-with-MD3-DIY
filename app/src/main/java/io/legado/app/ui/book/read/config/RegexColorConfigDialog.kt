@@ -13,6 +13,7 @@ import io.legado.app.databinding.DialogRegexColorConfigBinding
 import io.legado.app.help.config.ReadBookConfig
 import io.legado.app.lib.dialogs.alert
 import io.legado.app.ui.book.read.ReadBookActivity
+import io.legado.app.ui.book.read.page.provider.TextChapterLayout
 import io.legado.app.ui.widget.AccentColorButton
 import io.legado.app.utils.postEvent
 import io.legado.app.utils.viewbindingdelegate.viewBinding
@@ -28,6 +29,7 @@ class RegexColorConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_reg
 
     companion object {
         const val REGEX_RULE_COLOR = 7900
+        var pendingColorPosition = -1
     }
 
     override val curFontPath: String
@@ -115,6 +117,7 @@ class RegexColorConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_reg
     private fun showColorPicker(position: Int) {
         if (position !in ReadBookConfig.regexColorRules.indices) return
         editingRulePosition = position
+        pendingColorPosition = position
         val rule = ReadBookConfig.regexColorRules[position]
         val colorValue = rule.color or 0xFF000000.toInt()
         ColorPickerDialog.newBuilder()
@@ -128,7 +131,9 @@ class RegexColorConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_reg
     private fun showFontSelect(position: Int) {
         if (position !in ReadBookConfig.regexColorRules.indices) return
         editingRulePosition = position
-        FontSelectDialog().show(childFragmentManager, "regexFontSelect")
+        FontSelectDialog().apply {
+            explicitCallback = this@RegexColorConfigDialog
+        }.show(childFragmentManager, "regexFontSelect")
     }
 
     fun onColorSelected(color: Int) {
@@ -140,6 +145,7 @@ class RegexColorConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_reg
 
     private fun notifyConfigChanged() {
         ReadBookConfig.saveRegexColorRules()
+        TextChapterLayout.invalidateRegexCache()
         adapter.setItems(ReadBookConfig.regexColorRules)
         postEvent(EventBus.UP_CONFIG, arrayListOf(8, 5))
     }

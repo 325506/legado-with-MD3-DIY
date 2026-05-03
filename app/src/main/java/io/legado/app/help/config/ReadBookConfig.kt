@@ -230,25 +230,10 @@ object ReadBookConfig {
             }
         }
     
-    var regexColorRules: ArrayList<RegexColorRule> = loadRegexColorRules()
-        private set
+    val regexColorRules: ArrayList<RegexColorRule> get() = durConfig.regexColorRules
 
     fun saveRegexColorRules() {
-        appCtx.putPrefString(PreferKey.regexColorRules, GSON.toJson(regexColorRules))
-    }
-
-    private fun loadRegexColorRules(): ArrayList<RegexColorRule> {
-        val json = appCtx.getPrefString(PreferKey.regexColorRules)
-        if (!json.isNullOrEmpty()) {
-            try {
-                val list = GSON.fromJsonArray<RegexColorRule>(json).getOrNull()
-                if (!list.isNullOrEmpty()) {
-                    return ArrayList(list)
-                }
-            } catch (_: Exception) {
-            }
-        }
-        return arrayListOf()
+        save()
     }
 
     /**
@@ -610,7 +595,7 @@ object ReadBookConfig {
         }
 
     fun getExportConfig(): Config {
-        val exportConfig = durConfig.copy()
+        val exportConfig = durConfig.copy(regexColorRules = ArrayList(durConfig.regexColorRules.map { it.copy() }))
         if (shareLayout) {
             exportConfig.textFont = shareConfig.textFont
             exportConfig.titleFont = shareConfig.titleFont
@@ -838,7 +823,8 @@ object ReadBookConfig {
         var tipFooterColor: Int = 0,
         var tipDividerColor: Int = -1,
         var headerMode: Int = 0,
-        var footerMode: Int = 0
+        var footerMode: Int = 0,
+        var regexColorRules: ArrayList<RegexColorRule> = arrayListOf()
     ) {
 
         @Transient
@@ -956,7 +942,8 @@ object ReadBookConfig {
             "tipFooterColor" to tipFooterColor,
             "tipDividerColor" to tipDividerColor,
             "headerMode" to headerMode,
-            "footerMode" to footerMode
+            "footerMode" to footerMode,
+            "regexColorRules" to regexColorRules.map { mapOf("name" to it.name, "pattern" to it.pattern, "color" to it.color, "fontPath" to it.fontPath) }
         )
 
         fun getBgPath(bgIndex: Int): String? {

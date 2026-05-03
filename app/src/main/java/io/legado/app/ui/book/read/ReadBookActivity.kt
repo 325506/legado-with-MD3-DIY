@@ -99,6 +99,7 @@ import io.legado.app.ui.book.read.page.ReadView
 import io.legado.app.ui.book.read.page.entities.PageDirection
 import io.legado.app.ui.book.read.page.entities.TextPage
 import io.legado.app.ui.book.read.page.provider.ChapterProvider
+import io.legado.app.ui.book.read.page.provider.TextChapterLayout
 import io.legado.app.ui.book.read.page.provider.LayoutProgressListener
 import io.legado.app.ui.book.searchContent.SearchContentActivity
 import io.legado.app.ui.book.searchContent.SearchResult
@@ -1726,9 +1727,16 @@ class ReadBookActivity : BaseReadBookActivity(),
             }
 
             REGEX_RULE_COLOR -> {
-                supportFragmentManager.findFragmentByTag("regexColorConfig")?.let {
-                    (it as? RegexColorConfigDialog)?.onColorSelected(color)
+                val pos = RegexColorConfigDialog.pendingColorPosition
+                if (pos in ReadBookConfig.regexColorRules.indices) {
+                    ReadBookConfig.regexColorRules[pos].color = color
+                    ReadBookConfig.saveRegexColorRules()
+                    TextChapterLayout.invalidateRegexCache()
+                    postEvent(EventBus.UP_CONFIG, arrayListOf(8, 5))
                 }
+                val fontConfigDialog = supportFragmentManager.findFragmentByTag("FontConfigDialog")
+                (fontConfigDialog?.childFragmentManager?.findFragmentByTag("regexColorConfig") as? RegexColorConfigDialog)
+                    ?.onColorSelected(color)
             }
 
             B_COLOR -> {

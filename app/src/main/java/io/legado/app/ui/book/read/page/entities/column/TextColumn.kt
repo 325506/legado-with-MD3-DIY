@@ -58,19 +58,37 @@ data class TextColumn(
         } else {
             ReadBookConfig.textColor
         }
-        val originalSize = textPaint.textSize
-        val originalTypeface = textPaint.typeface
-        textLine.titleTextSize?.let {
-            textPaint.textSize = it
-        }
-        if (textPaint.color != textColor) {
-            textPaint.color = textColor
-        }
+        val needRestoreSize = textLine.titleTextSize != null
+        val needRestoreColor = textPaint.color != textColor
         val customTypeface = fontPath?.let { getTypeface(it) }
-        if (customTypeface != null) {
-            textPaint.typeface = customTypeface
+        val needRestoreTypeface = customTypeface != null
+        if (needRestoreSize) {
+            val originalSize = textPaint.textSize
+            textPaint.textSize = textLine.titleTextSize!!
+            if (needRestoreColor) textPaint.color = textColor
+            if (needRestoreTypeface) textPaint.typeface = customTypeface
+            val y = textLine.lineBase - textLine.lineTop
+            drawText(canvas, y, textPaint)
+            textPaint.textSize = originalSize
+        } else if (needRestoreColor || needRestoreTypeface) {
+            val originalColor = textPaint.color
+            val originalTypeface = textPaint.typeface
+            if (needRestoreColor) textPaint.color = textColor
+            if (needRestoreTypeface) textPaint.typeface = customTypeface
+            val y = textLine.lineBase - textLine.lineTop
+            drawText(canvas, y, textPaint)
+            if (needRestoreColor) textPaint.color = originalColor
+            if (needRestoreTypeface) textPaint.typeface = originalTypeface
+        } else {
+            val y = textLine.lineBase - textLine.lineTop
+            drawText(canvas, y, textPaint)
         }
-        val y = textLine.lineBase - textLine.lineTop
+        if (selected) {
+            canvas.drawRect(start, 0f, end, textLine.height, view.selectedPaint)
+        }
+    }
+
+    private fun drawText(canvas: Canvas, y: Float, textPaint: android.text.TextPaint) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             val letterSpacing = textPaint.letterSpacing * textPaint.textSize
             val letterSpacingHalf = letterSpacing * 0.5f
@@ -78,11 +96,6 @@ data class TextColumn(
         } else {
             canvas.drawText(charData, start, y, textPaint)
         }
-        if (selected) {
-            canvas.drawRect(start, 0f, end, textLine.height, view.selectedPaint)
-        }
-        textPaint.textSize = originalSize
-        textPaint.typeface = originalTypeface
     }
 
     companion object {

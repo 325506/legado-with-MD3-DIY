@@ -69,6 +69,14 @@ class TextChapterLayout(
     private val bookContent: BookContent,
 ) {
 
+    companion object {
+        private val regexCache = mutableMapOf<String, Regex>()
+
+        fun invalidateRegexCache() {
+            regexCache.clear()
+        }
+    }
+
     @Volatile
     private var listener: LayoutProgressListener? = textChapter
 
@@ -1303,16 +1311,27 @@ class TextChapterLayout(
     )
 
     private fun applyRegexColorRules(text: String): RegexMatchResult? {
-        if (ReadBookConfig.regexColorRules.isEmpty()) return null
+        val rules = ReadBookConfig.regexColorRules
+        if (rules.isEmpty()) return null
+        var hasMatch = false
+        for (rule in rules) {
+            try {
+                val regex = regexCache.getOrPut(rule.pattern) { Regex(rule.pattern) }
+                if (regex.containsMatchIn(text)) {
+                    hasMatch = true
+                    break
+                }
+            } catch (_: Exception) {
+            }
+        }
+        if (!hasMatch) return null
         val colorArray = IntArray(text.length) { -1 }
         val fontPathArray = arrayOfNulls<String>(text.length)
-        var hasMatch = false
-        for (rule in ReadBookConfig.regexColorRules) {
+        for (rule in rules) {
             try {
-                val regex = Regex(rule.pattern)
+                val regex = regexCache.getOrPut(rule.pattern) { Regex(rule.pattern) }
                 val matches = regex.findAll(text)
                 for (match in matches) {
-                    hasMatch = true
                     for (i in match.range) {
                         colorArray[i] = rule.color
                         if (rule.fontPath.isNotEmpty()) {
@@ -1323,7 +1342,7 @@ class TextChapterLayout(
             } catch (_: Exception) {
             }
         }
-        return if (hasMatch) RegexMatchResult(colorArray, fontPathArray) else null
+        return RegexMatchResult(colorArray, fontPathArray)
     }
 
     private data class WordStyle(
