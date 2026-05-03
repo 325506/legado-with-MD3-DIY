@@ -1,31 +1,53 @@
 package io.legado.app.ui.book.read.config
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import io.legado.app.R
 import io.legado.app.base.BaseBottomSheetDialogFragment
 import io.legado.app.constant.EventBus
 import io.legado.app.databinding.DialogRegexColorConfigBinding
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
 import io.legado.app.help.config.ReadBookConfig
 import io.legado.app.lib.dialogs.alert
 import io.legado.app.ui.book.read.ReadBookActivity
+import io.legado.app.ui.widget.AccentColorButton
 import io.legado.app.utils.postEvent
 import io.legado.app.utils.viewbindingdelegate.viewBinding
+import com.jaredrummler.android.colorpicker.ColorPickerDialog
 
-class RegexColorConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_regex_color_config) {
+class RegexColorConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_regex_color_config),
+    FontSelectDialog.CallBack {
 
     private val binding by viewBinding(DialogRegexColorConfigBinding::bind)
     private val callBack2 get() = activity as? ReadBookActivity
     private lateinit var adapter: RegexColorRuleAdapter
+    private var editingRulePosition = -1
+
+    companion object {
+        const val REGEX_RULE_COLOR = 7900
+    }
+
+    override val curFontPath: String
+        get() = if (editingRulePosition in ReadBookConfig.regexColorRules.indices) {
+            ReadBookConfig.regexColorRules[editingRulePosition].fontPath
+        } else ""
+
+    override fun selectFont(path: String) {
+        if (editingRulePosition in ReadBookConfig.regexColorRules.indices) {
+            ReadBookConfig.regexColorRules[editingRulePosition].fontPath = path
+            notifyConfigChanged()
+        }
+    }
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
-        adapter = RegexColorRuleAdapter { position ->
-            deleteRule(position)
-        }
+        adapter = RegexColorRuleAdapter(
+            onDeleteClick = { position -> deleteRule(position) },
+            onColorClick = { position -> showColorPicker(position) },
+            onFontClick = { position -> showFontSelect(position) }
+        )
         initView()
         initViewEvent()
     }
@@ -82,10 +104,36 @@ class RegexColorConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_reg
         ReadBookConfig.regexColorRules.add(rule)
         notifyConfigChanged()
     }
-    
+
     private fun deleteRule(position: Int) {
         if (position >= 0 && position < ReadBookConfig.regexColorRules.size) {
             ReadBookConfig.regexColorRules.removeAt(position)
+            notifyConfigChanged()
+        }
+    }
+
+    private fun showColorPicker(position: Int) {
+        if (position !in ReadBookConfig.regexColorRules.indices) return
+        editingRulePosition = position
+        val rule = ReadBookConfig.regexColorRules[position]
+        val colorValue = rule.color or 0xFF000000.toInt()
+        ColorPickerDialog.newBuilder()
+            .setColor(colorValue)
+            .setShowAlphaSlider(false)
+            .setDialogType(ColorPickerDialog.TYPE_CUSTOM)
+            .setDialogId(REGEX_RULE_COLOR)
+            .show(requireActivity())
+    }
+
+    private fun showFontSelect(position: Int) {
+        if (position !in ReadBookConfig.regexColorRules.indices) return
+        editingRulePosition = position
+        FontSelectDialog().show(childFragmentManager, "regexFontSelect")
+    }
+
+    fun onColorSelected(color: Int) {
+        if (editingRulePosition in ReadBookConfig.regexColorRules.indices) {
+            ReadBookConfig.regexColorRules[editingRulePosition].color = color
             notifyConfigChanged()
         }
     }
@@ -100,11 +148,14 @@ class RegexColorConfigDialog : BaseBottomSheetDialogFragment(R.layout.dialog_reg
 data class RegexColorRule(
     var name: String,
     var pattern: String,
-    var color: Int
+    var color: Int,
+    var fontPath: String = ""
 )
 
 class RegexColorRuleAdapter(
-    private val onDeleteClick: ((Int) -> Unit)? = null
+    private val onDeleteClick: ((Int) -> Unit)? = null,
+    private val onColorClick: ((Int) -> Unit)? = null,
+    private val onFontClick: ((Int) -> Unit)? = null
 ) : RecyclerView.Adapter<RegexColorRuleAdapter.ViewHolder>() {
 
     private var items: List<RegexColorRule> = emptyList()
@@ -128,16 +179,23 @@ class RegexColorRuleAdapter(
         return items.size
     }
 
-    inner class ViewHolder(itemView: android.view.View) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvRuleName = itemView.findViewById<android.widget.TextView>(R.id.tv_rule_name)
         val tvRulePattern = itemView.findViewById<android.widget.TextView>(R.id.tv_rule_pattern)
-        val viewColor = itemView.findViewById<android.view.View>(R.id.view_color)
+        val btnSelectFont = itemView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_select_font)
+        val btnSelectColor = itemView.findViewById<AccentColorButton>(R.id.btn_select_color)
         val btnDelete = itemView.findViewById<android.widget.ImageButton>(R.id.btn_delete)
 
         fun bind(item: RegexColorRule, position: Int) {
             tvRuleName.text = item.name
             tvRulePattern.text = item.pattern
-            viewColor.setBackgroundColor(item.color)
+            btnSelectColor.color = item.color or 0xFF000000.toInt()
+            btnSelectFont.setOnClickListener {
+                onFontClick?.invoke(position)
+            }
+            btnSelectColor.setOnClickListener {
+                onColorClick?.invoke(position)
+            }
             btnDelete.setOnClickListener {
                 onDeleteClick?.invoke(position)
             }

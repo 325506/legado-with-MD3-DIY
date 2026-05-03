@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="8dp"
-            android:text="正则表达式颜色"
+            android:text="正则表达式匹配设置"
             android:textSize="18sp"
             android:textStyle="bold" />
 

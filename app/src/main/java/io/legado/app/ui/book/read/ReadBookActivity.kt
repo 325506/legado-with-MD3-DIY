@@ -90,6 +90,8 @@ import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.TIP_HEADER_CO
 import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.TIP_FOOTER_COLOR
 import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.TIP_DIVIDER_COLOR
 import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.TITLE_COLOR
+import io.legado.app.ui.book.read.config.RegexColorConfigDialog
+import io.legado.app.ui.book.read.config.RegexColorConfigDialog.Companion.REGEX_RULE_COLOR
 import io.legado.app.ui.book.read.config.ToolButtonConfigDialog
 import io.legado.app.ui.book.read.config.UnderlineConfigDialog.Companion.U_COLOR
 import io.legado.app.ui.book.read.page.ContentTextView
@@ -1721,6 +1723,12 @@ class ReadBookActivity : BaseReadBookActivity(),
             TITLE_COLOR -> {
                 ReadBookConfig.titleColor = color
                 postEvent(EventBus.UP_CONFIG, arrayListOf(8, 5))
+            }
+
+            REGEX_RULE_COLOR -> {
+                supportFragmentManager.findFragmentByTag("regexColorConfig")?.let {
+                    (it as? RegexColorConfigDialog)?.onColorSelected(color)
+                }
             }
 
             B_COLOR -> {
