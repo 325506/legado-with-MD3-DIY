@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -321,7 +322,15 @@ fun MainScreen(
                                 },
                                 backdrop = floatingBarBackdrop,
                                 tabsCount = destinations.size,
-                                isBlurEnabled = useLiquidGlass
+                                isBlurEnabled = useLiquidGlass,
+                                hasCustomIcons = destinations.any { dest ->
+                                    when (dest) {
+                                        MainDestination.Bookshelf -> MainConfig.navIconBookshelf.isNotEmpty()
+                                        MainDestination.Explore -> MainConfig.navIconExplore.isNotEmpty()
+                                        MainDestination.Rss -> MainConfig.navIconRss.isNotEmpty()
+                                        MainDestination.My -> MainConfig.navIconMy.isNotEmpty()
+                                    }
+                                }
                             ) {
                                 destinations.forEachIndexed { index, destination ->
                                     val selected = pagerState.targetPage == index
@@ -516,13 +525,12 @@ private fun NavigationIcon(
             }.getOrNull()
         }
         if (bitmap != null) {
-            Icon(
+            Image(
                 painter = remember(bitmap) {
                     BitmapPainter(bitmap.asImageBitmap())
                 },
                 contentDescription = null,
-                modifier = modifier.size(40.dp),
-                tint = Color.Unspecified
+                modifier = modifier.size(40.dp)
             )
         } else {
             val icon = AppIcons.mainDestination(destination, selected)

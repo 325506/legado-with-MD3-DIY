@@ -111,6 +111,7 @@ fun FloatingBottomBar(
     backdrop: Backdrop,
     tabsCount: Int,
     isBlurEnabled: Boolean = true,
+    hasCustomIcons: Boolean = false,
     content: @Composable RowScope.() -> Unit
 ) {
     val isInLightTheme = !LegadoTheme.isDark
@@ -338,7 +339,10 @@ fun FloatingBottomBar(
                     )
                     .height(56.dp)
                     .padding(horizontal = 4.dp)
-                    .graphicsLayer(colorFilter = ColorFilter.tint(accentColor)),
+                    .then(
+                        if (hasCustomIcons) Modifier
+                        else Modifier.graphicsLayer(colorFilter = ColorFilter.tint(accentColor))
+                    ),
                 verticalAlignment = Alignment.CenterVertically,
                 content = content
             )
